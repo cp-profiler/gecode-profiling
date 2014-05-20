@@ -60,6 +60,17 @@ namespace Gecode { namespace Search { namespace Parallel {
    */
   void
   DFS::Worker::run(void) {
+    Connector connector;
+
+    pid = -1;
+    int alt = -1;
+    int kids = -1;
+
+    if (_wid != 0)
+      std::cerr << "in run method, thread: " << _wid << std::endl;
+
+    connector.connectToSocket();
+    std::cerr << "connected to socket! \n";
     // Peform initial delay, if not first worker
     if (this != engine().worker(0))
       Support::Thread::sleep(Config::initial_delay);
@@ -93,7 +104,13 @@ namespace Gecode { namespace Search { namespace Parallel {
           if (idle) {
             m.release();
             // Try to find new work
+            // if (_wid != 0)
+              // std::cerr << "stealing work, thread: " << _wid << std::endl;
             find();
+            // if (_wid != 0)
+              // std::cerr << "found work with parent: " << pid << " thread: " 
+              //           << _wid << std::endl;
+
           } else if (cur != NULL) {
             start();
             if (stop(engine().opt())) {
@@ -102,8 +119,24 @@ namespace Gecode { namespace Search { namespace Parallel {
               engine().stop();
             } else {
               node++;
+
+              /// **** !!!! MAXIM !!!! **** ///
+
+              if (path.entries() > 0) {
+                Path::Edge& edge = path.top();
+                pid = edge.pid();
+                alt = edge.alt();
+              }
+
+              /// **** !!!! MAXIM !!!! **** ///
+
+              // sleep(1);
+
               switch (cur->status(*this)) {
               case SS_FAILED:
+
+                connector.sendNode(_nid, pid, alt, 0, 1, (char)(wid()));
+
                 fail++;
                 delete cur;
                 cur = NULL;
@@ -111,6 +144,9 @@ namespace Gecode { namespace Search { namespace Parallel {
                 break;
               case SS_SOLVED:
                 {
+
+                  connector.sendNode(_nid, pid, alt, 0, 0, (char)wid());
+
                   // Deletes all pending branchers
                   (void) cur->choice();
                   Space* s = cur->clone(false);
@@ -130,7 +166,11 @@ namespace Gecode { namespace Search { namespace Parallel {
                     c = NULL;
                     d++;
                   }
-                  const Choice* ch = path.push(*this,cur,c);
+                  const Choice* ch = path.push(*this, _nid, cur,c);
+
+                  kids = ch->alternatives();
+                  connector.sendNode(_nid, pid, alt, kids, 2, (char)wid());
+
                   cur->commit(*ch,0);
                   m.release();
                 }
@@ -138,6 +178,8 @@ namespace Gecode { namespace Search { namespace Parallel {
               default:
                 GECODE_NEVER;
               }
+
+              _nid += engine().workers();
             }
           } else if (path.next()) {
             cur = path.recompute(d,engine().opt().a_d,*this);
@@ -213,6 +255,10 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Termination and deletion
    */
   DFS::~DFS(void) {
+    Connector connector;
+    std::cerr << "sending done...";
+    connector.connectToSocket();
+    connector.disconnectFromSocket();
     terminate();
     heap.rfree(_worker);
   }

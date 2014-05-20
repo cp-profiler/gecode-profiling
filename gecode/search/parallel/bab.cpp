@@ -135,7 +135,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                     c = NULL;
                     d++;
                   }
-                  const Choice* ch = path.push(*this,cur,c);
+                  const Choice* ch = path.push(*this, node, cur,c); // change node to _nid
                   cur->commit(*ch,0);
                   m.release();
                 }

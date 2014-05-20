@@ -40,6 +40,8 @@
 
 #include <gecode/search/parallel/engine.hh>
 
+#include <gecode/search/connector.hh>
+
 namespace Gecode { namespace Search { namespace Parallel {
 
   /// %Parallel depth-first search engine
@@ -49,7 +51,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     class Worker : public Engine::Worker {
     public:
       /// Initialize for space \a s with engine \a e
-      Worker(Space* s, DFS& e);
+      Worker(unsigned int wid, Space* s, DFS& e);
       /// Provide access to engine
       DFS& engine(void) const;
       /// Start execution of worker
@@ -104,19 +106,19 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Engine: initialization
    */
   forceinline
-  DFS::Worker::Worker(Space* s, DFS& e)
-    : Engine::Worker(s,e) {}
+  DFS::Worker::Worker(unsigned int wid, Space* s, DFS& e)
+    : Engine::Worker(wid, s, e) {}
   forceinline
   DFS::DFS(Space* s, const Options& o)
     : Engine(o) {
-    // Create workers
+    /// Open socket connection once for all workers ???
     _worker = static_cast<Worker**>
       (heap.ralloc(workers() * sizeof(Worker*)));
     // The first worker gets the entire search tree
-    _worker[0] = new Worker(s,*this);
+    _worker[0] = new Worker(0, s, *this);
     // All other workers start with no work
     for (unsigned int i=1; i<workers(); i++)
-      _worker[i] = new Worker(NULL,*this);
+      _worker[i] = new Worker(i, NULL, *this);
     // Block all workers
     block();
     // Create and start threads
@@ -166,7 +168,8 @@ namespace Gecode { namespace Search { namespace Parallel {
     // Try to find new work (even if there is none)
     for (unsigned int i=0; i<engine().workers(); i++) {
       unsigned long int r_d = 0ul;
-      if (Space* s = engine().worker(i)->steal(r_d)) {
+      if (Space* s = engine().worker(i)->steal(r_d, pid)) {
+        std::cerr << "FOUND: " << pid << std::endl;
         // Reset this guy
         m.acquire();
         idle = false;
@@ -174,7 +177,7 @@ namespace Gecode { namespace Search { namespace Parallel {
         path.ngdl(0);
         d = 0;
         cur = s;
-        Search::Worker::reset(r_d);
+        Search::Worker::reset(r_d, pid);
         m.release();
         return;
       }

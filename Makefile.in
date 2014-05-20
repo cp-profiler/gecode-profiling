@@ -245,7 +245,8 @@ SEARCHSRC0 = \
 	dfs parallel/dfs \
 	bab parallel/bab \
 	rbs meta/rbs \
-	meta/nogoods sequential/path parallel/path
+	meta/nogoods sequential/path parallel/path \
+	connector
 SEARCHHDR0 = \
 	statistics.hpp stop.hpp options.hpp cutoff.hpp \
 	support.hh worker.hh exception.hpp \
@@ -253,7 +254,8 @@ SEARCHHDR0 = \
 	parallel/path.hh parallel/engine.hh \
 	parallel/dfs.hh parallel/bab.hh \
 	meta/rbs.hh meta/nogoods.hh \
-	dfs.hpp bab.hpp rbs.hpp engine-base.hpp
+	dfs.hpp bab.hpp rbs.hpp engine-base.hpp \
+	connector.hh
 
 SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp)
 SEARCHHDR	= gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
@@ -1360,7 +1362,7 @@ $(KERNELDLL): $(KERNELOBJ) $(SUPPORTDLL)
 $(SEARCHDLL): $(SEARCHOBJ) $(SUPPORTDLL) $(KERNELDLL)
 	$(CXX) $(DLLFLAGS) $(SEARCHOBJ) $(SEARCHSONAME) \
 		@DLLPATH@ $(LINKSUPPORT) $(LINKKERNEL) \
-		@LINKOUTPUT@$(SEARCHDLL)
+		@LINKOUTPUT@$(SEARCHDLL) -lzmq
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOLINKSUFFIX))
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOSUFFIX))
 $(INTDLL): $(INTOBJ) $(SUPPORTDLL) $(KERNELDLL)
@@ -1636,7 +1638,7 @@ endif
 $(FLATZINCEXE): $(FLATZINCEXEOBJ) $(FLATZINCEXERES) $(ALLLIB)
 	$(CXX) @EXEOUTPUT@$@ $(FLATZINCEXEOBJ) $(FLATZINCEXERES) \
 	$(DLLPATH) $(CXXFLAGS) \
-	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) 
+	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lzmq 
 	$(FIXMANIFEST) $@.manifest
 	$(MANIFEST) -manifest $@.manifest -outputresource:$@\;1
 

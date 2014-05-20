@@ -35,15 +35,20 @@
  *
  */
 
-#ifndef __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
-#define __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
+  #ifndef __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
+  #define __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
 
-#include <gecode/search.hh>
-#include <gecode/search/support.hh>
-#include <gecode/search/worker.hh>
-#include <gecode/search/sequential/path.hh>
+  #include <gecode/search.hh>
+  #include <gecode/search/support.hh>
+  #include <gecode/search/worker.hh>
+  #include <gecode/search/sequential/path.hh>
 
-namespace Gecode { namespace Search { namespace Sequential {
+  #include <gecode/search/connector.hh>
+
+
+
+  namespace Gecode { namespace Search { namespace Sequential {
+
 
   /// Depth-first search engine implementation
   class DFS : public Worker {
@@ -56,6 +61,9 @@ namespace Gecode { namespace Search { namespace Sequential {
     Space* cur;
     /// Distance until next clone
     unsigned int d;
+    /// Socket handler
+    Connector connector;
+
   public:
     /// Initialize for space \a s with options \a o
     DFS(Space* s, const Options& o);
@@ -74,7 +82,8 @@ namespace Gecode { namespace Search { namespace Sequential {
   forceinline 
   DFS::DFS(Space* s, const Options& o)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
-    if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
+      connector.connectToSocket();
+    if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
       fail++;
       cur = NULL;
       if (!opt.clone)
@@ -104,20 +113,36 @@ namespace Gecode { namespace Search { namespace Sequential {
 
   forceinline Space*
   DFS::next(void) {
+    int pid = -1;
+    int alt = -1;
+    int kids = -1;
+    // need parent Id
+    // need alt
     start();
     while (true) {
       while (cur) {
         if (stop(opt))
           return NULL;
         node++;
+        if (node == 1) {
+          pid = -1;
+          alt = -1;
+        } else {
+          Path::Edge& edge = path.top();
+          pid = edge.pid();
+          alt = edge.alt();
+        }
+
         switch (cur->status(*this)) {
         case SS_FAILED:
+          connector.sendNode(node, pid, alt, 0, 1, 0);
           fail++;
           delete cur;
           cur = NULL;
           break;
         case SS_SOLVED:
           {
+            connector.sendNode(node, pid, alt, 0, 0, 0);
             // Deletes all pending branchers
             (void) cur->choice();
             Space* s = cur;
@@ -126,6 +151,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           }
         case SS_BRANCH:
           {
+            
             Space* c;
             if ((d == 0) || (d >= opt.c_d)) {
               c = cur->clone();
@@ -134,7 +160,9 @@ namespace Gecode { namespace Search { namespace Sequential {
               c = NULL;
               d++;
             }
-            const Choice* ch = path.push(*this,cur,c);
+            const Choice* ch = path.push(*this, node, cur, c);
+            kids = ch->alternatives();
+            connector.sendNode(node, pid, alt, kids, 2, 0);
             cur->commit(*ch,0);
             break;
           }
@@ -160,6 +188,7 @@ namespace Gecode { namespace Search { namespace Sequential {
   forceinline 
   DFS::~DFS(void) {
     delete cur;
+    connector.disconnectFromSocket();
     path.reset();
   }
 

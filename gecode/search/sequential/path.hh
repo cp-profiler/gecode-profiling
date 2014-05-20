@@ -66,6 +66,8 @@ namespace Gecode { namespace Search { namespace Sequential {
     protected:
       /// Space corresponding to this edge (might be NULL)
       Space* _space;
+      /// Node Id
+      unsigned int _pid;
       /// Current alternative
       unsigned int _alt;
       /// Choice
@@ -74,7 +76,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       /// Default constructor
       Edge(void);
       /// Edge for space \a s with clone \a c (possibly NULL)
-      Edge(Space* s, Space* c);
+      Edge(unsigned int pid, Space* s, Space* c);
       
       /// Return space for edge
       Space* space(void) const;
@@ -83,7 +85,9 @@ namespace Gecode { namespace Search { namespace Sequential {
       
       /// Return choice
       const Choice* choice(void) const;
-      
+
+      /// Return node Id
+      unsigned int pid(void) const;
       /// Return number for alternatives
       unsigned int alt(void) const;
       /// Return true number for alternatives (excluding lao optimization)
@@ -113,7 +117,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     /// Set no-good depth limit to \a l
     void ngdl(int l);
     /// Push space \a c (a clone of \a s or NULL)
-    const Choice* push(Worker& stat, Space* s, Space* c);
+    const Choice* push(Worker& stat, unsigned int pid, Space* s, Space* c);
     /// Generate path for next node and return whether a next node exists
     bool next(void);
     /// Provide access to topmost edge
@@ -148,8 +152,8 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::Edge::Edge(void) {}
 
   forceinline
-  Path::Edge::Edge(Space* s, Space* c)
-    : _space(c), _alt(0), _choice(s->choice()) {}
+  Path::Edge::Edge(unsigned int pid, Space* s, Space* c)
+    : _space(c), _pid(pid), _alt(0), _choice(s->choice()) {}
 
   forceinline Space*
   Path::Edge::space(void) const {
@@ -160,6 +164,10 @@ namespace Gecode { namespace Search { namespace Sequential {
     _space = s;
   }
 
+  forceinline unsigned int
+  Path::Edge::pid(void) const {
+    return _pid;
+  }
   forceinline unsigned int
   Path::Edge::alt(void) const {
     return _alt;
@@ -219,12 +227,12 @@ namespace Gecode { namespace Search { namespace Sequential {
   }
 
   forceinline const Choice*
-  Path::push(Worker& stat, Space* s, Space* c) {
+  Path::push(Worker& stat, unsigned int pid, Space* s, Space* c) {
     if (!ds.empty() && ds.top().lao()) {
       // Topmost stack entry was LAO -> reuse
       ds.pop().dispose();
     }
-    Edge sn(s,c);
+    Edge sn(pid,s,c);
     ds.push(sn);
     stat.stack_depth(static_cast<unsigned long int>(ds.entries()));
     return sn.choice();

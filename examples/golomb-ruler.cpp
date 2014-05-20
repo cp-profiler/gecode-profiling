@@ -136,7 +136,8 @@ main(int argc, char* argv[]) {
   opt.icl(ICL_BND);
   opt.parse(argc,argv);
   if (opt.size() > 0)
-    IntMinimizeScript::run<GolombRuler,BAB,SizeOptions>(opt);
+    // Script::run<GolombRuler, BAB,SizeOptions>(opt);
+    Script::run<GolombRuler,DFS,SizeOptions>(opt);
   return 0;
 }
 

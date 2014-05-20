@@ -51,6 +51,9 @@ namespace Gecode { namespace Search {
     bool _stopped;
     /// Depth of root node (for work stealing)
     unsigned long int root_depth;
+
+    /// parent node's identificator (for treeviewer)
+      unsigned int pid;
   public:
     /// Initialize
     Worker(void);
@@ -62,6 +65,10 @@ namespace Gecode { namespace Search {
     bool stopped(void) const;
     /// Reset statistics with root depth \a d
     void reset(unsigned long int d=0);
+
+    /// The same but specify parent id
+    void reset(unsigned long int d, unsigned int pid);
+
     /// Record stack depth \a d
     void stack_depth(unsigned long int d);
     /// Return steal depth
@@ -94,6 +101,15 @@ namespace Gecode { namespace Search {
 
   forceinline void
   Worker::reset(unsigned long int d) {
+    Statistics::reset();
+    root_depth = d;
+    if (depth < d)
+      depth = d;
+  }
+
+  forceinline void
+  Worker::reset(unsigned long int d, unsigned int _pid) {
+    pid = _pid;
     Statistics::reset();
     root_depth = d;
     if (depth < d)

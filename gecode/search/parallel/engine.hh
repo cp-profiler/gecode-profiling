@@ -63,17 +63,24 @@ namespace Gecode { namespace Search { namespace Parallel {
       unsigned int d;
       /// Whether the worker is idle
       bool idle;
+      /// Worker identificator
+      unsigned int _wid;
+      /// Current node identificator
+      unsigned int _nid;
+
     public:
       /// Initialize for space \a s with engine \a e
-      Worker(Space* s, Engine& e);
+      Worker(unsigned int wid, Space* s, Engine& e);
       /// Hand over some work (NULL if no work available)
-      Space* steal(unsigned long int& d);
+      Space* steal(unsigned long int& d, unsigned int& pid);
       /// Return statistics
       Statistics statistics(void);
       /// Provide access to engine
       Engine& engine(void) const;
       /// Return no-goods
       NoGoods& nogoods(void);
+      /// Return current worker's id
+      unsigned int wid(void) const;
       /// Destructor
       virtual ~Worker(void);
     };
@@ -201,10 +208,15 @@ namespace Gecode { namespace Search { namespace Parallel {
   Engine::Worker::engine(void) const {
     return _engine;
   }
+  forceinline unsigned int
+  Engine::Worker::wid(void) const {
+    return _wid;
+  }
   forceinline const Options&
   Engine::opt(void) const {
     return _opt;
   }
+  
   forceinline unsigned int
   Engine::workers(void) const {
     return static_cast<unsigned int>(opt().threads);
@@ -238,8 +250,8 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Engine: initialization
    */
   forceinline
-  Engine::Worker::Worker(Space* s, Engine& e)
-    : _engine(e), 
+  Engine::Worker::Worker(unsigned int wid, Space* s, Engine& e)
+    : _engine(e), _wid(wid), _nid(wid),
       path(s == NULL ? 0 : static_cast<int>(e.opt().nogoods_limit)), d(0), 
       idle(false) {
     if (s != NULL) {
@@ -393,7 +405,7 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Worker: finding and stealing working
    */
   forceinline Space*
-  Engine::Worker::steal(unsigned long int& d) {
+  Engine::Worker::steal(unsigned long int& d, unsigned int& pid) {
     /*
      * Make a quick check whether the worker might have work
      *
@@ -403,7 +415,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     if (!path.steal())
       return NULL;
     m.acquire();
-    Space* s = path.steal(*this,d);
+    Space* s = path.steal(*this, d, pid);
     m.release();
     // Tell that there will be one more busy worker
     if (s != NULL) 

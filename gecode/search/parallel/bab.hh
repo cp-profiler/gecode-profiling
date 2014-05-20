@@ -54,7 +54,7 @@ namespace Gecode { namespace Search { namespace Parallel {
       Space* best;
     public:
       /// Initialize for space \a s with engine \a e
-      Worker(Space* s, BAB& e);
+      Worker(unsigned int wid, Space* s, BAB& e);
       /// Provide access to engine
       BAB& engine(void) const;
       /// Start execution of worker
@@ -133,8 +133,8 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Engine: initialization
    */
   forceinline
-  BAB::Worker::Worker(Space* s, BAB& e)
-    : Engine::Worker(s,e), mark(0), best(NULL) {}
+  BAB::Worker::Worker(unsigned int wid, Space* s, BAB& e)
+    : Engine::Worker(wid, s, e), mark(0), best(NULL) {}
 
   forceinline
   BAB::BAB(Space* s, const Options& o)
@@ -143,10 +143,10 @@ namespace Gecode { namespace Search { namespace Parallel {
     _worker = static_cast<Worker**>
       (heap.ralloc(workers() * sizeof(Worker*)));
     // The first worker gets the entire search tree
-    _worker[0] = new Worker(s,*this);
+    _worker[0] = new Worker(0, s, *this);
     // All other workers start with no work
     for (unsigned int i=1; i<workers(); i++)
-      _worker[i] = new Worker(NULL,*this);
+      _worker[i] = new Worker(i, NULL, *this);
     // Block all workers
     block();
     // Create and start threads
@@ -203,7 +203,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     // Try to find new work (even if there is none)
     for (unsigned int i=0; i<engine().workers(); i++) {
       unsigned long int r_d = 0ul;
-      if (Space* s = engine().worker(i)->steal(r_d)) {
+      if (Space* s = engine().worker(i)->steal(r_d, pid)) {
         // Reset this guy
         m.acquire();
         idle = false;
