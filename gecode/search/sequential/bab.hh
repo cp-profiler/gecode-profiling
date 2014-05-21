@@ -127,7 +127,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         } else {
           Path::Edge& edge = path.top();
           pid = edge.pid();
-          alt = edge.alt();
+          alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
         }
         switch (cur->status(*this)) {
         case SS_FAILED:

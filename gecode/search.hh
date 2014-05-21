@@ -40,7 +40,9 @@
 #ifndef __GECODE_SEARCH_HH__
 #define __GECODE_SEARCH_HH__
 
+#include <algorithm>
 #include <gecode/kernel.hh>
+
 
 /*
  * Configure linking

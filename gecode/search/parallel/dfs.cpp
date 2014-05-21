@@ -125,7 +125,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               if (path.entries() > 0) {
                 Path::Edge& edge = path.top();
                 pid = edge.pid();
-                alt = edge.alt();
+                alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
               }
 
               /// **** !!!! MAXIM !!!! **** ///
