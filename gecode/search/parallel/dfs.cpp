@@ -60,7 +60,7 @@ namespace Gecode { namespace Search { namespace Parallel {
    */
   void
   DFS::Worker::run(void) {
-    Connector connector;
+    Connector connector(_wid);
 
     pid = -1;
     int alt = -1;
