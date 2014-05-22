@@ -45,6 +45,8 @@ void Connector::sendNode(int sid, int parent, int alt, int kids, int status, int
   // std::string filename = std::string("stream") + SSTR(thread) + std::string(".txt");
   // FILE *f = fopen(filename.c_str(), "a");
 
+  sleep(1);
+
   timespec ts;
 
   #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time

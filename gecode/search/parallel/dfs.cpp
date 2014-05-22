@@ -66,11 +66,9 @@ namespace Gecode { namespace Search { namespace Parallel {
     int alt = -1;
     int kids = -1;
 
-    if (_wid != 0)
-      std::cerr << "in run method, thread: " << _wid << std::endl;
-
     connector.connectToSocket();
     std::cerr << "connected to socket! \n";
+    
     // Peform initial delay, if not first worker
     if (this != engine().worker(0))
       Support::Thread::sleep(Config::initial_delay);
@@ -259,6 +257,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     std::cerr << "sending done...";
     connector.connectToSocket();
     connector.disconnectFromSocket();
+
     terminate();
     heap.rfree(_worker);
   }

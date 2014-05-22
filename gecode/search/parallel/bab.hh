@@ -39,6 +39,7 @@
 #define __GECODE_SEARCH_PARALLEL_BAB_HH__
 
 #include <gecode/search/parallel/engine.hh>
+#include <gecode/search/connector.hh>
 
 namespace Gecode { namespace Search { namespace Parallel {
 
@@ -214,7 +215,7 @@ namespace Gecode { namespace Search { namespace Parallel {
         mark = 0;
         if (best != NULL)
           cur->constrain(*best);
-        Search::Worker::reset(r_d);
+        Search::Worker::reset(r_d, pid);
         m.release();
         return;
       }

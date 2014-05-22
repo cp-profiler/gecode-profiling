@@ -39,7 +39,6 @@
 #define __GECODE_SEARCH_PARALLEL_DFS_HH__
 
 #include <gecode/search/parallel/engine.hh>
-
 #include <gecode/search/connector.hh>
 
 namespace Gecode { namespace Search { namespace Parallel {
@@ -169,7 +168,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     for (unsigned int i=0; i<engine().workers(); i++) {
       unsigned long int r_d = 0ul;
       if (Space* s = engine().worker(i)->steal(r_d, pid)) {
-        std::cerr << "FOUND: " << pid << std::endl;
+        // std::cerr << "FOUND: " << pid << std::endl;
         // Reset this guy
         m.acquire();
         idle = false;
