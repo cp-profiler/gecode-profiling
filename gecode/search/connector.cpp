@@ -1,5 +1,6 @@
 #include <gecode/search/connector.hh>
 #include <string>
+#include <unistd.h>
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids, int _status, char _thread) {
   type = NODE_DATA;
