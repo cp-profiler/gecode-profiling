@@ -45,7 +45,7 @@ void Connector::sendNode(int sid, int parent, int alt, int kids, int status, int
   // std::string filename = std::string("stream") + SSTR(thread) + std::string(".txt");
   // FILE *f = fopen(filename.c_str(), "a");
 
-  sleep(1);
+  usleep(100);
 
   timespec ts;
 
