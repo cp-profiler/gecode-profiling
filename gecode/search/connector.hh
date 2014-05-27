@@ -2,16 +2,10 @@
 #define CONNECTOR
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <zmq.hpp>
 #include <time.h>
 #include <sys/time.h>
-
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
                 ( std::ostringstream() << std::dec << x ) ).str()
@@ -29,9 +23,17 @@ struct Message {
   int kids;
   int status;
   char thread;
+  char label[16];
 
 
-  void specifyNode(int _sid, int _parent, int _alt, int _kids, int _status, char _thread);
+  Message(void);
+
+  void specifyNode(int _sid, int _parent, int _alt, int _kids,
+                   int _status, char* label, char _thread);
+
+  void specifyNode(int _sid, int _parent, int _alt, int _kids,
+                   int _status, char _thread);
+
 };
 
 class Connector {
@@ -47,7 +49,6 @@ class Connector {
 
   void sendOverSocket(Message &msg);
 
-  
 
 public:
 
@@ -62,6 +63,8 @@ public:
 
   void disconnectFromSocket();
 
+  void sendNode(int sid, int parent, int alt, int kids, int status, char* label, int thread);
+  
   void sendNode(int sid, int parent, int alt, int kids, int status, int thread);
 
 };
