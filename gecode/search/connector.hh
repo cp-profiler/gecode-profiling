@@ -16,6 +16,8 @@ enum MsgType {
 };
 
 struct Message {
+  static const int LABEL_SIZE = 16;
+
   MsgType type;
   int sid;
   int parent;
@@ -29,7 +31,7 @@ struct Message {
   Message(void);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
-                   int _status, char* label, char _thread);
+                   int _status, const char* label, char _thread);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
                    int _status, char _thread);
@@ -63,7 +65,7 @@ public:
 
   void disconnectFromSocket();
 
-  void sendNode(int sid, int parent, int alt, int kids, int status, char* label, int thread);
+  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, int thread);
   
   void sendNode(int sid, int parent, int alt, int kids, int status, int thread);
 

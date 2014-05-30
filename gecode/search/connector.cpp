@@ -7,7 +7,7 @@ Message::Message(void) {
 }
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, char* _label, char _thread) {
+                          int _status, const char* _label, char _thread) {
   std::memcpy(label, _label, 16);
   type = NODE_DATA;
   sid = _sid;
@@ -20,6 +20,7 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
                           int _status, char _thread) {
+  std::memcpy(label, "undefined", Message::LABEL_SIZE);
   type = NODE_DATA;
   sid = _sid;
   parent = _parent;
@@ -60,7 +61,7 @@ void Connector::sendOverSocket(Message &msg) {
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, char* label, int thread) {
+                         int status, const char* label, int thread) {
 
   data.specifyNode(sid, parent, alt, kids, status, label, thread);
   sendOverSocket(data);

@@ -116,14 +116,16 @@
     int pid = -1;
     int alt = -1;
     int kids = -1;
-    // need parent Id
-    // need alt
+    char label[Message::LABEL_SIZE];
+    
+
     start();
     while (true) {
       while (cur) {
         if (stop(opt))
           return NULL;
         node++;
+        std::ostringstream oss;
         if (node == 1) {
           pid = -1;
           alt = -1;
@@ -131,18 +133,19 @@
           Path::Edge& edge = path.top();
           pid = edge.pid();
           alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
+          cur->print(*edge.choice(), alt, oss);
         }
 
         switch (cur->status(*this)) {
         case SS_FAILED:
-          connector.sendNode(node, pid, alt, 0, 1, 0);
+          connector.sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0);
           fail++;
           delete cur;
           cur = NULL;
           break;
         case SS_SOLVED:
           {
-            connector.sendNode(node, pid, alt, 0, 0, 0);
+            connector.sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0);
             // Deletes all pending branchers
             (void) cur->choice();
             Space* s = cur;
@@ -162,7 +165,7 @@
             }
             const Choice* ch = path.push(*this, node, cur, c);
             kids = ch->alternatives();
-            connector.sendNode(node, pid, alt, kids, 2, 0);
+            connector.sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0);
             cur->commit(*ch,0);
             break;
           }
