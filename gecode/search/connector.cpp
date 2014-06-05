@@ -79,6 +79,10 @@ void Connector::sendNode(int sid, int parent, int alt, int kids,
 //             << " kids: " << kids << " status: " << status << std::endl;
 // }
 
+void Connector::restartGist() {
+  data.type = START_SENDING;
+  sendOverSocket(data);
+}
 
 void Connector::connectToSocket() {
   socket->connect("tcp://localhost:5555");

@@ -12,7 +12,8 @@
 
 enum MsgType {
       NODE_DATA = 1,
-      DONE_SENDING = 2
+      DONE_SENDING = 2,
+      START_SENDING = 3
 };
 
 struct Message {
@@ -62,6 +63,8 @@ public:
   // static Connector& obj(void);
 
   void connectToSocket();
+
+  void restartGist(); // sends START_SENDING message to Gist
 
   void disconnectFromSocket();
 
