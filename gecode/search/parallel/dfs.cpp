@@ -117,23 +117,21 @@ namespace Gecode { namespace Search { namespace Parallel {
               engine().stop();
             } else {
               node++;
-
-              /// **** !!!! MAXIM !!!! **** ///
+              std::ostringstream oss;
 
               if (path.entries() > 0) {
                 Path::Edge& edge = path.top();
                 pid = edge.pid();
                 alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
+                cur->print(*edge.choice(), alt, oss);
               }
-
-              /// **** !!!! MAXIM !!!! **** ///
 
               // sleep(1);
 
               switch (cur->status(*this)) {
               case SS_FAILED:
 
-                connector.sendNode(_nid, pid, alt, 0, 1, (char)(wid()));
+                connector.sendNode(_nid, pid, alt, 0, 1, oss.str().c_str(), (char)(wid()));
 
                 fail++;
                 delete cur;
@@ -143,7 +141,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.sendNode(_nid, pid, alt, 0, 0, (char)wid());
+                  connector.sendNode(_nid, pid, alt, 0, 0, oss.str().c_str(), (char)wid());
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -167,7 +165,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                   const Choice* ch = path.push(*this, _nid, cur,c);
 
                   kids = ch->alternatives();
-                  connector.sendNode(_nid, pid, alt, kids, 2, (char)wid());
+                  connector.sendNode(_nid, pid, alt, kids, 2, oss.str().c_str(), (char)wid());
 
                   cur->commit(*ch,0);
                   m.release();
