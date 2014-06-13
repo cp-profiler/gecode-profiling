@@ -61,6 +61,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   BAB::Worker::run(void) {
 
     Connector connector(_wid);
+    path.setConnector(&connector);
 
     pid = -1;
     int alt = -1;

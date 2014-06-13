@@ -63,12 +63,16 @@ void Connector::sendOverSocket(Message &msg) {
 void Connector::sendNode(int sid, int parent, int alt, int kids,
                          int status, const char* label, int thread) {
 
+  usleep(1000);
+
   data.specifyNode(sid, parent, alt, kids, status, label, thread);
   sendOverSocket(data);
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
                          int status, int thread) {
+
+  usleep(1000);
 
   data.specifyNode(sid, parent, alt, kids, status, thread);
   sendOverSocket(data);

@@ -43,6 +43,8 @@
 #include <gecode/search/worker.hh>
 #include <gecode/search/meta/nogoods.hh>
 
+#include <gecode/search/connector.hh>
+
 namespace Gecode { namespace Search { namespace Parallel {
 
   /**
@@ -111,6 +113,8 @@ namespace Gecode { namespace Search { namespace Parallel {
   protected:
     /// Stack to store edge information
     Support::DynamicStack<Edge,Heap> ds;
+    /// Pointer to the connector
+    Connector* connector;
     /// Depth limit for no-good generation
     int _ngdl;
     /// Number of edges that have work for stealing
@@ -118,6 +122,8 @@ namespace Gecode { namespace Search { namespace Parallel {
   public:
     /// Initialize with no-good depth limit \a l
     Path(int l);
+    /// Assignes the connector pointer; should be called before any data sent
+    void setConnector(Connector* c);
     /// Return no-good depth limit
     int ngdl(void) const;
     /// Set no-good depth limit to \a l
@@ -272,6 +278,11 @@ namespace Gecode { namespace Search { namespace Parallel {
     return false;
   }
 
+  forceinline void 
+  Path::setConnector(Connector* c) {
+    connector = c;
+  }
+
   forceinline Path::Edge&
   Path::top(void) const {
     assert(!ds.empty());
@@ -304,11 +315,22 @@ namespace Gecode { namespace Search { namespace Parallel {
 
   forceinline void
   Path::unwind(int l) {
+    std::cerr << "parallel unwind" << std::endl;
     assert((ds[l].space() == NULL) || ds[l].space()->failed());
     int n = ds.entries();
     for (int i=l; i<n; i++) {
       if (ds.top().work())
         n_work--;
+
+      Path::Edge& edge = ds.top();
+      int pid = edge.pid();
+      int n_alt = edge.choice()->alternatives();
+      int first_alt = edge.alt();
+      if (i!=l) first_alt++;
+      for (int j = first_alt; j < n_alt; j++) {
+        connector->sendNode(-1, pid, j, 0, 6, 0);
+      }
+
       ds.pop().dispose();
     }
     assert(ds.entries() == l);

@@ -56,6 +56,8 @@ namespace Gecode { namespace Search { namespace Sequential {
   /// Implementation of depth-first branch-and-bound search engine
   class BAB : public Worker {
   private:
+    /// Socket handler
+    Connector connector;
     /// Search options
     Options opt;
     /// Current path in search tree
@@ -68,8 +70,6 @@ namespace Gecode { namespace Search { namespace Sequential {
     int mark;
     /// Best solution found so far
     Space* best;
-    /// Socket handler
-    Connector connector;
   public:
     /// Initialize with space \a s and search options \a o
     BAB(Space* s, const Options& o);
@@ -117,6 +117,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     int alt = -1;
     int kids = -1;
     char label[Message::LABEL_SIZE];
+    path.setConnector(&connector);
     start();
     while (true) {
       while (cur) {
