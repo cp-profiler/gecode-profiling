@@ -78,13 +78,14 @@ void Connector::sendNode(int sid, int parent, int alt, int kids,
   sendOverSocket(data);
 }
 
-// void Connector::sendNode(int sid, int parent, int alt, int kids, int status) {
+// void Connector::sendNode(int sid, int parent, int alt, int kids, int status, int thread) {
 //   std::cout << "sid: " << sid << " parent: " << parent << " alt: " << alt
 //             << " kids: " << kids << " status: " << status << std::endl;
 // }
 
 void Connector::restartGist() {
   data.type = START_SENDING;
+  data.restart_id = -1;
   sendOverSocket(data);
 }
 

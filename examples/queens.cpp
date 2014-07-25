@@ -210,6 +210,7 @@ main(int argc, char* argv[]) {
 
   opt.parse(argc,argv);
   Script::run<Queens,DFS,SizeOptions>(opt);
+  Script::run<Queens,BAB,SizeOptions>(opt);
   return 0;
 }
 

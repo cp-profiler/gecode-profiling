@@ -25,6 +25,7 @@ struct Message {
   int alt;
   int kids;
   int status;
+  int restart_id;
   char thread;
   char label[16];
 
