@@ -61,31 +61,32 @@ void Connector::sendOverSocket(Message &msg) {
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, const char* label, int thread) {
+                         int status, const char* label, int thread, int restart) {
 
-  // usleep(1000);
+  data.restart_id = restart;
 
   data.specifyNode(sid, parent, alt, kids, status, label, thread);
+  // std::cerr << "Received node: \t" << sid << " " << parent << " "
+  //                   << alt << " " << kids << " " << status << " wid: "
+  //                   << (int)thread << " restart: " << restart << std::endl;
+
   sendOverSocket(data);
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, int thread) {
+                         int status, int thread, int restart) {
 
   // usleep(1000);
+  data.restart_id = restart;
 
   data.specifyNode(sid, parent, alt, kids, status, thread);
   sendOverSocket(data);
 }
 
-// void Connector::sendNode(int sid, int parent, int alt, int kids, int status, int thread) {
-//   std::cout << "sid: " << sid << " parent: " << parent << " alt: " << alt
-//             << " kids: " << kids << " status: " << status << std::endl;
-// }
-
-void Connector::restartGist() {
+void Connector::restartGist(int restart_id) {
+  std::cerr << "restarting gist, restart_id: " << restart_id << "\n";
   data.type = START_SENDING;
-  data.restart_id = -1;
+  data.restart_id = restart_id;
   sendOverSocket(data);
 }
 
