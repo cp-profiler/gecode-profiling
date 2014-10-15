@@ -67,7 +67,7 @@ namespace Gecode {
     } else {
       master = s;
     }
-    E<T> engine(dynamic_cast<T*>(master),e_opt);
+    E<T> engine(dynamic_cast<T*>(master), e_opt, true);
     EngineBase* eb = &engine;
     Search::Engine* ee = eb->e;
     eb->e = NULL;

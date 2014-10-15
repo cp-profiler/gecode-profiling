@@ -86,7 +86,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     /// \name Engine interface
     //@{
     /// Initialize for space \a s with options \a o
-    BAB(Space* s, const Options& o);
+    BAB(Space* s, const Options& o, bool isRestart = 0);
     /// Return statistics
     virtual Statistics statistics(void) const;
     /// Reset engine to restart at space \a s
@@ -138,7 +138,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     : Engine::Worker(wid, s, e), mark(0), best(NULL) {}
 
   forceinline
-  BAB::BAB(Space* s, const Options& o)
+  BAB::BAB(Space* s, const Options& o, bool isRestart)
     : Engine(o), best(NULL) {
     // Create workers
     _worker = static_cast<Worker**>

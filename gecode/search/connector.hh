@@ -11,9 +11,9 @@
                 ( std::ostringstream() << std::dec << x ) ).str()
 
 enum MsgType {
-      NODE_DATA = 1,
-      DONE_SENDING = 2,
-      START_SENDING = 3
+  NODE_DATA = 1,
+  DONE_SENDING = 2,
+  START_SENDING = 3
 };
 
 struct Message {
@@ -65,13 +65,13 @@ public:
 
   void connectToSocket();
 
-  void restartGist(); // sends START_SENDING message to Gist
+  void restartGist(int restart_id); // sends START_SENDING message to Gist
 
   void disconnectFromSocket();
 
-  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, int thread);
+  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, int thread, int restart = 0);
   
-  void sendNode(int sid, int parent, int alt, int kids, int status, int thread);
+  void sendNode(int sid, int parent, int alt, int kids, int status, int thread, int restart = -1);
 
 };
 

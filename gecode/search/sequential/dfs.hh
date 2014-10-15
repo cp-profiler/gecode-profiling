@@ -66,7 +66,8 @@
 
   public:
     /// Initialize for space \a s with options \a o
-    DFS(Space* s, const Options& o);
+    /// isRestarts = true if running -restart option
+    DFS(Space* s, const Options& o, bool isRestart = false);
     /// %Search for next solution
     Space* next(void);
     /// Return statistics
@@ -80,10 +81,10 @@
   };
 
   forceinline 
-  DFS::DFS(Space* s, const Options& o)
+  DFS::DFS(Space* s, const Options& o, bool isRestart)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
       connector.connectToSocket();
-      connector.restartGist();
+      connector.restartGist(0);
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
       fail++;
       cur = NULL;

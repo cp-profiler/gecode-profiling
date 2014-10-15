@@ -204,12 +204,12 @@ namespace Gecode { namespace Gist {
   }
 
   inline int
-  dfs(Space* root, const Gist::Options& opt) {
+  dfs(Space* root, const Gist::Options& opt, bool isRestart) {
     return explore(root, false, opt);
   }
 
   inline int
-  bab(Space* root, const Gist::Options& opt) {
+  bab(Space* root, const Gist::Options& opt, bool isRestart) {
     return Gist::explore(root, true, opt);
   }
 
