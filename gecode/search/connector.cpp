@@ -63,6 +63,17 @@ void Connector::sendOverSocket(Message &msg) {
 void Connector::sendNode(int sid, int parent, int alt, int kids,
                          int status, const char* label, int thread, int restart) {
 
+  long ns;
+  time_t s;
+  struct timespec spec;
+
+  clock_gettime(CLOCK_REALTIME, &spec);
+
+  ns = spec.tv_nsec;
+  s = spec.tv_sec;
+
+  std::cout << "time, ns: " << s << " " << ns << std::endl;
+
   data.restart_id = restart;
 
   data.specifyNode(sid, parent, alt, kids, status, label, thread);

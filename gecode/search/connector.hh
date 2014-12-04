@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <zmq.hpp>
-#include <time.h>
+#include <ctime>
 #include <sys/time.h>
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
