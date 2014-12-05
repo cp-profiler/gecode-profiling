@@ -31,11 +31,13 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
 }
 
 Connector::Connector(char tid) : _thread_id(tid) {
+  begin_time = system_clock::now();
   context = new zmq::context_t(1);
   socket = new zmq::socket_t(*context, ZMQ_PUSH);
 }
 
 Connector::Connector() {
+  begin_time = system_clock::now();
   context = new zmq::context_t(1);
   socket = new zmq::socket_t(*context, ZMQ_PUSH);
 }
@@ -63,16 +65,11 @@ void Connector::sendOverSocket(Message &msg) {
 void Connector::sendNode(int sid, int parent, int alt, int kids,
                          int status, const char* label, int thread, int restart) {
 
-  long ns;
-  time_t s;
-  struct timespec spec;
+  
 
-  clock_gettime(CLOCK_REALTIME, &spec);
+  current_time = system_clock::now();
 
-  ns = spec.tv_nsec;
-  s = spec.tv_sec;
-
-  std::cout << "time, ns: " << s << " " << ns << std::endl;
+  std::cout << "time, us : " << duration_cast<microseconds>(current_time - begin_time).count() << std::endl;
 
   data.restart_id = restart;
 

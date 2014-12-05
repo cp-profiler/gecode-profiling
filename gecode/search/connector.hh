@@ -2,13 +2,14 @@
 #define CONNECTOR
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <zmq.hpp>
 #include <ctime>
-#include <sys/time.h>
+#include <chrono>
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-                ( std::ostringstream() << std::dec << x ) ).str()
+using namespace std::chrono;
+
 
 enum MsgType {
   NODE_DATA = 1,
@@ -42,7 +43,7 @@ struct Message {
 
 class Connector {
 
-  // static Connector* inst;
+private:
 
   Message data;
   zmq::context_t* context;
@@ -50,6 +51,9 @@ class Connector {
   std::ofstream* ofs;
 
   char _thread_id;
+
+  system_clock::time_point begin_time; 
+  system_clock::time_point current_time; 
 
   void sendOverSocket(Message &msg);
 
