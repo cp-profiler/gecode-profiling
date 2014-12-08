@@ -7,19 +7,21 @@ Message::Message(void) {
 }
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, const char* _label, char _thread) {
-  std::memcpy(label, _label, 16);
+                          int _status, const char* _label, char _thread,
+                          unsigned long long _time) {
+  std::memcpy(label, _label, Message::LABEL_SIZE);
   type = NODE_DATA;
   sid = _sid;
   parent = _parent;
   alt = _alt;
   kids = _kids;
   status = _status;
+  time = _time;
   thread = _thread;
 }
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, char _thread) {
+                          int _status, char _thread, unsigned long long _time) {
   std::memcpy(label, "undefined", Message::LABEL_SIZE);
   type = NODE_DATA;
   sid = _sid;
@@ -27,6 +29,7 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
   alt = _alt;
   kids = _kids;
   status = _status;
+  time = _time;
   thread = _thread;
 }
 
@@ -63,17 +66,15 @@ void Connector::sendOverSocket(Message &msg) {
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, const char* label, int thread, int restart) {
-
-  
+                         int status, const char* label, char thread, int restart) {
 
   current_time = system_clock::now();
 
-  std::cout << "time, us : " << duration_cast<microseconds>(current_time - begin_time).count() << std::endl;
+  unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
 
   data.restart_id = restart;
 
-  data.specifyNode(sid, parent, alt, kids, status, label, thread);
+  data.specifyNode(sid, parent, alt, kids, status, label, thread, timestamp);
   // std::cerr << "Received node: \t" << sid << " " << parent << " "
   //                   << alt << " " << kids << " " << status << " wid: "
   //                   << (int)thread << " restart: " << restart << std::endl;
@@ -82,12 +83,17 @@ void Connector::sendNode(int sid, int parent, int alt, int kids,
 }
 
 void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, int thread, int restart) {
+                         int status, char thread, int restart) {
+
+  current_time = system_clock::now();
+
+  unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
+
 
   // usleep(1000);
   data.restart_id = restart;
 
-  data.specifyNode(sid, parent, alt, kids, status, thread);
+  data.specifyNode(sid, parent, alt, kids, status, thread, timestamp);
   sendOverSocket(data);
 }
 
