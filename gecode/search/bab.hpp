@@ -43,13 +43,13 @@ namespace Gecode {
 
   namespace Search {
     /// Create branch and bound engine
-    GECODE_SEARCH_EXPORT Engine* bab(Space* s, const Options& o);
+    GECODE_SEARCH_EXPORT Engine* bab(Space* s, const Options& o, bool isRestart = false);
   }
 
   template<class T>
   forceinline
-  BAB<T>::BAB(T* s, const Search::Options& o)
-    : EngineBase(Search::bab(s,o)) {}
+  BAB<T>::BAB(T* s, const Search::Options& o, bool isRestart)
+    : EngineBase(Search::bab(s,o, isRestart)) {}
 
   template<class T>
   forceinline T*
@@ -78,8 +78,8 @@ namespace Gecode {
 
   template<class T>
   T*
-  bab(T* s, const Search::Options& o) {
-    BAB<T> b(s,o);
+  bab(T* s, const Search::Options& o, bool isRestart) {
+    BAB<T> b(s,o, isRestart);
     T* l = NULL;
     while (T* n = b.next()) {
       delete l; l = n;

@@ -491,7 +491,7 @@ namespace Gecode {
   class DFS : public EngineBase {
   public:
     /// Initialize search engine for space \a s with options \a o
-    DFS(T* s, const Search::Options& o=Search::Options::def);
+    DFS(T* s, const Search::Options& o=Search::Options::def, bool isRestart = 0);
     /// Return next solution (NULL, if none exists or search has been stopped)
     T* next(void);
     /// Return statistics
@@ -504,7 +504,7 @@ namespace Gecode {
 
   /// Invoke depth-first search engine for subclass \a T of space \a s with options \a o
   template<class T>
-  T* dfs(T* s, const Search::Options& o=Search::Options::def);
+  T* dfs(T* s, const Search::Options& o=Search::Options::def, bool isRestart = 0);
 
 }
 
@@ -527,7 +527,7 @@ namespace Gecode {
   class BAB : public EngineBase {
   public:
     /// Initialize engine for space \a s and options \a o
-    BAB(T* s, const Search::Options& o=Search::Options::def);
+    BAB(T* s, const Search::Options& o=Search::Options::def, bool isRestart = 0);
     /// Return next better solution (NULL, if none exists or search has been stopped)
     T* next(void);
     /// Return statistics
@@ -551,7 +551,7 @@ namespace Gecode {
    * \ingroup TaskModelSearch
    */
   template<class T>
-  T* bab(T* s, const Search::Options& o=Search::Options::def);
+  T* bab(T* s, const Search::Options& o=Search::Options::def, bool isRestart = 0);
 
 }
 

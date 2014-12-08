@@ -2,18 +2,19 @@
 #define CONNECTOR
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <zmq.hpp>
-#include <time.h>
-#include <sys/time.h>
+#include <ctime>
+#include <chrono>
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-                ( std::ostringstream() << std::dec << x ) ).str()
+using namespace std::chrono;
+
 
 enum MsgType {
-      NODE_DATA = 1,
-      DONE_SENDING = 2,
-      START_SENDING = 3
+  NODE_DATA = 1,
+  DONE_SENDING = 2,
+  START_SENDING = 3
 };
 
 struct Message {
@@ -26,23 +27,26 @@ struct Message {
   int kids;
   int status;
   int restart_id;
+  unsigned long long time;
   char thread;
-  char label[16];
+  char label[LABEL_SIZE];
 
 
   Message(void);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
-                   int _status, const char* label, char _thread);
+                   int _status, const char* label, char _thread,
+                   unsigned long long _time);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
-                   int _status, char _thread);
+                   int _status, char _thread,
+                   unsigned long long _time);
 
 };
 
 class Connector {
 
-  // static Connector* inst;
+private:
 
   Message data;
   zmq::context_t* context;
@@ -50,6 +54,9 @@ class Connector {
   std::ofstream* ofs;
 
   char _thread_id;
+
+  system_clock::time_point begin_time; 
+  system_clock::time_point current_time; 
 
   void sendOverSocket(Message &msg);
 
@@ -69,9 +76,10 @@ public:
 
   void disconnectFromSocket();
 
-  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, int thread, int restart = 0);
+  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = 0);
   
-  void sendNode(int sid, int parent, int alt, int kids, int status, int thread, int restart = -1);
+  void sendNode(int sid, int parent, int alt, int kids, int status, char thread, int restart = -1);
+
 
 };
 

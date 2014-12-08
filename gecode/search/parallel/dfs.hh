@@ -75,7 +75,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     /// \name Engine interface
     //@{
     /// Initialize for space \a s with options \a o
-    DFS(Space* s, const Options& o);
+    DFS(Space* s, const Options& o, bool isRestart = false);
     /// Return statistics
     virtual Statistics statistics(void) const;
     /// Reset engine to restart at space \a s
@@ -108,7 +108,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   DFS::Worker::Worker(unsigned int wid, Space* s, DFS& e)
     : Engine::Worker(wid, s, e) {}
   forceinline
-  DFS::DFS(Space* s, const Options& o)
+  DFS::DFS(Space* s, const Options& o, bool isRestart)
     : Engine(o) {
     /// Open socket connection once for all workers ???
     _worker = static_cast<Worker**>

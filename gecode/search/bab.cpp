@@ -45,11 +45,12 @@
 namespace Gecode { namespace Search {
     
   Engine* 
-  bab(Space* s, const Options& o) {
+  bab(Space* s, const Options& o, bool isRestarts) {
 #ifdef GECODE_HAS_THREADS
     Options to = o.expand();
     if (to.threads == 1.0)
-      return new WorkerToEngine<Sequential::BAB>(s,to);
+      // return new WorkerToEngine<Sequential::BAB>(s,to);
+      return new WorkerToEngine<Sequential::BAB>(s,to, isRestarts);
     else
       return new Parallel::BAB(s,to);
 #else

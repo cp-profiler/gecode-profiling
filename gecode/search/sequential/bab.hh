@@ -72,7 +72,8 @@ namespace Gecode { namespace Search { namespace Sequential {
     Space* best;
   public:
     /// Initialize with space \a s and search options \a o
-    BAB(Space* s, const Options& o);
+    /// isRestarts = true if running -restart option
+    BAB(Space* s, const Options& o, bool isRestarts = false);
     /// %Search for next better solution
     Space* next(void);
     /// Return statistics
@@ -86,11 +87,19 @@ namespace Gecode { namespace Search { namespace Sequential {
   };
 
   forceinline 
-  BAB::BAB(Space* s, const Options& o)
+  BAB::BAB(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), 
       d(0), mark(0), best(NULL) {
     connector.connectToSocket();
-    connector.restartGist(-1);
+// <<<<<<< HEAD
+//     connector.restartGist(-1);
+// =======
+
+    if (isRestarts)
+      connector.restartGist(0);
+    else
+      connector.restartGist(-1);
+
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
       fail++;
       cur = NULL;

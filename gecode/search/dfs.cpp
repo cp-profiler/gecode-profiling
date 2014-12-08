@@ -45,7 +45,7 @@
 namespace Gecode { namespace Search {
 
   Engine* 
-  dfs(Space* s, const Options& o) {
+  dfs(Space* s, const Options& o, bool isRestart) {
 #ifdef GECODE_HAS_THREADS
     Options to = o.expand();
     if (to.threads == 1.0)

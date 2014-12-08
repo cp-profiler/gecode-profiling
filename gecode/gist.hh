@@ -285,14 +285,14 @@ namespace Gecode {
      * \ingroup TaskGist
      */
     int 
-    dfs(Space* root, const Gist::Options& opt = Gist::Options::def);
+    dfs(Space* root, const Gist::Options& opt = Gist::Options::def, bool isRestart = false);
     
     /**
      * \brief Create a new stand-alone Gist for branch-and-bound search of \a root
      * \ingroup TaskGist
      */
     int 
-    bab(Space* root, const Gist::Options& opt = Gist::Options::def);
+    bab(Space* root, const Gist::Options& opt = Gist::Options::def, bool isRestart = false);
     
   }	
 
