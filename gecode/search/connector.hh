@@ -76,7 +76,7 @@ public:
 
   void disconnectFromSocket();
 
-  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = 0);
+  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = -1);
   
   void sendNode(int sid, int parent, int alt, int kids, int status, char thread, int restart = -1);
 

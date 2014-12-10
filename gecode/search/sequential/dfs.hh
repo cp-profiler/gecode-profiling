@@ -84,10 +84,8 @@
   DFS::DFS(Space* s, const Options& o, bool isRestart)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
       connector.connectToSocket();
-// <<<<<<< HEAD
-//       connector.restartGist(-1);
-// =======
-      connector.restartGist(0);
+      
+      connector.restartGist(-1);
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
       fail++;
