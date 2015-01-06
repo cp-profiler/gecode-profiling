@@ -40,6 +40,7 @@
 
 namespace Gecode { namespace Search { namespace Meta {
 
+  /// next solution
   Space*
   RBS::next(void) {
     while (true) {
@@ -102,7 +103,7 @@ namespace Gecode { namespace Search { namespace Meta {
   }
   
   void
-  RBS::reset(Space*) { 
+  RBS::reset(Space*) {
   }
   
   NoGoods RBS::eng;

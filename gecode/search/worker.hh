@@ -51,9 +51,10 @@ namespace Gecode { namespace Search {
     bool _stopped;
     /// Depth of root node (for work stealing)
     unsigned long int root_depth;
-
     /// parent node's identificator (for treeviewer)
-      unsigned int pid;
+    unsigned int pid;
+    /// restart counter
+    int restart;
   public:
     /// Initialize
     Worker(void);
@@ -79,7 +80,7 @@ namespace Gecode { namespace Search {
 
   forceinline
   Worker::Worker(void)
-    : _stopped(false), root_depth(0) {}
+    : _stopped(false), root_depth(0), restart(0) {}
 
   forceinline void
   Worker::start(void) {

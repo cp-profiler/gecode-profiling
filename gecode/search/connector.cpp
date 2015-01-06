@@ -104,7 +104,7 @@ void Connector::restartGist(int restart_id) {
 
 void Connector::connectToSocket() {
   socket->connect("tcp://localhost:6565");
-  std::cout << "sending over port: 6565";
+  std::cout << "sending over port: 6565\n";
 }
 
 void Connector::disconnectFromSocket() {

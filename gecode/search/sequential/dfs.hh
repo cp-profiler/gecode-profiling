@@ -67,7 +67,7 @@
   public:
     /// Initialize for space \a s with options \a o
     /// isRestarts = true if running -restart option
-    DFS(Space* s, const Options& o, bool isRestart = false);
+    DFS(Space* s, const Options& o, bool isRestarts = false);
     /// %Search for next solution
     Space* next(void);
     /// Return statistics
@@ -81,11 +81,15 @@
   };
 
   forceinline 
-  DFS::DFS(Space* s, const Options& o, bool isRestart)
+  DFS::DFS(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
       connector.connectToSocket();
+      std::cout << "DFS\n";
       
-      connector.restartGist(-1);
+      if (isRestarts)
+        connector.restartGist(0);
+      else
+        connector.restartGist(-1);
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
       fail++;
@@ -99,6 +103,7 @@
 
   forceinline void
   DFS::reset(Space* s) {
+    restart++;
     delete cur;
     path.reset();
     d = 0;
@@ -142,14 +147,14 @@
 
         switch (cur->status(*this)) {
         case SS_FAILED:
-          connector.sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0);
+          connector.sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart);
           fail++;
           delete cur;
           cur = NULL;
           break;
         case SS_SOLVED:
           {
-            connector.sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0);
+            connector.sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart);
             // Deletes all pending branchers
             (void) cur->choice();
             Space* s = cur;
@@ -169,7 +174,7 @@
             }
             const Choice* ch = path.push(*this, node, cur, c);
             kids = ch->alternatives();
-            connector.sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0);
+            connector.sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart);
             cur->commit(*ch,0);
             break;
           }
