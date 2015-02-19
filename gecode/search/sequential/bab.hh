@@ -153,7 +153,6 @@ namespace Gecode { namespace Search { namespace Sequential {
           break;
         case SS_SOLVED:
           connector.sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart);
-          // connector.sendNode(node, pid, alt, 0, 0, 0);
           // Deletes all pending branchers
           (void) cur->choice();
           delete best;

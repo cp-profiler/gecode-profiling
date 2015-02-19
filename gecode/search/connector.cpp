@@ -9,7 +9,7 @@ Message::Message(void) {
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
                           int _status, const char* _label, char _thread,
                           unsigned long long _time) {
-  std::memcpy(label, _label, Message::LABEL_SIZE);
+  std::memcpy(label, _label, Message::LABEL_SIZE - 1);
   type = NODE_DATA;
   sid = _sid;
   parent = _parent;
@@ -22,7 +22,7 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
                           int _status, char _thread, unsigned long long _time) {
-  std::memcpy(label, "undefined", Message::LABEL_SIZE);
+  std::memcpy(label, "undefined", Message::LABEL_SIZE - 1);
   type = NODE_DATA;
   sid = _sid;
   parent = _parent;
