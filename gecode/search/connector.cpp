@@ -40,7 +40,6 @@ Connector::Connector(char tid) : _thread_id(tid) {
 }
 
 Connector::Connector() {
-  begin_time = system_clock::now();
   context = new zmq::context_t(1);
   socket = new zmq::socket_t(*context, ZMQ_PUSH);
 }
@@ -104,6 +103,7 @@ void Connector::restartGist(int restart_id) {
 
 void Connector::connectToSocket() {
   socket->connect("tcp://localhost:6565");
+  begin_time = system_clock::now();
   std::cout << "sending over port: 6565\n";
 }
 
