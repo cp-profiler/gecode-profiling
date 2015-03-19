@@ -130,7 +130,8 @@ namespace Gecode { namespace Search { namespace Parallel {
               switch (cur->status(*this)) {
               case SS_FAILED:
 
-                connector.sendNode(_nid, pid, alt, 0, 1, oss.str().c_str(), (char)(wid()));
+                connector.sendNode(_nid, pid, alt, 0, 1, oss.str().c_str(), (char)(wid()),
+                                    cur->getDomainSize());
 
                 fail++;
                 delete cur;
@@ -140,7 +141,8 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.sendNode(_nid, pid, alt, 0, 0, oss.str().c_str(), (char)wid());
+                  connector.sendNode(_nid, pid, alt, 0, 0, oss.str().c_str(), (char)wid(),
+                                      cur->getDomainSize());
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -164,7 +166,8 @@ namespace Gecode { namespace Search { namespace Parallel {
                   const Choice* ch = path.push(*this, _nid, cur,c); // change node to _nid
 
                   kids = ch->alternatives();
-                  connector.sendNode(_nid, pid, alt, kids, 2, oss.str().c_str(), (char)wid());
+                  connector.sendNode(_nid, pid, alt, kids, 2, oss.str().c_str(), (char)wid(),
+                                      cur->getDomainSize());
 
                   cur->commit(*ch,0);
                   m.release();

@@ -8,7 +8,7 @@ Message::Message(void) {
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
                           int _status, const char* _label, char _thread,
-                          unsigned long long _time) {
+                          unsigned long long _time, float _domain) {
   std::memcpy(label, _label, Message::LABEL_SIZE - 1);
   type = NODE_DATA;
   sid = _sid;
@@ -18,10 +18,12 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
   status = _status;
   time = _time;
   thread = _thread;
+  domain = _domain;
 }
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, char _thread, unsigned long long _time) {
+                          int _status, char _thread, unsigned long long _time,
+                          float _domain) {
   std::memcpy(label, "undefined", Message::LABEL_SIZE - 1);
   type = NODE_DATA;
   sid = _sid;
@@ -31,6 +33,7 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
   status = _status;
   time = _time;
   thread = _thread;
+  domain = _domain;
 }
 
 Connector::Connector(char tid) : _thread_id(tid) {
@@ -64,8 +67,16 @@ void Connector::sendOverSocket(Message &msg) {
     std::cerr << "error while sending over socket\n";
 }
 
-void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, const char* label, char thread, int restart) {
+void Connector::sendNode(int sid,
+                         int parent,
+                         int alt,
+                         int kids,
+                         int status,
+                         const char* label,
+                         char thread,
+                         int restart,
+                         float domain
+) {
 
   current_time = system_clock::now();
 
@@ -73,15 +84,24 @@ void Connector::sendNode(int sid, int parent, int alt, int kids,
 
   data.restart_id = restart;
 
-  data.specifyNode(sid, parent, alt, kids, status, label, thread, timestamp);
+  // std::cout << domain << std::endl;
+
+  data.specifyNode(sid, parent, alt, kids, status, label, thread, timestamp, domain);
   // std::cerr << "Received node: \t" << sid << " " << parent << " "
   //                   << alt << " " << kids << " " << status << " wid: "
   //                   << (int)thread << " restart: " << restart << std::endl;
   sendOverSocket(data);
 }
 
-void Connector::sendNode(int sid, int parent, int alt, int kids,
-                         int status, char thread, int restart) {
+void Connector::sendNode(int sid,
+                         int parent,
+                         int alt,
+                         int kids,
+                         int status,
+                         char thread,
+                         int restart,
+                         float domain
+) {
 
   current_time = system_clock::now();
 
@@ -90,7 +110,9 @@ void Connector::sendNode(int sid, int parent, int alt, int kids,
   // usleep(1000);
   data.restart_id = restart;
 
-  data.specifyNode(sid, parent, alt, kids, status, thread, timestamp);
+  data.specifyNode(sid, parent, alt, kids, status, thread, timestamp, domain);
+
+  // std::cout << domain << std::endl;
   sendOverSocket(data);
 }
 

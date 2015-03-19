@@ -49,6 +49,7 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <cmath>
 using namespace std;
 
 namespace Gecode { namespace FlatZinc {
@@ -1892,9 +1893,14 @@ namespace Gecode { namespace FlatZinc {
     return ICL_DEF;
   }
 
-  int
+  float
   FlatZincSpace::getDomainSize(void) const {
-    return -2;
+    float log_size = 0;
+
+    for (int i = 0; i < iv.size(); i++)
+      log_size += log(iv[i].size());
+
+    return log_size;
   }
 
 

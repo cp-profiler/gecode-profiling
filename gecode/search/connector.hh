@@ -30,17 +30,18 @@ struct Message {
   unsigned long long time;
   char thread;
   char label[LABEL_SIZE];
+  float domain;
 
 
   Message(void);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
                    int _status, const char* label, char _thread,
-                   unsigned long long _time);
+                   unsigned long long _time, float domain);
 
   void specifyNode(int _sid, int _parent, int _alt, int _kids,
                    int _status, char _thread,
-                   unsigned long long _time);
+                   unsigned long long _time, float domain);
 
 };
 
@@ -76,9 +77,9 @@ public:
 
   void disconnectFromSocket();
 
-  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = -1);
+  void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = -1, float domain = -1);
   
-  void sendNode(int sid, int parent, int alt, int kids, int status, char thread, int restart = -1);
+  void sendNode(int sid, int parent, int alt, int kids, int status, char thread, int restart = -1, float domain = -1);
 
 
 };

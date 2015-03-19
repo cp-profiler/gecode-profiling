@@ -1963,7 +1963,7 @@ namespace Gecode {
      */
 
 
-    virtual int getDomainSize(void) const;
+    virtual float getDomainSize(void) const;
 
 
     GECODE_KERNEL_EXPORT unsigned int propagators(void) const;
@@ -3381,7 +3381,7 @@ namespace Gecode {
             (pc.p.active > &pc.p.queue[PropCost::AC_MAX+1]));
   }
 
-  forceinline int
+  forceinline float
   Space::getDomainSize(void) const {
     return -1;
   }

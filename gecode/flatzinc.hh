@@ -474,7 +474,7 @@ namespace Gecode { namespace FlatZinc {
     void compare(const FlatZincSpace& s, std::ostream& out,
                  const Printer& p) const;
 
-    int getDomainSize(void) const;
+    float getDomainSize(void) const;
 
     /**
      * \brief Remove all variables not needed for output
