@@ -1961,6 +1961,11 @@ namespace Gecode {
      * Note that this function takes linear time in the number of
      * propagators.
      */
+
+
+    virtual int getDomainSize(void) const;
+
+
     GECODE_KERNEL_EXPORT unsigned int propagators(void) const;
     /**
      * \brief Return number of branchers
@@ -3374,6 +3379,11 @@ namespace Gecode {
   Space::stable(void) const {
     return ((pc.p.active < &pc.p.queue[0]) ||
             (pc.p.active > &pc.p.queue[PropCost::AC_MAX+1]));
+  }
+
+  forceinline int
+  Space::getDomainSize(void) const {
+    return -1;
   }
 
 

@@ -46,12 +46,17 @@
 #include <gecode/search/support.hh>
 #include <gecode/search/worker.hh>
 #include <gecode/search/sequential/path.hh>
+#include <gecode/flatzinc.hh>
 
 #include <gecode/search/connector.hh>
 
 #include <iostream>
 
+class Gecode::FlatZinc::FlatZincSpace;
+
 namespace Gecode { namespace Search { namespace Sequential {
+
+
 
   /// Implementation of depth-first branch-and-bound search engine
   class BAB : public Worker {
@@ -107,6 +112,8 @@ namespace Gecode { namespace Search { namespace Sequential {
     } else {
       cur = snapshot(s,opt);
     }
+
+    std::cout << "initial domain size: " << s->getDomainSize() << std::endl; // TODO: delete this
   }
 
   forceinline Space*

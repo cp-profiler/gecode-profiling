@@ -1892,6 +1892,11 @@ namespace Gecode { namespace FlatZinc {
     return ICL_DEF;
   }
 
+  int
+  FlatZincSpace::getDomainSize(void) const {
+    return -2;
+  }
+
 
   void
   Printer::init(AST::Array* output) {
