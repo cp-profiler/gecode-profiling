@@ -1895,19 +1895,34 @@ namespace Gecode { namespace FlatZinc {
 
   float
   FlatZincSpace::getDomainSize(void) const {
-    float log_size = 0;
 
+    float total = 0;
+    float iv_size = 0;
+    float iv_aux_size = 0;
+    float bv_size = 0;
+    float bv_aux_size = 0;
+
+    /// count integers
     for (int i = 0; i < iv.size(); i++)
-      log_size += log(iv[i].size());
+      iv_size += ::log(iv[i].size());
 
-    // std::cout << "iv_size = " << log_size << std::endl;
-
+    /// count introduced integers
     for (int i = 0; i < iv_aux.size(); i++)
-      log_size += log(iv_aux[i].size());
+      iv_aux_size += ::log(iv_aux[i].size());
 
-    // std::cout << "iv_size + iv_aux_size = " << log_size << std::endl;
+    /// count booleans
+    for (int i = 0; i < bv.size(); i++)
+      bv_size += ::log(bv[i].size());
 
-    return log_size;
+    /// count introduced booleans
+    for (int i = 0; i < bv_aux.size(); i++)
+      bv_aux_size += ::log(bv_aux[i].size());
+
+    total = iv_size + iv_aux_size + bv_size + bv_aux_size;
+
+    printf("domains: [%f, %f, %f, %f]\n", iv_size, iv_aux_size, bv_size, bv_aux_size);
+
+    return total;
   }
 
 
