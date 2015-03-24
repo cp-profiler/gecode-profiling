@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 Message::Message(void) {
-  strcpy(label, "undefined");
+  strcpy(label, "");
 }
 
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
@@ -24,7 +24,7 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
 void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
                           int _status, char _thread, unsigned long long _time,
                           float _domain) {
-  std::memcpy(label, "undefined", Message::LABEL_SIZE - 1);
+  std::memcpy(label, "", Message::LABEL_SIZE - 1);
   type = NODE_DATA;
   sid = _sid;
   parent = _parent;

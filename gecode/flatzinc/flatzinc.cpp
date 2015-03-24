@@ -1900,6 +1900,13 @@ namespace Gecode { namespace FlatZinc {
     for (int i = 0; i < iv.size(); i++)
       log_size += log(iv[i].size());
 
+    // std::cout << "iv_size = " << log_size << std::endl;
+
+    for (int i = 0; i < iv_aux.size(); i++)
+      log_size += log(iv_aux[i].size());
+
+    // std::cout << "iv_size + iv_aux_size = " << log_size << std::endl;
+
     return log_size;
   }
 
