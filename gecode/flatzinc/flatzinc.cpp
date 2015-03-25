@@ -1920,7 +1920,7 @@ namespace Gecode { namespace FlatZinc {
 
     total = iv_size + iv_aux_size + bv_size + bv_aux_size;
 
-    printf("domains: [%f, %f, %f, %f]\n", iv_size, iv_aux_size, bv_size, bv_aux_size);
+    // printf("domains: [%f, %f, %f, %f]\n", iv_size, iv_aux_size, bv_size, bv_aux_size);
 
     return total;
   }
