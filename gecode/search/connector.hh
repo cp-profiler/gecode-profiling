@@ -56,8 +56,8 @@ private:
 
   char _thread_id;
 
-  system_clock::time_point begin_time; 
-  system_clock::time_point current_time; 
+  system_clock::time_point begin_time;
+  system_clock::time_point current_time;
 
   void sendOverSocket(Message &msg);
 
@@ -73,7 +73,8 @@ public:
 
   void connectToSocket();
 
-  void restartGist(int restart_id); // sends START_SENDING message to Gist
+  // sends START_SENDING message to Gist with model name
+  void restartGist(int restart_id, const std::string& file_path);
 
   void disconnectFromSocket();
 

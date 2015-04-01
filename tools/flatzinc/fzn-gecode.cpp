@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
   
   const char* filename = argv[1];
   opt.name(filename);
-  
+
   FlatZinc::Printer p;
   FlatZinc::FlatZincSpace* fg = NULL;
   try {

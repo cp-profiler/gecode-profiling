@@ -41,6 +41,7 @@
 #define __GECODE_SEARCH_HH__
 
 #include <algorithm>
+#include <string>
 #include <gecode/kernel.hh>
 
 
@@ -215,6 +216,8 @@ namespace Gecode { namespace Search {
       unsigned int a_d;
       /// Depth limit for extraction of no-goods
       unsigned int nogoods_limit;
+      /// Name of the opened file
+      std::string problem_name;
       /// Stop object for stopping search
       Stop* stop;
       /// Cutoff for restart-based search

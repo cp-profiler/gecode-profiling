@@ -99,10 +99,11 @@ namespace Gecode { namespace Search { namespace Sequential {
 
     std::cout << "BAB\n";
 
+
     if (isRestarts)
-      connector.restartGist(0);
+      connector.restartGist(0, o.problem_name);
     else
-      connector.restartGist(-1);
+      connector.restartGist(-1, o.problem_name);
 
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
       fail++;

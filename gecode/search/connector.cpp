@@ -1,5 +1,6 @@
 #include <gecode/search/connector.hh>
 #include <cstring>
+#include <string>
 #include <unistd.h>
 
 Message::Message(void) {
@@ -63,7 +64,7 @@ void Connector::sendOverSocket(Message &msg) {
   memcpy(request.data(), &data, sizeof(msg));
   int ne = socket->send(request);
     
-  if (ne == -1) 
+  if (ne == -1)
     std::cerr << "error while sending over socket\n";
 }
 
@@ -109,17 +110,27 @@ void Connector::sendNode(int sid,
 
   // usleep(1000);
   data.restart_id = restart;
-
   data.specifyNode(sid, parent, alt, kids, status, thread, timestamp, domain);
 
   // std::cout << domain << std::endl;
   sendOverSocket(data);
 }
 
-void Connector::restartGist(int restart_id) {
+void Connector::restartGist(int restart_id, const std::string& file_path) {
   std::cerr << "restarting gist, restart_id: " << restart_id << "\n";
   data.type = START_SENDING;
   data.restart_id = restart_id;
+
+  /// extract fzn file name
+  std::string name(file_path);
+  int pos = name.find_last_of('/');
+  if (pos > 0) {
+    name = name.substr(pos + 1, name.length() - pos - 1);
+  }
+
+  std::memcpy(data.label, name.c_str(), Message::LABEL_SIZE - 1);
+
+  data.label[Message::LABEL_SIZE - 1] = '\0';
   sendOverSocket(data);
 }
 
