@@ -453,7 +453,7 @@ namespace Gecode { namespace FlatZinc {
     file.open(filename.c_str());
     if (!file.is_open()) {
       err << "Cannot open file " << filename << endl;
-      return NULL;
+      return pr;
     }
     std::string s = string(istreambuf_iterator<char>(file),
                            istreambuf_iterator<char>());
@@ -475,26 +475,6 @@ namespace Gecode { namespace FlatZinc {
     pr.t = pp.symbols;
     pr.a = pp.arrays;
     return pr;
-  }
-
-  FlatZincSpace* parse(std::istream& is, Printer& p, std::ostream& err,
-                       FlatZincSpace* fzs) {
-    std::string s = string(istreambuf_iterator<char>(is),
-                           istreambuf_iterator<char>());
-
-    if (fzs == NULL) {
-      fzs = new FlatZincSpace();
-    }
-    ParserState pp(s, err, fzs);
-    yylex_init(&pp.yyscanner);
-    yyset_extra(&pp, pp.yyscanner);
-    // yydebug = 1;
-    yyparse(&pp);
-    fillPrinter(pp, p);
-    
-    if (pp.yyscanner)
-      yylex_destroy(pp.yyscanner);
-    return pp.hadError ? NULL : pp.fg;
   }
 
   ParseResult parseWithSymbols(std::istream& is, Printer& p, std::ostream& err,
