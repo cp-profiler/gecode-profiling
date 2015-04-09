@@ -92,6 +92,7 @@
 #include <gecode/flatzinc/conexpr.hh>
 #include <gecode/flatzinc/ast.hh>
 #include <gecode/flatzinc/varspec.hh>
+#include <gecode/flatzinc/symboltable.hh>
 
 /**
  * \namespace Gecode::FlatZinc
@@ -103,6 +104,37 @@
  */
 
 namespace Gecode { namespace FlatZinc {
+
+  /// Types of symbols
+  enum SymbolType {
+    ST_INTVAR,        //< Integer variable
+    ST_BOOLVAR,       //< Boolean variable
+    ST_FLOATVAR,      //< Float variable
+    ST_SETVAR,        //< Set variable
+    ST_INTVARARRAY,   //< Integer variable array
+    ST_BOOLVARARRAY,  //< Boolean variable array
+    ST_SETVARARRAY,   //< Set variable array
+    ST_FLOATVARARRAY, //< Float variable array
+    ST_INTVALARRAY,   //< Integer array
+    ST_BOOLVALARRAY,  //< Boolean array
+    ST_SETVALARRAY,   //< Set array
+    ST_FLOATVALARRAY, //< Float array
+    ST_INT,           //< Integer
+    ST_BOOL,          //< Boolean
+    ST_SET,           //< Set
+    ST_FLOAT          //< Float
+  };
+
+  /// Entries in the symbol table
+  class SymbolEntry {
+  public:
+    SymbolType t; //< Type of entry
+    int i;        //< Value of entry or array start index
+    /// Default constructor
+    SymbolEntry(void) {}
+    /// Constructor
+    SymbolEntry(SymbolType t0, int i0) : t(t0), i(i0) {}
+  };
 
   /**
    * \brief Output support class for %FlatZinc interpreter
@@ -301,7 +333,9 @@ namespace Gecode { namespace FlatZinc {
     double threads(void) const { return _threads.value(); }
     bool free(void) const { return _free.value(); }
     unsigned int c_d(void) const { return _c_d.value(); }
+    void c_d(unsigned int v) { _c_d.value(v); }
     unsigned int a_d(void) const { return _a_d.value(); }
+    void a_d(unsigned int v) { _a_d.value(v); }
     unsigned int node(void) const { return _node.value(); }
     unsigned int fail(void) const { return _fail.value(); }
     unsigned int time(void) const { return _time.value(); }
@@ -589,6 +623,30 @@ namespace Gecode { namespace FlatZinc {
                        Printer& p, std::ostream& err = std::cerr,
                        FlatZincSpace* fzs=NULL);
 
+  struct ParseResult {
+    FlatZincSpace* s;
+    SymbolTable<SymbolEntry> t;
+    std::vector<int> a;
+  };
+  /**
+   * \brief Parse FlatZinc file \a fileName into \a fzs and return it.
+   *
+   * Creates a new empty FlatZincSpace if \a fzs is NULL.
+   */
+  GECODE_FLATZINC_EXPORT
+  ParseResult parseWithSymbols(const std::string& fileName,
+                               Printer& p, std::ostream& err = std::cerr,
+                               FlatZincSpace* fzs=NULL);
+
+  /**
+   * \brief Parse FlatZinc from \a is into \a fzs and return it.
+   *
+   * Creates a new empty FlatZincSpace if \a fzs is NULL.
+   */
+  GECODE_FLATZINC_EXPORT
+  ParseResult parseWithSymbols(std::istream& is,
+                               Printer& p, std::ostream& err = std::cerr,
+                               FlatZincSpace* fzs=NULL);
 }}
 
 #endif

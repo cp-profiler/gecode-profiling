@@ -52,7 +52,9 @@
 
 #include <iostream>
 
-class Gecode::FlatZinc::FlatZincSpace;
+namespace Gecode { namespace FlatZinc {
+  class FlatZincSpace;
+}}
 
 namespace Gecode { namespace Search { namespace Sequential {
 

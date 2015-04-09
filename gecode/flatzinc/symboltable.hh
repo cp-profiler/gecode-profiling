@@ -69,6 +69,12 @@ namespace Gecode { namespace FlatZinc {
     bool put(const std::string& key, const Val& val);
     /// Return whether \a key exists, and set \a val if it does exist
     bool get(const std::string& key, Val& val) const;
+    template<class Exec>
+    void exec(void) const {
+      for (typename mymap::const_iterator it=m.begin(); it != m.end(); ++it) {
+        Exec::e(it->first, it->second);
+      }
+    }
   };
 
   template<class Val>

@@ -85,37 +85,6 @@ namespace Gecode { namespace FlatZinc {
     }
   };
 
-  /// Types of symbols
-  enum SymbolType {
-    ST_INTVAR,        //< Integer variable
-    ST_BOOLVAR,       //< Boolean variable
-    ST_FLOATVAR,      //< Float variable
-    ST_SETVAR,        //< Set variable
-    ST_INTVARARRAY,   //< Integer variable array
-    ST_BOOLVARARRAY,  //< Boolean variable array
-    ST_SETVARARRAY,   //< Set variable array
-    ST_FLOATVARARRAY, //< Float variable array
-    ST_INTVALARRAY,   //< Integer array
-    ST_BOOLVALARRAY,  //< Boolean array
-    ST_SETVALARRAY,   //< Set array
-    ST_FLOATVALARRAY, //< Float array
-    ST_INT,           //< Integer
-    ST_BOOL,          //< Boolean
-    ST_SET,           //< Set
-    ST_FLOAT          //< Float
-  };
-
-  /// Entries in the symbol table
-  class SymbolEntry {
-  public:
-    SymbolType t; //< Type of entry
-    int i;        //< Value of entry or array start index
-    /// Default constructor
-    SymbolEntry(void) {}
-    /// Constructor
-    SymbolEntry(SymbolType t0, int i0) : t(t0), i(i0) {}
-  };
-
   /// Construct integer variable entry
   forceinline SymbolEntry se_iv(int i) {
     return SymbolEntry(ST_INTVAR, i);

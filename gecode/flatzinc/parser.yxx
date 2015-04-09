@@ -420,6 +420,106 @@ namespace Gecode { namespace FlatZinc {
     return pp.hadError ? NULL : pp.fg;
   }
 
+  ParseResult parseWithSymbols(const std::string& filename, Printer& p, std::ostream& err,
+                               FlatZincSpace* fzs) {
+    ParseResult pr;
+    pr.s = NULL;
+#ifdef HAVE_MMAP
+    int fd;
+    char* data;
+    struct stat sbuf;
+    fd = open(filename.c_str(), O_RDONLY);
+    if (fd == -1) {
+      err << "Cannot open file " << filename << endl;
+      return pr;
+    }
+    if (stat(filename.c_str(), &sbuf) == -1) {
+      err << "Cannot stat file " << filename << endl;
+      return pr;      
+    }
+    data = (char*)mmap((caddr_t)0, sbuf.st_size, PROT_READ, MAP_SHARED, fd,0);
+    if (data == (caddr_t)(-1)) {
+      err << "Cannot mmap file " << filename << endl;
+      return pr;      
+    }
+
+    if (fzs == NULL) {
+      fzs = new FlatZincSpace();
+    }
+    ParserState pp(data, sbuf.st_size, err, fzs);
+#else
+    std::ifstream file;
+    file.open(filename.c_str());
+    if (!file.is_open()) {
+      err << "Cannot open file " << filename << endl;
+      return NULL;
+    }
+    std::string s = string(istreambuf_iterator<char>(file),
+                           istreambuf_iterator<char>());
+    if (fzs == NULL) {
+      fzs = new FlatZincSpace();
+    }
+    ParserState pp(s, err, fzs);
+#endif
+    yylex_init(&pp.yyscanner);
+    yyset_extra(&pp, pp.yyscanner);
+    // yydebug = 1;
+    yyparse(&pp);
+    fillPrinter(pp, p);
+    
+    if (pp.yyscanner)
+      yylex_destroy(pp.yyscanner);
+
+    pr.s = pp.hadError ? NULL : pp.fg;
+    pr.t = pp.symbols;
+    pr.a = pp.arrays;
+    return pr;
+  }
+
+  FlatZincSpace* parse(std::istream& is, Printer& p, std::ostream& err,
+                       FlatZincSpace* fzs) {
+    std::string s = string(istreambuf_iterator<char>(is),
+                           istreambuf_iterator<char>());
+
+    if (fzs == NULL) {
+      fzs = new FlatZincSpace();
+    }
+    ParserState pp(s, err, fzs);
+    yylex_init(&pp.yyscanner);
+    yyset_extra(&pp, pp.yyscanner);
+    // yydebug = 1;
+    yyparse(&pp);
+    fillPrinter(pp, p);
+    
+    if (pp.yyscanner)
+      yylex_destroy(pp.yyscanner);
+    return pp.hadError ? NULL : pp.fg;
+  }
+
+  ParseResult parseWithSymbols(std::istream& is, Printer& p, std::ostream& err,
+                               FlatZincSpace* fzs) {
+    std::string s = string(istreambuf_iterator<char>(is),
+                           istreambuf_iterator<char>());
+
+    if (fzs == NULL) {
+      fzs = new FlatZincSpace();
+    }
+    ParserState pp(s, err, fzs);
+    yylex_init(&pp.yyscanner);
+    yyset_extra(&pp, pp.yyscanner);
+    // yydebug = 1;
+    yyparse(&pp);
+    fillPrinter(pp, p);
+    
+    if (pp.yyscanner)
+      yylex_destroy(pp.yyscanner);
+    ParseResult pr;
+    pr.s = pp.hadError ? NULL : pp.fg;
+    pr.t = pp.symbols;
+    pr.a = pp.arrays;
+    return pr;
+  }
+
 }}
 
 %}

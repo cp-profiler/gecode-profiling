@@ -38,6 +38,7 @@
 #include <iostream>
 #include <fstream>
 #include <gecode/flatzinc.hh>
+#include <gecode/flatzinc/logbrancher.hh>
 
 using namespace std;
 using namespace Gecode;
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
   FlatZinc::FlatZincOptions opt("Gecode/FlatZinc");
   opt.parse(argc, argv);
   
-  if (argc!=2) {
+  if (argc!=2 && argc!=3) {
     cerr << "Usage: " << argv[0] << " [options] <file>" << endl;
     cerr << "       " << argv[0] << " -help for more information" << endl;
     exit(EXIT_FAILURE);
@@ -58,20 +59,37 @@ int main(int argc, char** argv) {
   const char* filename = argv[1];
   opt.name(filename);
 
+  const char* logname = NULL;
+  if (argc==3) {
+    logname = argv[2];
+  }
+
   FlatZinc::Printer p;
   FlatZinc::FlatZincSpace* fg = NULL;
   try {
+    FlatZinc::ParseResult pr;
     if (!strcmp(filename, "-")) {
-      fg = FlatZinc::parse(cin, p);
+      pr = FlatZinc::parseWithSymbols(cin, p);
     } else {
-      fg = FlatZinc::parse(filename, p);
+      pr = FlatZinc::parseWithSymbols(filename, p);
     }
+    fg = pr.s;
 
     if (fg) {
+
+      ifstream logstream;
+      
+      if (logname) {
+        logstream.open(logname, ifstream::in);
+        branch(*fg, pr.t, pr.a, logstream);
+        opt.c_d(0);
+        opt.a_d(0);
+      } else {
+        fg->createBranchers(fg->solveAnnotations(), opt.seed(), opt.decay(),
+                            false, std::cerr);
+        fg->shrinkArrays(p);
+      }
     
-      fg->createBranchers(fg->solveAnnotations(), opt.seed(), opt.decay(),
-                          false, std::cerr);
-      fg->shrinkArrays(p);
       if (opt.output()) {
         std::ofstream os(opt.output());
         if (!os.good()) {
