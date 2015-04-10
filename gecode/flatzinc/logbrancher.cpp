@@ -86,7 +86,30 @@ namespace Gecode { namespace FlatZinc {
         int val;
         val_s >> val;
         space = next_space;
-        children.push_back(LogChoice::C(n_id,var_idx,irt,val,var+" "+op+" "+val_s.str()));
+        string label = var+" "+op+" "+val_s.str();
+        if (s.iv[var_idx].assigned()) {
+          switch (irt) {
+            case IRT_EQ:
+              label = string("[")+(s.iv[var_idx].val()==val ? "i":"f")+"] "+label;
+              break;
+            case IRT_NQ:
+              label = string("[")+(s.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
+              break;
+            case IRT_LQ:
+              label = string("[")+(s.iv[var_idx].val()<=val ? "i":"f")+"] "+label;
+              break;
+            case IRT_LE:
+              label = string("[")+(s.iv[var_idx].val()<val ? "i":"f")+"] "+label;
+              break;
+            case IRT_GR:
+              label = string("[")+(s.iv[var_idx].val()>val ? "i":"f")+"] "+label;
+              break;
+            case IRT_GQ:
+              label = string("[")+(s.iv[var_idx].val()>=val ? "i":"f")+"] "+label;
+              break;
+          }
+        }
+        children.push_back(LogChoice::C(n_id,var_idx,irt,val,label));
       }
       return new LogChoice(b,children);
     }
