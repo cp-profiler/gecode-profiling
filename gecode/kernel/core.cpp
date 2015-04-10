@@ -453,14 +453,18 @@ namespace Gecode {
   Space::print(const Choice& c, unsigned int a, std::ostream& o) const {
     if (a >= c.alternatives())
       throw SpaceIllegalAlternative("Space::print");
-    if (failed())
-      return;
+    //  XXXXXXXXXXXXXXXXXXXXXXXXXX
+    //  Allow printing on a failed space
+    //  Look out!
+    //if (failed())
+    //  return;
     if (Brancher* b = const_cast<Space&>(*this).brancher(c._id)) {
       // There is a matching brancher
       b->print(*this,c,a,o);
     } else {
-      // There is no matching brancher!
-      throw SpaceNoBrancher("Space::print");
+      if (!failed())
+        // There is no matching brancher!
+        throw SpaceNoBrancher("Space::print");
     }
   }
 
