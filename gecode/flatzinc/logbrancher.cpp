@@ -87,27 +87,42 @@ namespace Gecode { namespace FlatZinc {
         val_s >> val;
         space = next_space;
         string label = var+" "+op+" "+val_s.str();
-        if (s.iv[var_idx].assigned()) {
-          switch (irt) {
-            case IRT_EQ:
+        switch (irt) {
+          case IRT_EQ:
+            if (s.iv[var_idx].assigned())
               label = string("[")+(s.iv[var_idx].val()==val ? "i":"f")+"] "+label;
-              break;
-            case IRT_NQ:
+            break;
+          case IRT_NQ:
+            if (s.iv[var_idx].assigned()) {
               label = string("[")+(s.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
-              break;
-            case IRT_LQ:
-              label = string("[")+(s.iv[var_idx].val()<=val ? "i":"f")+"] "+label;
-              break;
-            case IRT_LE:
-              label = string("[")+(s.iv[var_idx].val()<val ? "i":"f")+"] "+label;
-              break;
-            case IRT_GR:
-              label = string("[")+(s.iv[var_idx].val()>val ? "i":"f")+"] "+label;
-              break;
-            case IRT_GQ:
-              label = string("[")+(s.iv[var_idx].val()>=val ? "i":"f")+"] "+label;
-              break;
-          }
+            } else if (!s.iv[var_idx].in(val)) {
+              label = string("[f] ")+label;
+            }
+            break;
+          case IRT_LQ:
+            if (s.iv[var_idx].max() <= val)
+              label = string("[i] ")+label;
+            else if (s.iv[var_idx].min() > val)
+              label = string("[f] ")+label;
+            break;
+          case IRT_LE:
+            if (s.iv[var_idx].max() < val)
+              label = string("[i] ")+label;
+            else if (s.iv[var_idx].min() >= val)
+              label = string("[f] ")+label;
+            break;
+          case IRT_GR:
+            if (s.iv[var_idx].min() > val)
+              label = string("[i] ")+label;
+            else if (s.iv[var_idx].max() <= val)
+              label = string("[f] ")+label;
+            break;
+          case IRT_GQ:
+            if (s.iv[var_idx].min() >= val)
+              label = string("[i] ")+label;
+            else if (s.iv[var_idx].max() < val)
+              label = string("[f] ")+label;
+            break;
         }
         children.push_back(LogChoice::C(n_id,var_idx,irt,val,label));
       }
