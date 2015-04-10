@@ -41,7 +41,8 @@ namespace Gecode { namespace FlatZinc {
         string var = line.substr(space+1, next_space-space-1);
         
         int var_idx;
-        if (size_t bracket = var.find("[")) {
+        size_t bracket = var.find("[");
+        if (bracket!=string::npos) {
           string basevar = var.substr(0,bracket);
           string array_idx_s = var.substr(bracket+1,var.size()-bracket-2);
           stringstream aidx(array_idx_s);
