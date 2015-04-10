@@ -51,7 +51,7 @@ namespace Gecode { namespace FlatZinc {
           if (b.symbols.get(basevar,se)) {
             var_idx = b.arrays[se.i + array_idx];
           } else {
-            assert(false);
+            return NULL;
           }
         } else {        
           SymbolEntry se;
@@ -59,7 +59,7 @@ namespace Gecode { namespace FlatZinc {
             assert(se.t==ST_INTVAR);
             var_idx = se.i;
           } else {
-            assert(false);
+            return NULL;
           }
         }
         
