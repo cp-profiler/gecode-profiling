@@ -84,9 +84,11 @@ int main(int argc, char** argv) {
         branch(*fg, pr.t, pr.a, logstream);
         opt.c_d(0);
         opt.a_d(0);
-      } else {
-        fg->createBranchers(fg->solveAnnotations(), opt.seed(), opt.decay(),
-                            false, std::cerr);
+      }
+      fg->createBranchers(fg->solveAnnotations(), opt.seed(), opt.decay(),
+                          false, std::cerr);
+
+      if (logname==NULL) {
         fg->shrinkArrays(p);
       }
     
