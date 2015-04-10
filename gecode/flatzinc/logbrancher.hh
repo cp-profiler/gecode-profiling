@@ -13,9 +13,10 @@ namespace Gecode { namespace FlatZinc {
       int pos;        // variable idx
       IntRelType irt; // operator
       int val;        // value
+      std::string label;   // original label
       C(void) {}
-      C(int n0, int pos0, IntRelType irt0, int val0)
-        : n(n0), pos(pos0), irt(irt0), val(val0) {}
+      C(int n0, int pos0, IntRelType irt0, int val0, std::string label0)
+        : n(n0), pos(pos0), irt(irt0), val(val0), label(label0) {}
     };
     C* cs;
     LogChoice(const LogBrancher& b, const std::vector<C>& children);

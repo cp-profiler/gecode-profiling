@@ -86,7 +86,7 @@ namespace Gecode { namespace FlatZinc {
         int val;
         val_s >> val;
         space = next_space;
-        children.push_back(LogChoice::C(n_id,var_idx,irt,val));
+        children.push_back(LogChoice::C(n_id,var_idx,irt,val,var+" "+op+" "+val_s.str()));
       }
       return new LogChoice(b,children);
     }
@@ -152,6 +152,7 @@ namespace Gecode { namespace FlatZinc {
   LogBrancher::print(const Space& home, const Choice& c, unsigned int a,
                      std::ostream& o) const {
     const LogChoice& lc = static_cast<const LogChoice&>(c);
+    o << lc.cs[a].label;
   }
 
   void branch(Home home, SymbolTable<SymbolEntry>& symbols, vector<int>& arrays, std::istream& log) {
