@@ -90,14 +90,17 @@ namespace Gecode { namespace FlatZinc {
         string label = var+" "+op+" "+val_s.str();
         switch (irt) {
           case IRT_EQ:
-            if (s.iv[var_idx].assigned())
+            if (s.iv[var_idx].assigned()) {
               label = string("[")+(s.iv[var_idx].val()==val ? "i":"f")+"] "+label;
+            } else if (!s.iv[var_idx].in(val)) {
+              label = string("[f] ")+label;
+            }
             break;
           case IRT_NQ:
             if (s.iv[var_idx].assigned()) {
               label = string("[")+(s.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
             } else if (!s.iv[var_idx].in(val)) {
-              label = string("[f] ")+label;
+              label = string("[i] ")+label;
             }
             break;
           case IRT_LQ:
