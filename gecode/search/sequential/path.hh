@@ -303,8 +303,10 @@ namespace Gecode { namespace Search { namespace Sequential {
       int n_alt = edge.choice()->alternatives();
       int first_alt = edge.alt();
       if (i!=l) first_alt++;
-      for (int j = first_alt; j < n_alt; j++) {
-        connector->sendNode(-1, pid, j, 0, 6, 0);
+      if (connector != NULL) {
+        for (int j = first_alt; j < n_alt; j++) {
+          connector->sendNode(-1, pid, j, 0, 6, 0);
+        }
       }
 
       ds.pop().dispose();

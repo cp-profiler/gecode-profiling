@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
       
       if (logname) {
         logstream.open(logname, ifstream::in);
-        branch(*fg, pr.t, pr.a, logstream);
+        branch(*fg, pr.t, pr.a, logstream, opt.omitImplied());
         opt.c_d(0);
         opt.a_d(0);
       }

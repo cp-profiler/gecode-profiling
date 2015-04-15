@@ -22,7 +22,7 @@ namespace Gecode { namespace FlatZinc {
 
   namespace {
 
-    LogChoice* parseChoice(const LogBrancher& b, const FlatZincSpace& s, int nChildren, const string& line) {
+    LogChoice* parseChoice(const LogBrancher& b, const FlatZincSpace& s, int nChildren, const string& line, int* retry) {
       if (nChildren==0)
         return NULL;
       size_t space = line.find(" ");
@@ -80,7 +80,10 @@ namespace Gecode { namespace FlatZinc {
           irt = IRT_GR;
         else if (op==">=")
           irt = IRT_GQ;
-        else GECODE_NEVER;
+        else {
+          irt = IRT_EQ; // silence "uninitialized" warning
+          GECODE_NEVER;
+        }
         space = next_space;
         next_space = line.find(" ",space+1);
         stringstream val_s(line.substr(space+1, next_space-space-1));
@@ -88,9 +91,11 @@ namespace Gecode { namespace FlatZinc {
         val_s >> val;
         space = next_space;
         string label = var+" "+op+" "+val_s.str();
+        bool thisChoiceImplied = false;
         switch (irt) {
           case IRT_EQ:
             if (s.iv[var_idx].assigned()) {
+              if (s.iv[var_idx].val()==val) thisChoiceImplied = true;
               label = string("[")+(s.iv[var_idx].val()==val ? "i":"f")+"] "+label;
             } else if (!s.iv[var_idx].in(val)) {
               label = string("[f] ")+label;
@@ -98,35 +103,49 @@ namespace Gecode { namespace FlatZinc {
             break;
           case IRT_NQ:
             if (s.iv[var_idx].assigned()) {
+              if (s.iv[var_idx].val()!=val) thisChoiceImplied = true;
               label = string("[")+(s.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
             } else if (!s.iv[var_idx].in(val)) {
+              thisChoiceImplied = true;
               label = string("[i] ")+label;
             }
             break;
           case IRT_LQ:
-            if (s.iv[var_idx].max() <= val)
+            if (s.iv[var_idx].max() <= val) {
+              thisChoiceImplied = true;
               label = string("[i] ")+label;
+            }
             else if (s.iv[var_idx].min() > val)
               label = string("[f] ")+label;
             break;
           case IRT_LE:
-            if (s.iv[var_idx].max() < val)
+            if (s.iv[var_idx].max() < val) {
+              thisChoiceImplied = true;
               label = string("[i] ")+label;
+            }
             else if (s.iv[var_idx].min() >= val)
               label = string("[f] ")+label;
             break;
           case IRT_GR:
-            if (s.iv[var_idx].min() > val)
+            if (s.iv[var_idx].min() > val) {
+              thisChoiceImplied = true;
               label = string("[i] ")+label;
+            }
             else if (s.iv[var_idx].max() <= val)
               label = string("[f] ")+label;
             break;
           case IRT_GQ:
-            if (s.iv[var_idx].min() >= val)
+            if (s.iv[var_idx].min() >= val) {
+              thisChoiceImplied = true;
               label = string("[i] ")+label;
+            }
             else if (s.iv[var_idx].max() < val)
               label = string("[f] ")+label;
             break;
+        }
+        if (b.omitImplied && thisChoiceImplied) {
+          *retry = n_id;
+          return NULL;
         }
         children.push_back(LogChoice::C(n_id,var_idx,irt,val,label));
       }
@@ -142,7 +161,7 @@ namespace Gecode { namespace FlatZinc {
   }
 
   LogBrancher::LogBrancher(Space& home, bool share, LogBrancher& b)
-    : Brancher(home,share,b), log(b.log), symbols(b.symbols), arrays(b.arrays), cur_choice(NULL), cur_node(b.cur_node) {
+    : Brancher(home,share,b), log(b.log), omitImplied(b.omitImplied), symbols(b.symbols), arrays(b.arrays), cur_choice(NULL), cur_node(b.cur_node) {
     if (b.cur_choice) {
       std::vector<LogChoice::C> cs(b.cur_choice->alternatives());
       for (unsigned int i=0; i<cs.size(); i++) {
@@ -163,7 +182,12 @@ namespace Gecode { namespace FlatZinc {
       int nodeNumber, nChildren;
       parseNode(line, nodeNumber, nChildren);
       if (nodeNumber==cur_node) {
-        cur_choice = parseChoice(*this,s,nChildren,line);
+        int retry = -1;
+        cur_choice = parseChoice(*this,s,nChildren,line,&retry);
+        if (retry != -1) {
+          cur_node = retry;
+          continue;
+        }
         return cur_choice!=NULL;
       }
     }
@@ -197,9 +221,9 @@ namespace Gecode { namespace FlatZinc {
     o << lc.cs[a].label;
   }
 
-  void branch(Home home, SymbolTable<SymbolEntry>& symbols, vector<int>& arrays, std::istream& log) {
+  void branch(Home home, SymbolTable<SymbolEntry>& symbols, vector<int>& arrays, std::istream& log, bool omitImplied) {
     if (home.failed()) return;
-    LogBrancher::post(home,symbols,arrays,log);
+    LogBrancher::post(home,symbols,arrays,log,omitImplied);
   }
 
 

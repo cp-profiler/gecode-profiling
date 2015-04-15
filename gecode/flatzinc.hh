@@ -263,6 +263,9 @@ namespace Gecode { namespace FlatZinc {
       Gecode::Driver::BoolOption        _stat;       ///< Emit statistics
       Gecode::Driver::StringValueOption _output;     ///< Output file
       //@}
+
+      Gecode::Driver::BoolOption        _sendNodes;
+      Gecode::Driver::BoolOption        _omitImplied;
   public:
     /// Constructor
     FlatZincOptions(const char* s)
@@ -289,7 +292,10 @@ namespace Gecode { namespace FlatZinc {
                  true),
       _mode("-mode","how to execute script",Gecode::SM_SOLUTION),
       _stat("-s","emit statistics"),
-      _output("-o","file to send output to") {
+      _output("-o","file to send output to"),
+
+      _sendNodes("-send-nodes", "whether to send nodes to visualizer", true),
+      _omitImplied("-omit-implied", "whether to omit implied choices when replaying search", true) {
 
       _mode.add(Gecode::SM_SOLUTION, "solution");
       _mode.add(Gecode::SM_STAT, "stat");
@@ -310,6 +316,7 @@ namespace Gecode { namespace FlatZinc {
       add(_nogoods); add(_nogoods_limit);
       add(_mode); add(_stat);
       add(_output);
+      add(_sendNodes); add(_omitImplied);
     }
 
     void parse(int& argc, char* argv[]) {
@@ -353,6 +360,8 @@ namespace Gecode { namespace FlatZinc {
     unsigned int restart_scale(void) const { return _r_scale.value(); }
     bool nogoods(void) const { return _nogoods.value(); }
     unsigned int nogoods_limit(void) const { return _nogoods_limit.value(); }
+    bool sendNodes(void) const { return _sendNodes.value(); }
+    bool omitImplied(void) const { return _omitImplied.value(); }
     bool interrupt(void) const { return _interrupt.value(); }
 
   };

@@ -62,7 +62,7 @@
     /// Distance until next clone
     unsigned int d;
     /// Socket handler
-    Connector connector;
+    Connector *connector;
 
   public:
     /// Initialize for space \a s with options \a o
@@ -83,15 +83,19 @@
   forceinline 
   DFS::DFS(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
-      connector.connectToSocket();
-
       std::cout << "filename: " << o.problem_name << std::endl;
       std::cout << "DFS\n";
 
-      if (isRestarts)
-        connector.restartGist(0, o.problem_name);
-      else
-        connector.restartGist(-1, o.problem_name);
+
+      if (opt.sendNodes) {
+        connector = new Connector();
+        connector->connectToSocket();
+
+        if (isRestarts)
+          connector->restartGist(0, o.problem_name);
+        else
+          connector->restartGist(-1, o.problem_name);
+      }
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
       fail++;
@@ -149,16 +153,20 @@
 
         switch (cur->status(*this)) {
         case SS_FAILED:
-          connector.sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart,
-                             cur->getDomainSize());
+          if (opt.sendNodes) {
+            connector->sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart,
+                               cur->getDomainSize());
+          }
           fail++;
           delete cur;
           cur = NULL;
           break;
         case SS_SOLVED:
           {
-            connector.sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart,
-                               cur->getDomainSize());
+            if (opt.sendNodes) {
+              connector->sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart,
+                                 cur->getDomainSize());
+            }
             // Deletes all pending branchers
             (void) cur->choice();
             Space* s = cur;
@@ -178,8 +186,10 @@
             }
             const Choice* ch = path.push(*this, node, cur, c);
             kids = ch->alternatives();
-            connector.sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
-                               cur->getDomainSize());
+            if (opt.sendNodes) {
+              connector->sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
+                                 cur->getDomainSize());
+            }
             cur->commit(*ch,0);
             break;
           }
@@ -205,7 +215,10 @@
   forceinline 
   DFS::~DFS(void) {
     delete cur;
-    connector.disconnectFromSocket();
+    if (opt.sendNodes) {
+      connector->disconnectFromSocket();
+      delete connector;
+    }
     path.reset();
   }
 
