@@ -97,15 +97,21 @@ namespace Gecode { namespace Search { namespace Sequential {
   BAB::BAB(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), 
       d(0), mark(0), best(NULL) {
-    connector.connectToSocket();
+
+
+    if (opt.sendNodes) {
+      connector.connectToSocket();
+
+      if (isRestarts)
+        connector.restartGist(0, o.problem_name);
+      else
+        connector.restartGist(-1, o.problem_name);
+    }
 
     std::cout << "BAB\n";
 
 
-    if (isRestarts)
-      connector.restartGist(0, o.problem_name);
-    else
-      connector.restartGist(-1, o.problem_name);
+    
 
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
       fail++;
@@ -135,7 +141,11 @@ namespace Gecode { namespace Search { namespace Sequential {
     int alt = -1;
     int kids = -1;
     char label[Message::LABEL_SIZE];
-    path.setConnector(&connector);
+
+    if (opt.sendNodes) {
+      path.setConnector(&connector);
+    }
+
     start();
     while (true) {
       while (cur) {
@@ -155,17 +165,24 @@ namespace Gecode { namespace Search { namespace Sequential {
         
         switch (cur->status(*this)) {
         case SS_FAILED:
-          connector.sendNode(node, pid, alt, 0, 1,
+
+          if (opt.sendNodes) {
+            connector.sendNode(node, pid, alt, 0, 1,
                              oss.str().c_str(), 0, restart, 
                              cur->getDomainSize());
+          }
+
           fail++;
           delete cur;
           cur = NULL;
           break;
         case SS_SOLVED:
-          connector.sendNode(node, pid, alt, 0, 0,
+
+          if (opt.sendNodes) {
+            connector.sendNode(node, pid, alt, 0, 0,
                              oss.str().c_str(), 0, restart,
                              cur->getDomainSize());
+          }
           // Deletes all pending branchers
           (void) cur->choice();
           delete best;
@@ -185,9 +202,12 @@ namespace Gecode { namespace Search { namespace Sequential {
             }
             const Choice* ch = path.push(*this,node,cur,c);
             kids = ch->alternatives();
-            connector.sendNode(node, pid, alt, kids, 2,
+
+            if (opt.sendNodes) {
+              connector.sendNode(node, pid, alt, kids, 2,
                                oss.str().c_str(),  0, restart,
                                cur->getDomainSize());
+            }
             cur->commit(*ch,0);
             break;
           }
@@ -234,7 +254,9 @@ namespace Gecode { namespace Search { namespace Sequential {
 
   forceinline 
   BAB::~BAB(void) {
-    connector.disconnectFromSocket();
+    if (opt.sendNodes) {
+      connector.disconnectFromSocket();
+    }
     path.reset();
     delete best;
     delete cur;

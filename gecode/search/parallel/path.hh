@@ -114,7 +114,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     /// Stack to store edge information
     Support::DynamicStack<Edge,Heap> ds;
     /// Pointer to the connector
-    Connector* connector;
+    Connector* connector = nullptr;
     /// Depth limit for no-good generation
     int _ngdl;
     /// Number of edges that have work for stealing
@@ -327,9 +327,13 @@ namespace Gecode { namespace Search { namespace Parallel {
       int n_alt = edge.choice()->alternatives();
       int first_alt = edge.alt();
       if (i!=l) first_alt++;
-      for (int j = first_alt; j < n_alt; j++) {
-        connector->sendNode(-1, pid, j, 0, 6, 0);
+
+      if (connector) {
+        for (int j = first_alt; j < n_alt; j++) {
+          connector->sendNode(-1, pid, j, 0, 6, 0);
+        }
       }
+      
 
       ds.pop().dispose();
     }

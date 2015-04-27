@@ -49,8 +49,8 @@ Connector::Connector() {
 }
 
 Connector::~Connector() {
-  delete context;
   delete socket;
+  delete context;
 }
 
 // Connector& Connector::obj(void) {

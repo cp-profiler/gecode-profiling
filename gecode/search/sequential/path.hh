@@ -84,7 +84,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       Space* space(void) const;
       /// Set space to \a s
       void space(Space* s);
-      
+
       /// Return choice
       const Choice* choice(void) const;
 
@@ -111,7 +111,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     Support::DynamicStack<Edge,Heap> ds;
 
     /// Pointer to the connector
-    Connector* connector;
+    Connector* connector = nullptr;
     /// Depth limit for no-good generation
     int _ngdl;
   public:
@@ -261,7 +261,7 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::setConnector(Connector* c) {
     connector = c;
   }
-
+  
   forceinline Path::Edge&
   Path::top(void) const {
     assert(!ds.empty());
@@ -303,7 +303,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       int n_alt = edge.choice()->alternatives();
       int first_alt = edge.alt();
       if (i!=l) first_alt++;
-      if (connector != NULL) {
+      if (connector) {
         for (int j = first_alt; j < n_alt; j++) {
           connector->sendNode(-1, pid, j, 0, 6, 0);
         }
