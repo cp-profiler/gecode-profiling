@@ -251,9 +251,10 @@ namespace Gecode { namespace Search { namespace Parallel {
    * Termination and deletion
    */
   DFS::~DFS(void) {
-    Connector connector;
+    Connector connector(opt().port);
     std::cerr << "sending done...";
     connector.connectToSocket();
+    connector.sendDoneSending();
     connector.disconnectFromSocket();
 
     terminate();

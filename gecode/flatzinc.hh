@@ -266,6 +266,9 @@ namespace Gecode { namespace FlatZinc {
 
       Gecode::Driver::BoolOption        _sendNodes;
       Gecode::Driver::BoolOption        _omitImplied;
+
+      Gecode::Driver::IntOption         _port;       ///< Which port to send nodes through
+
   public:
     /// Constructor
     FlatZincOptions(const char* s)
@@ -295,7 +298,9 @@ namespace Gecode { namespace FlatZinc {
       _output("-o","file to send output to"),
 
       _sendNodes("-send-nodes", "whether to send nodes to visualizer", true),
-      _omitImplied("-omit-implied", "whether to omit implied choices when replaying search", true) {
+      _omitImplied("-omit-implied", "whether to omit implied choices when replaying search", true), 
+      _port("-port", "which port to send nodes through", 6565)
+    {
 
       _mode.add(Gecode::SM_SOLUTION, "solution");
       _mode.add(Gecode::SM_STAT, "stat");
@@ -317,6 +322,7 @@ namespace Gecode { namespace FlatZinc {
       add(_mode); add(_stat);
       add(_output);
       add(_sendNodes); add(_omitImplied);
+      add(_port);
     }
 
     void parse(int& argc, char* argv[]) {
@@ -363,6 +369,7 @@ namespace Gecode { namespace FlatZinc {
     bool sendNodes(void) const { return _sendNodes.value(); }
     bool omitImplied(void) const { return _omitImplied.value(); }
     bool interrupt(void) const { return _interrupt.value(); }
+    unsigned int port(void) const { return _port.value(); }
 
   };
 

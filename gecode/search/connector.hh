@@ -55,17 +55,16 @@ private:
   std::ofstream* ofs;
 
   char _thread_id;
+  const unsigned int port;
 
   system_clock::time_point begin_time;
   system_clock::time_point current_time;
 
   void sendOverSocket(Message &msg);
 
-
 public:
 
-  Connector(char tid);
-  Connector();
+  Connector(unsigned int port, char tid = 0);
 
   ~Connector();
 
@@ -77,6 +76,7 @@ public:
   void restartGist(int restart_id, const std::string& file_path);
 
   void disconnectFromSocket();
+  void sendDoneSending();
 
   void sendNode(int sid, int parent, int alt, int kids, int status, const char* label, char thread, int restart = -1, float domain = -1);
   

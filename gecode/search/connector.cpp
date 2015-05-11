@@ -37,13 +37,11 @@ void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
   domain = _domain;
 }
 
-Connector::Connector(char tid) : _thread_id(tid) {
-  begin_time = system_clock::now();
-  context = new zmq::context_t(1);
-  socket = new zmq::socket_t(*context, ZMQ_PUSH);
-}
 
-Connector::Connector() {
+Connector::Connector(unsigned int port, char tid)
+: port(port) 
+{
+  begin_time = system_clock::now();
   context = new zmq::context_t(1);
   socket = new zmq::socket_t(*context, ZMQ_PUSH);
 }
@@ -88,7 +86,7 @@ void Connector::sendNode(int sid,
   // std::cout << domain << std::endl;
 
   data.specifyNode(sid, parent, alt, kids, status, label, thread, timestamp, domain);
-  // std::cerr << "Received node: \t" << sid << " " << parent << " "
+  // std::cerr << "Send node: \t" << sid << " " << parent << " "
   //                   << alt << " " << kids << " " << status << " wid: "
   //                   << (int)thread << " restart: " << restart << std::endl;
   sendOverSocket(data);
@@ -135,18 +133,23 @@ void Connector::restartGist(int restart_id, const std::string& file_path) {
 }
 
 void Connector::connectToSocket() {
-  socket->connect("tcp://localhost:6565");
+  std::string address = "tcp://localhost:" + std::to_string(port);
+  socket->connect(address.c_str());
   begin_time = system_clock::now();
-  std::cout << "sending over port: 6565\n";
+  std::cout << "sending over port: " << port << "\n";
 }
 
 void Connector::disconnectFromSocket() {
+  
+  socket->close();
+  sleep(1); /// is that really necessary?
+  
+}
+
+void Connector::sendDoneSending() {
   data.type = DONE_SENDING;
   sendOverSocket(data);
-  socket->close();
   std::cout << "sending DONE_SENDING\n";
-  sleep(1);
-  
 }
 
 // Connector* Connector::inst = NULL;

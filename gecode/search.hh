@@ -222,7 +222,10 @@ namespace Gecode { namespace Search {
       Stop* stop;
       /// Cutoff for restart-based search
       Cutoff* cutoff;
+      /// Whether to send nodes
       bool sendNodes;
+      /// Which port to send nodes through
+      unsigned int port;
       /// Default options
       GECODE_SEARCH_EXPORT static const Options def;
       /// Initialize with default values

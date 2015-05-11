@@ -63,10 +63,10 @@ namespace Gecode { namespace Search { namespace Sequential {
   /// Implementation of depth-first branch-and-bound search engine
   class BAB : public Worker {
   private:
-    /// Socket handler
-    Connector connector;
     /// Search options
     Options opt;
+    /// Socket handler
+    Connector connector;
     /// Current path in search tree
     Path path;
     /// Current space being explored
@@ -95,7 +95,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
   forceinline 
   BAB::BAB(Space* s, const Options& o, bool isRestarts)
-    : opt(o), path(static_cast<int>(opt.nogoods_limit)), 
+    : opt(o), connector(o.port), path(static_cast<int>(opt.nogoods_limit)), 
       d(0), mark(0), best(NULL) {
 
 
@@ -108,7 +108,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         connector.restartGist(-1, o.problem_name);
     }
 
-    std::cout << "BAB\n";
+    std::cout << "sequential BAB\n";
 
 
     
@@ -255,6 +255,7 @@ namespace Gecode { namespace Search { namespace Sequential {
   forceinline 
   BAB::~BAB(void) {
     if (opt.sendNodes) {
+      connector.sendDoneSending();
       connector.disconnectFromSocket();
     }
     path.reset();

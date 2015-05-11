@@ -353,6 +353,8 @@ namespace Gecode {  namespace Gist {
     /// Timer id for delaying the update
     int layoutDoneTimerId;
 
+    Support::Timer timer;
+
     /// Timer invoked for smooth zooming and scrolling
     virtual void timerEvent(QTimerEvent* e);
 

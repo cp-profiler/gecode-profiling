@@ -140,6 +140,20 @@ namespace Gecode { namespace Search { namespace Parallel {
   forceinline
   BAB::BAB(Space* s, const Options& o, bool isRestart)
     : Engine(o), best(NULL) {
+
+    std::cout << "parallel BAB\n";
+
+
+    Connector connector(0); // Yes, this one is only created to send "START"
+    connector.connectToSocket();
+
+    if (isRestart)
+      connector.restartGist(0, o.problem_name);
+    else
+      connector.restartGist(-1, o.problem_name);
+
+
+
     // Create workers
     _worker = static_cast<Worker**>
       (heap.ralloc(workers() * sizeof(Worker*)));
@@ -153,6 +167,8 @@ namespace Gecode { namespace Search { namespace Parallel {
     // Create and start threads
     for (unsigned int i=0; i<workers(); i++)
       Support::Thread::run(_worker[i]);
+
+    // connector.disconnectFromSocket();
   }
 
 

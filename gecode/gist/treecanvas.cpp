@@ -279,6 +279,7 @@ namespace Gecode { namespace Gist {
   void
   TreeCanvas::statusChanged(bool finished) {
     if (finished) {
+      std::cerr << "finished " << timer.stop() << "\n";
       update();
       centerCurrentNode();
     }
@@ -455,12 +456,14 @@ namespace Gecode { namespace Gist {
   void
   TreeCanvas::searchAll(void) {
     QMutexLocker locker(&mutex);
+    timer.start();
     searcher.search(currentNode, true, this);
   }
 
   void
   TreeCanvas::searchOne(void) {
     QMutexLocker locker(&mutex);
+    timer.start();
     searcher.search(currentNode, false, this);
   }
 

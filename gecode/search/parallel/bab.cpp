@@ -60,7 +60,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   void
   BAB::Worker::run(void) {
 
-    Connector connector(_wid);
+    Connector connector(engine().opt().port, _wid);
     path.setConnector(&connector);
 
     pid = -1;
@@ -257,9 +257,10 @@ namespace Gecode { namespace Search { namespace Parallel {
   }
 
   BAB::~BAB(void) {
-    Connector connector;
+    Connector connector(opt().port);
     std::cerr << "sending done...";
     connector.connectToSocket();
+    connector.sendDoneSending();
     connector.disconnectFromSocket();
 
     terminate();

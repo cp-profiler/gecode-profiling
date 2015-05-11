@@ -88,7 +88,7 @@
 
 
       if (opt.sendNodes) {
-        connector = new Connector();
+        connector = new Connector(opt.port);
         connector->connectToSocket();
 
         if (isRestarts)
@@ -216,6 +216,7 @@
   DFS::~DFS(void) {
     delete cur;
     if (opt.sendNodes) {
+      connector->sendDoneSending();
       connector->disconnectFromSocket();
       delete connector;
     }
