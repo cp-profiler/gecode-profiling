@@ -88,8 +88,8 @@ else
 export LINKSTATICQT = $(LINKQT)
 endif
 
-export GLDFLAGS = @GLDFLAGS@
-export DLLFLAGS = @DLLFLAGS@
+export GLDFLAGS = @GLDFLAGS@ -fPIC
+export DLLFLAGS = @DLLFLAGS@ -fPIC
 export DLLPATH = @DLLPATH@
 
 export RANLIB = @RANLIB@
@@ -255,11 +255,12 @@ SEARCHHDR0 = \
 	parallel/dfs.hh parallel/bab.hh \
 	meta/rbs.hh meta/nogoods.hh \
 	dfs.hpp bab.hpp rbs.hpp engine-base.hpp \
-	connector.hh
+	connector.hh message.pb.h
 
 SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp)
 SEARCHHDR	= gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
-SEARCHOBJ	= $(SEARCHSRC:%.cpp=%$(OBJSUFFIX))
+SEARCHOBJ	= $(SEARCHSRC:%.cpp=%$(OBJSUFFIX)) gecode/search/message.pb.o
+SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp) gecode/search/message.pb.cc
 
 ifeq "@enable_search@" "yes"
 export SEARCHDLL	= $(LIBPREFIX)@SEARCH@$(DLLSUFFIX)
@@ -1362,7 +1363,7 @@ $(KERNELDLL): $(KERNELOBJ) $(SUPPORTDLL)
 $(SEARCHDLL): $(SEARCHOBJ) $(INTDLL) $(SUPPORTDLL) $(KERNELDLL)
 	$(CXX) $(DLLFLAGS) $(SEARCHOBJ) $(SEARCHSONAME) \
 		@DLLPATH@ $(LINKINT) $(LINKSUPPORT) $(LINKKERNEL) \
-		@LINKOUTPUT@$(SEARCHDLL) -lzmq
+		@LINKOUTPUT@$(SEARCHDLL) -lzmq -lprotobuf -L/usr/local/lib
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOLINKSUFFIX))
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOSUFFIX))
 $(INTDLL): $(INTOBJ) $(SUPPORTDLL) $(KERNELDLL)
@@ -1638,7 +1639,7 @@ endif
 $(FLATZINCEXE): $(FLATZINCEXEOBJ) $(FLATZINCEXERES) $(ALLLIB)
 	$(CXX) @EXEOUTPUT@$@ $(FLATZINCEXEOBJ) $(FLATZINCEXERES) \
 	$(DLLPATH) $(CXXFLAGS) \
-	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lzmq 
+	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lzmq -lprotobuf -L/usr/local/lib
 	$(FIXMANIFEST) $@.manifest
 	$(MANIFEST) -manifest $@.manifest -outputresource:$@\;1
 

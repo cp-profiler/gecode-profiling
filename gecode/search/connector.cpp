@@ -1,123 +1,76 @@
 #include <gecode/search/connector.hh>
+#include "gecode/search/message.pb.h"
 #include <cstring>
 #include <string>
 #include <unistd.h>
 
-Message::Message(void) {
-  strcpy(label, "");
-}
-
-void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, const char* _label, char _thread,
-                          unsigned long long _time, float _domain) {
-  std::memcpy(label, _label, Message::LABEL_SIZE - 1);
-  type = NODE_DATA;
-  sid = _sid;
-  parent = _parent;
-  alt = _alt;
-  kids = _kids;
-  status = _status;
-  time = _time;
-  thread = _thread;
-  domain = _domain;
-}
-
-void Message::specifyNode(int _sid, int _parent, int _alt, int _kids,
-                          int _status, char _thread, unsigned long long _time,
-                          float _domain) {
-  std::memcpy(label, "", Message::LABEL_SIZE - 1);
-  type = NODE_DATA;
-  sid = _sid;
-  parent = _parent;
-  alt = _alt;
-  kids = _kids;
-  status = _status;
-  time = _time;
-  thread = _thread;
-  domain = _domain;
-}
-
 
 Connector::Connector(unsigned int port, char tid)
-: port(port) 
-{
-  begin_time = system_clock::now();
-  context = new zmq::context_t(1);
-  socket = new zmq::socket_t(*context, ZMQ_PUSH);
+  : port(port), context(1), socket(context, ZMQ_PUSH) {
+  begin_time = system_clock::now(); /// TODO: should be removed?
 }
 
-Connector::~Connector() {
-  delete socket;
-  delete context;
-}
 
-// Connector& Connector::obj(void) {
-//   if (!inst)
-//     inst = new Connector();
-//   return *inst;
-// }
+inline void Connector::sendOverSocket(message::Node &msg) {
+  std::string msg_str;
+  msg.SerializeToString(&msg_str);
 
-void Connector::sendOverSocket(Message &msg) {
-  zmq::message_t request(sizeof(msg));
-  memcpy(request.data(), &data, sizeof(msg));
-  int ne = socket->send(request);
-    
-  if (ne == -1)
+  zmq::message_t request(msg_str.size());
+  memcpy((void*)request.data(), msg_str.c_str(), msg_str.size());
+
+  int ne = socket.send(request);
+  
+  if (ne == -1) {
     std::cerr << "error while sending over socket\n";
+    abort();
+  }
 }
 
 void Connector::sendNode(int sid,
-                         int parent,
+                         int pid,
                          int alt,
                          int kids,
                          int status,
                          const char* label,
                          char thread,
                          int restart,
-                         float domain
-) {
-
+                         float domain)
+{
   current_time = system_clock::now();
 
   unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
 
-  data.restart_id = restart;
+  message::Node node;
 
-  // std::cout << domain << std::endl;
+  node.set_type(message::Node::NODE);
 
-  data.specifyNode(sid, parent, alt, kids, status, label, thread, timestamp, domain);
-  // std::cerr << "Send node: \t" << sid << " " << parent << " "
-  //                   << alt << " " << kids << " " << status << " wid: "
-  //                   << (int)thread << " restart: " << restart << std::endl;
-  sendOverSocket(data);
+  node.set_sid(sid);
+  node.set_pid(pid);
+  node.set_alt(alt);
+  node.set_kids(kids);
+
+  node.set_status(static_cast<message::Node::NodeStatus>(status));
+  node.set_label(label);
+  node.set_thread_id(thread);
+  node.set_restart_id(restart);
+  node.set_domain_size(domain);
+
+  sendOverSocket(node);
 }
 
-void Connector::sendNode(int sid,
-                         int parent,
-                         int alt,
-                         int kids,
-                         int status,
-                         char thread,
-                         int restart,
-                         float domain
-) {
-
-  current_time = system_clock::now();
-
-  unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
-
-  // usleep(1000);
-  data.restart_id = restart;
-  data.specifyNode(sid, parent, alt, kids, status, thread, timestamp, domain);
-
-  // std::cout << domain << std::endl;
-  sendOverSocket(data);
+void Connector::sendNode(int sid, int pid, int alt, int kids, int status, char thread, int restart, float domain) {
+  sendNode(sid, pid, alt, kids, status, "", thread, restart, domain);
 }
+
 
 void Connector::restartGist(int restart_id, const std::string& file_path) {
   std::cerr << "restarting gist, restart_id: " << restart_id << "\n";
-  data.type = START_SENDING;
-  data.restart_id = restart_id;
+
+  message::Node dummy_node;
+  dummy_node.set_type(message::Node::START);
+
+  /// new: is this really required? old: this needs to be changed to 0 if restarts
+  dummy_node.set_restart_id(-1);
 
   /// extract fzn file name
   std::string name(file_path);
@@ -126,30 +79,33 @@ void Connector::restartGist(int restart_id, const std::string& file_path) {
     name = name.substr(pos + 1, name.length() - pos - 1);
   }
 
-  std::memcpy(data.label, name.c_str(), Message::LABEL_SIZE - 1);
+  dummy_node.set_label(name);
 
-  data.label[Message::LABEL_SIZE - 1] = '\0';
-  sendOverSocket(data);
+  sendOverSocket(dummy_node);
 }
 
 void Connector::connectToSocket() {
   std::string address = "tcp://localhost:" + std::to_string(port);
-  socket->connect(address.c_str());
+  socket.connect(address.c_str());
   begin_time = system_clock::now();
   std::cout << "sending over port: " << port << "\n";
 }
 
 void Connector::disconnectFromSocket() {
+  message::Node dummy_node;
+  dummy_node.set_type(message::Node::DONE);
+
+  sendOverSocket(dummy_node);
   
-  socket->close();
+  socket.close();
   sleep(1); /// is that really necessary?
   
 }
 
 void Connector::sendDoneSending() {
-  data.type = DONE_SENDING;
-  sendOverSocket(data);
+  message::Node dummy_node;
+  dummy_node.set_type(message::Node::DONE);
+  sendOverSocket(dummy_node);
+
   std::cout << "sending DONE_SENDING\n";
 }
-
-// Connector* Connector::inst = NULL;

@@ -140,7 +140,6 @@ namespace Gecode { namespace Search { namespace Sequential {
     int pid = -1;
     int alt = -1;
     int kids = -1;
-    char label[Message::LABEL_SIZE];
 
     if (opt.sendNodes) {
       path.setConnector(&connector);
