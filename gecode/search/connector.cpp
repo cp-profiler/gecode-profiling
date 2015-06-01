@@ -64,7 +64,7 @@ void Connector::sendNode(int sid, int pid, int alt, int kids, int status, char t
 
 
 void Connector::restartGist(int restart_id, const std::string& file_path) {
-  std::cerr << "restarting gist, restart_id: " << restart_id << "\n";
+  // std::cerr << "restarting gist, restart_id: " << restart_id << "\n";
 
   message::Node dummy_node;
   dummy_node.set_type(message::Node::START);
@@ -88,7 +88,7 @@ void Connector::connectToSocket() {
   std::string address = "tcp://localhost:" + std::to_string(port);
   socket.connect(address.c_str());
   begin_time = system_clock::now();
-  std::cout << "sending over port: " << port << "\n";
+  // std::cout << "sending over port: " << port << "\n";
 }
 
 void Connector::disconnectFromSocket() {
@@ -107,5 +107,5 @@ void Connector::sendDoneSending() {
   dummy_node.set_type(message::Node::DONE);
   sendOverSocket(dummy_node);
 
-  std::cout << "sending DONE_SENDING\n";
+  // std::cout << "sending DONE_SENDING\n";
 }

@@ -83,8 +83,8 @@
   forceinline 
   DFS::DFS(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
-      std::cout << "filename: " << o.problem_name << std::endl;
-      std::cout << "DFS\n";
+      // std::cout << "filename: " << o.problem_name << std::endl;
+      // std::cout << "DFS\n";
 
 
       if (opt.sendNodes) {

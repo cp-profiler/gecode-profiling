@@ -141,7 +141,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   BAB::BAB(Space* s, const Options& o, bool isRestart)
     : Engine(o), best(NULL) {
 
-    std::cout << "parallel BAB\n";
+    // std::cout << "parallel BAB\n";
 
 
     Connector connector(0); // Yes, this one is only created to send "START"

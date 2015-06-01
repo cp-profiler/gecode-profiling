@@ -108,8 +108,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         connector.restartGist(-1, o.problem_name);
     }
 
-    std::cout << "sequential BAB\n";
-
+    // std::cout << "sequential BAB\n";
 
     
 
