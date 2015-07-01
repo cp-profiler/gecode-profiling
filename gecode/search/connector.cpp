@@ -1,5 +1,5 @@
 #include <gecode/search/connector.hh>
-#include "gecode/search/message.pb.h"
+#include <gecode/search/message.pb.hh>
 #include <cstring>
 #include <string>
 #include <unistd.h>
@@ -19,7 +19,7 @@ inline void Connector::sendOverSocket(message::Node &msg) {
   memcpy((void*)request.data(), msg_str.c_str(), msg_str.size());
 
   int ne = socket.send(request);
-  
+
   if (ne == -1) {
     std::cerr << "error while sending over socket\n";
     abort();
@@ -96,10 +96,10 @@ void Connector::disconnectFromSocket() {
   dummy_node.set_type(message::Node::DONE);
 
   sendOverSocket(dummy_node);
-  
+
   socket.close();
   sleep(1); /// is that really necessary?
-  
+
 }
 
 void Connector::sendDoneSending() {
