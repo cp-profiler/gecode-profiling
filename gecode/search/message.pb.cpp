@@ -50,16 +50,16 @@ void protobuf_AssignDesc_message_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Node, domain_size_),
   };
   Node_reflection_ =
-    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+    new ::google::protobuf::internal::GeneratedMessageReflection(
       Node_descriptor_,
       Node::default_instance_,
       Node_offsets_,
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Node, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Node, _unknown_fields_),
       -1,
-      -1,
-      sizeof(Node),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Node, _internal_metadata_),
-      -1);
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Node));
   Node_MsgType_descriptor_ = Node_descriptor_->enum_type(0);
   Node_NodeStatus_descriptor_ = Node_descriptor_->enum_type(1);
 }
@@ -75,7 +75,7 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-      Node_descriptor_, &Node::default_instance());
+    Node_descriptor_, &Node::default_instance());
 }
 
 }  // namespace
@@ -116,16 +116,6 @@ struct StaticDescriptorInitializer_message_2eproto {
     protobuf_AddDesc_message_2eproto();
   }
 } static_descriptor_initializer_message_2eproto_;
-
-namespace {
-
-static void MergeFromFail(int line) GOOGLE_ATTRIBUTE_COLD;
-static void MergeFromFail(int line) {
-  GOOGLE_CHECK(false) << __FILE__ << ":" << line;
-}
-
-}  // namespace
-
 
 // ===================================================================
 
@@ -200,7 +190,7 @@ const int Node::kDomainSizeFieldNumber;
 #endif  // !_MSC_VER
 
 Node::Node()
-  : ::google::protobuf::Message() , _internal_metadata_(NULL)  {
+  : ::google::protobuf::Message() {
   SharedCtor();
   // @@protoc_insertion_point(constructor:message.Node)
 }
@@ -209,8 +199,7 @@ void Node::InitAsDefaultInstance() {
 }
 
 Node::Node(const Node& from)
-  : ::google::protobuf::Message(),
-    _internal_metadata_(NULL) {
+  : ::google::protobuf::Message() {
   SharedCtor();
   MergeFrom(from);
   // @@protoc_insertion_point(copy_constructor:message.Node)
@@ -228,7 +217,7 @@ void Node::SharedCtor() {
   restart_id_ = 0;
   time_ = GOOGLE_ULONGLONG(0);
   thread_id_ = 0;
-  label_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  label_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   domain_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -239,7 +228,9 @@ Node::~Node() {
 }
 
 void Node::SharedDtor() {
-  label_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (label_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete label_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -261,22 +252,20 @@ const Node& Node::default_instance() {
 
 Node* Node::default_instance_ = NULL;
 
-Node* Node::New(::google::protobuf::Arena* arena) const {
-  Node* n = new Node;
-  if (arena != NULL) {
-    arena->Own(n);
-  }
-  return n;
+Node* Node::New() const {
+  return new Node;
 }
 
 void Node::Clear() {
-#define ZR_HELPER_(f) reinterpret_cast<char*>(\
-  &reinterpret_cast<Node*>(16)->f)
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Node*>(16)->f) - \
+   reinterpret_cast<char*>(16))
 
-#define ZR_(first, last) do {\
-  ::memset(&first, 0,\
-           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
-} while (0)
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
 
   if (_has_bits_[0 / 32] & 255) {
     ZR_(type_, restart_id_);
@@ -284,18 +273,18 @@ void Node::Clear() {
   if (_has_bits_[8 / 32] & 1792) {
     thread_id_ = 0;
     if (has_label()) {
-      label_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+      if (label_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        label_->clear();
+      }
     }
     domain_size_ = 0;
   }
 
-#undef ZR_HELPER_
+#undef OFFSET_OF_FIELD_
 #undef ZR_
 
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  if (_internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->Clear();
-  }
+  mutable_unknown_fields()->Clear();
 }
 
 bool Node::MergePartialFromCodedStream(
@@ -461,7 +450,7 @@ bool Node::MergePartialFromCodedStream(
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
             this->label().data(), this->label().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "message.Node.label");
+            "label");
         } else {
           goto handle_unusual;
         }
@@ -561,7 +550,7 @@ void Node::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->label().data(), this->label().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "message.Node.label");
+      "label");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
       10, this->label(), output);
   }
@@ -571,7 +560,7 @@ void Node::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(11, this->domain_size(), output);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
   }
@@ -633,7 +622,7 @@ void Node::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->label().data(), this->label().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "message.Node.label");
+      "label");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         10, this->label(), target);
@@ -644,7 +633,7 @@ void Node::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(11, this->domain_size(), target);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
   }
@@ -655,12 +644,13 @@ void Node::SerializeWithCachedSizes(
 int Node::ByteSize() const {
   int total_size = 0;
 
-  // required .message.Node.MsgType type = 1;
-  if (has_type()) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
-  }
-  if (_has_bits_[1 / 32] & 254) {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required .message.Node.MsgType type = 1;
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+    }
+
     // optional int32 sid = 2;
     if (has_sid()) {
       total_size += 1 +
@@ -710,7 +700,7 @@ int Node::ByteSize() const {
     }
 
   }
-  if (_has_bits_[8 / 32] & 1792) {
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional int32 thread_id = 9;
     if (has_thread_id()) {
       total_size += 1 +
@@ -731,7 +721,7 @@ int Node::ByteSize() const {
     }
 
   }
-  if (_internal_metadata_.have_unknown_fields()) {
+  if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         unknown_fields());
@@ -743,7 +733,7 @@ int Node::ByteSize() const {
 }
 
 void Node::MergeFrom(const ::google::protobuf::Message& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   const Node* source =
     ::google::protobuf::internal::dynamic_cast_if_available<const Node*>(
       &from);
@@ -755,7 +745,7 @@ void Node::MergeFrom(const ::google::protobuf::Message& from) {
 }
 
 void Node::MergeFrom(const Node& from) {
-  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_type()) {
       set_type(from.type());
@@ -787,16 +777,13 @@ void Node::MergeFrom(const Node& from) {
       set_thread_id(from.thread_id());
     }
     if (from.has_label()) {
-      set_has_label();
-      label_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.label_);
+      set_label(from.label());
     }
     if (from.has_domain_size()) {
       set_domain_size(from.domain_size());
     }
   }
-  if (from._internal_metadata_.have_unknown_fields()) {
-    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
 void Node::CopyFrom(const ::google::protobuf::Message& from) {
@@ -818,24 +805,22 @@ bool Node::IsInitialized() const {
 }
 
 void Node::Swap(Node* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void Node::InternalSwap(Node* other) {
-  std::swap(type_, other->type_);
-  std::swap(sid_, other->sid_);
-  std::swap(pid_, other->pid_);
-  std::swap(alt_, other->alt_);
-  std::swap(kids_, other->kids_);
-  std::swap(status_, other->status_);
-  std::swap(restart_id_, other->restart_id_);
-  std::swap(time_, other->time_);
-  std::swap(thread_id_, other->thread_id_);
-  label_.Swap(&other->label_);
-  std::swap(domain_size_, other->domain_size_);
-  std::swap(_has_bits_[0], other->_has_bits_[0]);
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  std::swap(_cached_size_, other->_cached_size_);
+  if (other != this) {
+    std::swap(type_, other->type_);
+    std::swap(sid_, other->sid_);
+    std::swap(pid_, other->pid_);
+    std::swap(alt_, other->alt_);
+    std::swap(kids_, other->kids_);
+    std::swap(status_, other->status_);
+    std::swap(restart_id_, other->restart_id_);
+    std::swap(time_, other->time_);
+    std::swap(thread_id_, other->thread_id_);
+    std::swap(label_, other->label_);
+    std::swap(domain_size_, other->domain_size_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
 }
 
 ::google::protobuf::Metadata Node::GetMetadata() const {
@@ -846,305 +831,6 @@ void Node::InternalSwap(Node* other) {
   return metadata;
 }
 
-#if PROTOBUF_INLINE_NOT_IN_HEADERS
-// Node
-
-// required .message.Node.MsgType type = 1;
- bool Node::has_type() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
- void Node::set_has_type() {
-  _has_bits_[0] |= 0x00000001u;
-}
- void Node::clear_has_type() {
-  _has_bits_[0] &= ~0x00000001u;
-}
- void Node::clear_type() {
-  type_ = 0;
-  clear_has_type();
-}
- ::message::Node_MsgType Node::type() const {
-  // @@protoc_insertion_point(field_get:message.Node.type)
-  return static_cast< ::message::Node_MsgType >(type_);
-}
- void Node::set_type(::message::Node_MsgType value) {
-  assert(::message::Node_MsgType_IsValid(value));
-  set_has_type();
-  type_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.type)
-}
-
-// optional int32 sid = 2;
- bool Node::has_sid() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
- void Node::set_has_sid() {
-  _has_bits_[0] |= 0x00000002u;
-}
- void Node::clear_has_sid() {
-  _has_bits_[0] &= ~0x00000002u;
-}
- void Node::clear_sid() {
-  sid_ = 0;
-  clear_has_sid();
-}
- ::google::protobuf::int32 Node::sid() const {
-  // @@protoc_insertion_point(field_get:message.Node.sid)
-  return sid_;
-}
- void Node::set_sid(::google::protobuf::int32 value) {
-  set_has_sid();
-  sid_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.sid)
-}
-
-// optional int32 pid = 3;
- bool Node::has_pid() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
- void Node::set_has_pid() {
-  _has_bits_[0] |= 0x00000004u;
-}
- void Node::clear_has_pid() {
-  _has_bits_[0] &= ~0x00000004u;
-}
- void Node::clear_pid() {
-  pid_ = 0;
-  clear_has_pid();
-}
- ::google::protobuf::int32 Node::pid() const {
-  // @@protoc_insertion_point(field_get:message.Node.pid)
-  return pid_;
-}
- void Node::set_pid(::google::protobuf::int32 value) {
-  set_has_pid();
-  pid_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.pid)
-}
-
-// optional int32 alt = 4;
- bool Node::has_alt() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
- void Node::set_has_alt() {
-  _has_bits_[0] |= 0x00000008u;
-}
- void Node::clear_has_alt() {
-  _has_bits_[0] &= ~0x00000008u;
-}
- void Node::clear_alt() {
-  alt_ = 0;
-  clear_has_alt();
-}
- ::google::protobuf::int32 Node::alt() const {
-  // @@protoc_insertion_point(field_get:message.Node.alt)
-  return alt_;
-}
- void Node::set_alt(::google::protobuf::int32 value) {
-  set_has_alt();
-  alt_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.alt)
-}
-
-// optional int32 kids = 5;
- bool Node::has_kids() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
- void Node::set_has_kids() {
-  _has_bits_[0] |= 0x00000010u;
-}
- void Node::clear_has_kids() {
-  _has_bits_[0] &= ~0x00000010u;
-}
- void Node::clear_kids() {
-  kids_ = 0;
-  clear_has_kids();
-}
- ::google::protobuf::int32 Node::kids() const {
-  // @@protoc_insertion_point(field_get:message.Node.kids)
-  return kids_;
-}
- void Node::set_kids(::google::protobuf::int32 value) {
-  set_has_kids();
-  kids_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.kids)
-}
-
-// optional .message.Node.NodeStatus status = 6;
- bool Node::has_status() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
- void Node::set_has_status() {
-  _has_bits_[0] |= 0x00000020u;
-}
- void Node::clear_has_status() {
-  _has_bits_[0] &= ~0x00000020u;
-}
- void Node::clear_status() {
-  status_ = 0;
-  clear_has_status();
-}
- ::message::Node_NodeStatus Node::status() const {
-  // @@protoc_insertion_point(field_get:message.Node.status)
-  return static_cast< ::message::Node_NodeStatus >(status_);
-}
- void Node::set_status(::message::Node_NodeStatus value) {
-  assert(::message::Node_NodeStatus_IsValid(value));
-  set_has_status();
-  status_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.status)
-}
-
-// optional int32 restart_id = 7;
- bool Node::has_restart_id() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
-}
- void Node::set_has_restart_id() {
-  _has_bits_[0] |= 0x00000040u;
-}
- void Node::clear_has_restart_id() {
-  _has_bits_[0] &= ~0x00000040u;
-}
- void Node::clear_restart_id() {
-  restart_id_ = 0;
-  clear_has_restart_id();
-}
- ::google::protobuf::int32 Node::restart_id() const {
-  // @@protoc_insertion_point(field_get:message.Node.restart_id)
-  return restart_id_;
-}
- void Node::set_restart_id(::google::protobuf::int32 value) {
-  set_has_restart_id();
-  restart_id_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.restart_id)
-}
-
-// optional uint64 time = 8;
- bool Node::has_time() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
- void Node::set_has_time() {
-  _has_bits_[0] |= 0x00000080u;
-}
- void Node::clear_has_time() {
-  _has_bits_[0] &= ~0x00000080u;
-}
- void Node::clear_time() {
-  time_ = GOOGLE_ULONGLONG(0);
-  clear_has_time();
-}
- ::google::protobuf::uint64 Node::time() const {
-  // @@protoc_insertion_point(field_get:message.Node.time)
-  return time_;
-}
- void Node::set_time(::google::protobuf::uint64 value) {
-  set_has_time();
-  time_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.time)
-}
-
-// optional int32 thread_id = 9;
- bool Node::has_thread_id() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
- void Node::set_has_thread_id() {
-  _has_bits_[0] |= 0x00000100u;
-}
- void Node::clear_has_thread_id() {
-  _has_bits_[0] &= ~0x00000100u;
-}
- void Node::clear_thread_id() {
-  thread_id_ = 0;
-  clear_has_thread_id();
-}
- ::google::protobuf::int32 Node::thread_id() const {
-  // @@protoc_insertion_point(field_get:message.Node.thread_id)
-  return thread_id_;
-}
- void Node::set_thread_id(::google::protobuf::int32 value) {
-  set_has_thread_id();
-  thread_id_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.thread_id)
-}
-
-// optional string label = 10;
- bool Node::has_label() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
-}
- void Node::set_has_label() {
-  _has_bits_[0] |= 0x00000200u;
-}
- void Node::clear_has_label() {
-  _has_bits_[0] &= ~0x00000200u;
-}
- void Node::clear_label() {
-  label_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_label();
-}
- const ::std::string& Node::label() const {
-  // @@protoc_insertion_point(field_get:message.Node.label)
-  return label_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- void Node::set_label(const ::std::string& value) {
-  set_has_label();
-  label_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:message.Node.label)
-}
- void Node::set_label(const char* value) {
-  set_has_label();
-  label_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:message.Node.label)
-}
- void Node::set_label(const char* value, size_t size) {
-  set_has_label();
-  label_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:message.Node.label)
-}
- ::std::string* Node::mutable_label() {
-  set_has_label();
-  // @@protoc_insertion_point(field_mutable:message.Node.label)
-  return label_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- ::std::string* Node::release_label() {
-  clear_has_label();
-  return label_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
- void Node::set_allocated_label(::std::string* label) {
-  if (label != NULL) {
-    set_has_label();
-  } else {
-    clear_has_label();
-  }
-  label_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), label);
-  // @@protoc_insertion_point(field_set_allocated:message.Node.label)
-}
-
-// optional float domain_size = 11;
- bool Node::has_domain_size() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
-}
- void Node::set_has_domain_size() {
-  _has_bits_[0] |= 0x00000400u;
-}
- void Node::clear_has_domain_size() {
-  _has_bits_[0] &= ~0x00000400u;
-}
- void Node::clear_domain_size() {
-  domain_size_ = 0;
-  clear_has_domain_size();
-}
- float Node::domain_size() const {
-  // @@protoc_insertion_point(field_get:message.Node.domain_size)
-  return domain_size_;
-}
- void Node::set_domain_size(float value) {
-  set_has_domain_size();
-  domain_size_ = value;
-  // @@protoc_insertion_point(field_set:message.Node.domain_size)
-}
-
-#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
 
 // @@protoc_insertion_point(namespace_scope)
 
