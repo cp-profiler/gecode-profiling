@@ -79,6 +79,9 @@
 /* Whether unistd.h is available */
 #undef GECODE_HAS_UNISTD_H
 
+/* Whether unordered_map is available */
+#undef GECODE_HAS_UNORDERED_MAP
+
 /* Gecode version */
 #undef GECODE_LIBRARY_VERSION
 

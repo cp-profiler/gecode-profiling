@@ -35,52 +35,48 @@
  *
  */
 
-namespace Gecode { namespace MiniModel {
+namespace Gecode {
 
-  template<IntRelType irt>
   forceinline
-  IntOptimizeSpace<irt>::IntOptimizeSpace(void) {}
+  IntMinimizeSpace::IntMinimizeSpace(void) {}
 
-  template<IntRelType irt>
   forceinline
-  IntOptimizeSpace<irt>::IntOptimizeSpace(bool share, IntOptimizeSpace& s)
+  IntMinimizeSpace::IntMinimizeSpace(bool share, IntMinimizeSpace& s)
     : Space(share,s) {}
 
-  template<IntRelType irt>
-  void
-  IntOptimizeSpace<irt>::constrain(const Space& _best) {
-    const IntOptimizeSpace<irt>* best =
-      dynamic_cast<const IntOptimizeSpace<irt>*>(&_best);
-    if (best == NULL)
-      throw DynamicCastFailed("IntOptimizeSpace::constrain");
-    rel(*this, cost(), irt, best->cost().val());
-  }
+
+  forceinline
+  IntMaximizeSpace::IntMaximizeSpace(void) {}
+
+  forceinline
+  IntMaximizeSpace::IntMaximizeSpace(bool share, IntMaximizeSpace& s)
+    : Space(share,s) {}
+
 
 #ifdef GECODE_HAS_FLOAT_VARS 
 
-  template<FloatRelType frt>
   forceinline
-  FloatOptimizeSpace<frt>::FloatOptimizeSpace(void) {}
+  FloatMinimizeSpace::FloatMinimizeSpace(FloatNum s)
+    : step(s) {}
 
-  template<FloatRelType frt>
   forceinline
-  FloatOptimizeSpace<frt>::FloatOptimizeSpace(bool share, 
-                                              FloatOptimizeSpace& s)
-    : Space(share,s) {}
+  FloatMinimizeSpace::FloatMinimizeSpace(bool share, 
+                                         FloatMinimizeSpace& s)
+    : Space(share,s), step(s.step) {}
 
-  template<FloatRelType frt>
-  void
-  FloatOptimizeSpace<frt>::constrain(const Space& _best) {
-    const FloatOptimizeSpace<frt>* best =
-      dynamic_cast<const FloatOptimizeSpace<frt>*>(&_best);
-    if (best == NULL)
-      throw DynamicCastFailed("FloatOptimizeSpace::constrain");
-    rel(*this, cost(), frt, best->cost().val());
-  }
+
+  forceinline
+  FloatMaximizeSpace::FloatMaximizeSpace(FloatNum s)
+    : step(s) {}
+
+  forceinline
+  FloatMaximizeSpace::FloatMaximizeSpace(bool share, 
+                                         FloatMaximizeSpace& s)
+    : Space(share,s), step(s.step) {}
 
 #endif
 
-}}
+}
 
 // STATISTICS: minimodel-search
 

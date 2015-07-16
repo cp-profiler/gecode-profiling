@@ -66,12 +66,19 @@ int main(int argc, char** argv) {
 
   FlatZinc::Printer p;
   FlatZinc::FlatZincSpace* fg = NULL;
+  FlatZinc::FznRnd rnd(opt.seed());
   try {
     FlatZinc::ParseResult pr;
     if (!strcmp(filename, "-")) {
+// <<<<<<< HEAD
       pr = FlatZinc::parseWithSymbols(cin, p);
     } else {
       pr = FlatZinc::parseWithSymbols(filename, p);
+// =======
+    //   fg = FlatZinc::parse(cin, p, std::cerr, NULL, &rnd);
+    // } else {
+    //   fg = FlatZinc::parse(filename, p, std::cerr, NULL, &rnd);
+// >>>>>>> gecode-4.4.0
     }
     fg = pr.s;
 

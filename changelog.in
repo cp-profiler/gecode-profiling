@@ -67,10 +67,452 @@
 #
 
 [RELEASE]
-Version: 4.2.2
-Date: 2013-11-05
+Version: 4.4.0
+Date: 2015-03-20
 [DESCRIPTION]
-Gaga!
+This release fixes some bugs and improves some search-related aspects.
+
+Note that you will have to change all scripts that inherit from
+the pre-defined script classes (Script, IntMinimizeScript,
+IntMaximizeScript, FloatMinimizeScript, FloatMaximizeScript). The
+change is easy: in your constructor you have to add a call to the
+constructor of the pre-defined script class with the command line
+options as argument. Just check any of the Gecode example for how
+it is done.
+
+
+[ENTRY]
+Module: flatzinc
+What:   new
+Rank:   minor
+Thanks: Mark Manser 
+[DESCRIPTION]
+An option -step now can pass an improvement step for
+optimization of float problems.
+
+[ENTRY]
+Module: driver
+What:   change
+Rank:   major
+[DESCRIPTION]
+All scripts now must call the constructor of their base class
+with an option argument. 
+
+Note that you will have to change your models by a call to the
+constructor of the script class with an option argument!
+
+[ENTRY]
+Module: driver
+What:   new
+Rank:   minor
+Thanks: Mark Manser 
+[DESCRIPTION]
+An option -step now can pass an improvement step to scripts of
+type FloatMinimizeScript and FloatMaximizeScript.
+
+[ENTRY]
+Module: minimodel
+What:   new
+Rank:   minor
+Thanks: Mark Manser 
+[DESCRIPTION]
+The classes FloatMinimizeSpace and FloatMaximizeSpace can be
+created with an improvement step for optimization.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Ahmed Kamal
+[DESCRIPTION]
+Added support for missing builtins array_float_element
+(by decomposition), float_lin_lt and float_lin_lt_reif.
+
+[ENTRY]
+Module: search
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added functions to Stop class that can create common stop objects.
+
+[ENTRY]
+Module: search
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Exposed class definitions for common cutoff generators.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Håkan Kjellerstrand
+[DESCRIPTION]
+LNS could fail when the search was restarted before finding the first solution.
+
+[ENTRY]
+Module: search
+What:   bug
+Rank:   major
+Thanks: Håkan Kjellerstrand
+[DESCRIPTION]
+Fix memory leak in the DFS and BAB search engines that could make restart-based
+search run out of memory very quickly.
+
+[ENTRY]
+Module: driver
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added option -seed for passing a seed to random number generators.
+
+[ENTRY]
+Module: example
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added quasigroup completion benchmarks.
+
+[ENTRY]
+Module: search
+What:   performance
+Rank:   minor
+[DESCRIPTION]
+Delay efforts for restarting until it is really needed after a
+solution has been found.
+
+
+[RELEASE]
+Version: 4.3.3
+Date: 2015-01-20
+[DESCRIPTION]
+This release adds support for LNS to FlatZinc, adds support for
+MiniZinc 2, fixes a number of bugs and some new constraints.
+
+[ENTRY]
+Module: flatzinc
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added support for arg_min and arg_max constraints.
+
+[ENTRY]
+Module: int
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added argmin and argmax constraints.
+
+[ENTRY]
+Module: search
+What:   bug
+Rank:   major
+Thanks: Zichen Zhu
+[DESCRIPTION]
+Now no-goods are extracted properly in case a solution is found.
+
+[ENTRY]
+Module: flatzinc
+What:   change
+Rank:   minor
+[DESCRIPTION]
+Add support for the MiniZinc 2 min/max builtins. The Gecode MiniZinc library
+is now compatible with both MiniZinc 1.6 and 2.0.
+
+[ENTRY]
+Module: search
+What:   change
+Rank:   minor
+[DESCRIPTION]
+Change the slave function for meta search engines to return whether the search
+in the slave is going to be complete. This is necessary for example in LNS,
+where completing the search in the slave does not mean that the overall search
+is finished.
+
+[ENTRY]
+Module: flatzinc
+What:   new
+Rank:   major
+[DESCRIPTION]
+Make a simple form of LNS accessible from FlatZinc. To use it, include
+gecode.mzn and add the relax_and_reconstruct search annotation defined in
+that file.
+
+[ENTRY]
+Module: set
+What:   bug
+Rank:   minor
+Thanks: Farshid Hassani Bijarbooneh
+[DESCRIPTION]
+The channeling propagator between a SetVar and an array of BoolVars
+propagated incorrectly when posted on a fixed SetVar.
+
+[ENTRY]
+Module: flatzinc
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Support dom_w_deg search annotation.
+
+[ENTRY]
+Module: flatzinc
+What:   change
+Rank:   minor
+[DESCRIPTION]
+Search on objective function variable after all other variables (but
+still before introduced variables).
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Mats Carlsson
+[DESCRIPTION]
+Fix special case detection for cumulatives constraint, could sometimes
+incorrectly turn a cumulatives into a disjunctive constraint.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Björn Böttcher
+[DESCRIPTION]
+Fix behaviour of -a command line option for satisfaction problems.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Chris Mears
+[DESCRIPTION]
+Fix default search annotation for float objectives.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks: Willem Van Onsem
+[DESCRIPTION]
+Install parser.tab.hh header.
+
+[ENTRY]
+Module: flatzinc
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Add support for gecode_schedule_cumulative_optional constraint.
+
+
+[RELEASE]
+Version: 4.3.2
+Date: 2014-11-06
+[DESCRIPTION]
+Fixed major bug in and added extensive tests for the FlatZinc
+interpreter. If you are using Gecode with FlatZinc you should
+definitely upgrade!
+
+[ENTRY]
+Module: test
+What:   new
+Rank:   major
+[DESCRIPTION]
+Added long-overdues tests for the FlatZinc interpreter.
+
+[ENTRY]
+Module: other
+What:   bug
+Rank:   minor
+Thanks:	Alex Elliott
+[DESCRIPTION]
+Fix cmake build file to work better when building with Qt.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   major
+Thanks: Jean-Noël Monette
+[DESCRIPTION]
+Fixed major bug that would cause the FlatZinc interpreter to crash
+on most models.
+
+[RELEASE]
+Version: 4.3.1
+Date: 2014-10-22
+[DESCRIPTION]
+This release fixes some minor issues and a major bug for the
+FlatZinc interpreter. It considerably extends restart-based
+search so that it supports LNS (Large Neighborhood Search).
+
+[ENTRY]
+Module: search
+What:   change
+Rank:   major
+[DESCRIPTION]
+The restart-based search engine has been made more powerful: the
+master() and slave() configuration functions have been extended
+and get more information about each restart and the engine always
+maintains the last solution found. In particulae, the engine is
+now powerful enough to support LNS (Large Neighborhood
+Search). For details, please see MPG.
+
+[ENTRY]
+Module: search
+What:   change
+Rank:   minor
+[DESCRIPTION]
+The interface of cutoff generators has been extended in that it
+now offers current value access (operator()()) as well as
+increment (operator++()).
+
+[ENTRY]
+Module: search
+What:   new
+Rank:   minor
+[DESCRIPTION]
+Added a cutoff generator that merges the values of two cutoff generators.
+
+[ENTRY]
+Module: other
+What:   bug
+Rank:   minor
+Thanks:	Pierre Talbot
+[DESCRIPTION]
+Gecode can now be used together with boost without conflicts.
+
+[ENTRY]
+Module: other
+What:   new
+Rank:   minor
+Thanks:	Petter Strandmark
+[DESCRIPTION]
+Added support for building examples with CMake.
+
+[ENTRY]
+Module: minimodel
+What:   bug
+Rank:   minor
+Thanks:	Léonard Benedetti
+[DESCRIPTION]
+Removed potentially undefined behavior for regular expressions. 
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   major
+Thanks:	Mats Carlsson
+[DESCRIPTION]
+Fixed FlatZinc aliasing detection on array variables that
+introduced incorrect aliases between variables.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks:	Frank Imeson
+[DESCRIPTION]
+Fixed parser for integer literals to generate error message when
+integers are out of bounds.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks:	Peter Nightingale
+[DESCRIPTION]
+Fixed the FlatZinc interpreter to accept empty arrays as arguments in
+annotations.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+Thanks:	Carleton Coffrin
+[DESCRIPTION]
+Fixed the behaviour for the -n and -a command line options for
+optimisation models.
+
+
+[RELEASE]
+Version: 4.3.0
+Date: 2014-08-28
+[DESCRIPTION]
+This release fixes a large number of both minor and major bugs,
+has some improvements for FlatZinc, and adds multi-dimensional
+bin-packing.
+
+[ENTRY]
+Module: other
+What:   bug
+Rank:   minor
+Thanks:	Victor Zverovich, Tony Kelman
+[DESCRIPTION]
+Various fixes for CMake:
+ - Set the output directory for runtime target files (executables and DLLs) to bin/ subdirectory of the project's binary directory to avoid collisions when Gecode is used as a subproject.Improve suppression of warnings.
+ - Add GECODE_USE_QT variable which specifies whether to use Qt. Qt is used if GECODE_USE_QT is TRUE or unset.
+ - Prevent linker warnings on MSVC.
+ - Use per-target instead of global include directories. This simplifies use of Gecode as a subproject because add_target_libraries(<target> <gecode-lib>) now sets the necessary include directories for <target> in addition to link dependencies.
+ - Fix to fully link internal dependencies needed for creating DLLs: https://github.com/ampl/gecode/pull/2
+ .
+
+[ENTRY]
+Module: flatzinc
+What:   change
+Rank:   minor
+[DESCRIPTION]
+The --free command line option has been renamed to -f to comply with other
+FlatZinc solvers.
+
+[ENTRY]
+Module: flatzinc
+What:   performance
+Rank:   minor
+[DESCRIPTION]
+The diffn constraint now posts additional implied cumulative constraints
+to strengthen propagation.
+
+[ENTRY]
+Module: flatzinc
+What:   bug
+Rank:   minor
+[DESCRIPTION]
+Added unshare constraints to all constraints that need them. Without unsharing,
+variables occurring multiply in the same FlatZinc arrays could lead to the
+FlatZinc interpreter aborting with an error.
+
+[ENTRY]
+Module: flatzinc
+What:   performance
+Rank:   minor
+[DESCRIPTION]
+Treat equality constraints in FlatZinc as aliases instead of posting 
+propagators, and post simple domain constraints before more complex
+propagators to help post the most efficient versions.
+
+[ENTRY]
+Module: example
+What:   new
+Rank:   minor
+Thanks: Stefano Gualandi, Brian Kell, Willem-Jan Van Hoeve
+[DESCRIPTION]
+Added example for multi-dimensional bin-packing
+constraint. Thanks to Brian and Willem-Jan for allowing us to use
+their data set.
+
+[ENTRY]
+Module: int
+What:   new
+Rank:   major
+Author: Stefano Gualandi
+[DESCRIPTION]
+Added multi-dimensional bin-packing constraint.
+
+[ENTRY]
+Module: kernel
+What:   change
+Rank:   minor
+Thanks: Kish Shen
+[DESCRIPTION]
+Allow 0.0 as decay value.
 
 [ENTRY]
 Module: other
@@ -120,7 +562,7 @@ Thanks: Victor Zverovich
 [DESCRIPTION]
 Fixed FlatZinc interpreter to compile with clang in C++11 mode.
 
-[ENRTY]
+[ENTRY]
 Module: int
 What:   bug
 Rank:   minor
@@ -129,14 +571,14 @@ Thanks: Bauke Conijn
 Re-enabled parts of not-first-not-last propagation for unary with
 optional tasks.
 
-[ENRTY]
+[ENTRY]
 Module: flatzinc
 What:   bug
 Rank:   minor
 [DESCRIPTION]
 Catch exceptions and print proper error message.
 
-[ENRTY]
+[ENTRY]
 Module: minimodel
 What:   bug
 Rank:   major
@@ -1249,7 +1691,7 @@ Rank:	major
 [DESCRIPTION]
 Added activity-based branching strategies for integer and Boolean
 variables: INT_VAR_ACTIVITY_MIN, INT_VAR_ACTIVITY_MAX,
-INT_VAR_ACTIVITY_SIZE__MIN, INT_VAR_ACTIVITY_SIZE_MAX. For
+INT_VAR_ACTIVITY_SIZE_MIN, INT_VAR_ACTIVITY_SIZE_MAX. For
 details, see "Modeling and Programming with Gecode".
 
 [ENTRY]

@@ -77,6 +77,9 @@ namespace Gecode { namespace Search { namespace Sequential {
     int mark;
     /// Best solution found so far
     Space* best;
+
+    std::ostringstream oss;
+
   public:
     /// Initialize with space \a s and search options \a o
     /// isRestarts = true if running -restart option
@@ -95,7 +98,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
   forceinline 
   BAB::BAB(Space* s, const Options& o, bool isRestarts)
-    : opt(o), connector(o.port == 0 ? 6565 : o.port), path(static_cast<int>(opt.nogoods_limit)), 
+    : opt(o), connector(o.port == 0 ? 6565 : o.port), path(opt.nogoods_limit), 
       d(0), mark(0), best(NULL) {
 
 
@@ -127,13 +130,19 @@ namespace Gecode { namespace Search { namespace Sequential {
   forceinline Space*
   BAB::next(void) {
     /*
-     * The invariant maintained by the engine is:
+     * The engine maintains the following invariant:
+     *  - If the current space (cur) is not NULL, the path always points
+     *    to exactly that space.
+     *  - If the current space (cur) is NULL, the path always points
+     *    to the next space (if there is any).
+     *
+     * This invariant is needed so that no-goods can be extracted properly
+     * when the engine is stopped or has found a solution.
+     *
+     * An additional invariant maintained by the engine is:
      *   For all nodes stored at a depth less than mark, there
      *   is no guarantee of betterness. For those above the mark,
      *   betterness is guaranteed.
-     *
-     * The engine maintains the path on the stack for the current
-     * node to be explored.
      *
      */
     int pid = -1;
@@ -146,11 +155,21 @@ namespace Gecode { namespace Search { namespace Sequential {
 
     start();
     while (true) {
-      while (cur) {
-        if (stop(opt))
+      if (stop(opt))
+        return NULL;
+      // Recompute and add constraint if necessary
+      while (cur == NULL) {
+        if (path.empty())
           return NULL;
-        node++;
-        std::ostringstream oss;
+        cur = path.recompute(d,opt.a_d,*this,*best,mark);
+        if (cur != NULL)
+          break;
+        path.next();
+      }
+      node++;
+      if (opt.sendNodes) {
+        oss.str("");
+        oss.clear();
         if (node == 1) {
           pid = -1;
           alt = -1;
@@ -160,65 +179,56 @@ namespace Gecode { namespace Search { namespace Sequential {
           alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
           cur->print(*edge.choice(), alt, oss);
         }
-        
-        switch (cur->status(*this)) {
-        case SS_FAILED:
-
-          if (opt.sendNodes) {
-            connector.sendNode(node, pid, alt, 0, 1,
+      }
+      switch (cur->status(*this)) {
+      case SS_FAILED:
+        if (opt.sendNodes) {
+          connector.sendNode(node, pid, alt, 0, 1,
                              oss.str().c_str(), 0, restart, 
                              cur->getDomainSize());
-          }
-
-          fail++;
-          delete cur;
-          cur = NULL;
-          break;
-        case SS_SOLVED:
-
-          if (opt.sendNodes) {
-            connector.sendNode(node, pid, alt, 0, 0,
+        }
+        fail++;
+        delete cur;
+        cur = NULL;
+        path.next();
+        break;
+      case SS_SOLVED:
+        if (opt.sendNodes) {
+          connector.sendNode(node, pid, alt, 0, 0,
                              oss.str().c_str(), 0, restart,
                              cur->getDomainSize());
+        }
+        // Deletes all pending branchers
+        (void) cur->choice();
+        delete best;
+        best = cur;
+        cur = NULL;
+        path.next();
+        mark = path.entries();
+        return best->clone();
+      case SS_BRANCH:
+        {
+          Space* c;
+          if ((d == 0) || (d >= opt.c_d)) {
+            c = cur->clone();
+            d = 1;
+          } else {
+            c = NULL;
+            d++;
           }
-          // Deletes all pending branchers
-          (void) cur->choice();
-          delete best;
-          best = cur;
-          cur = NULL;
-          mark = path.entries();
-          return best->clone();
-        case SS_BRANCH:
-          {
-            Space* c;
-            if ((d == 0) || (d >= opt.c_d)) {
-              c = cur->clone();
-              d = 1;
-            } else {
-              c = NULL;
-              d++;
-            }
-            const Choice* ch = path.push(*this,node,cur,c);
+          const Choice* ch = path.push(*this,node,cur,c);
+          if (opt.sendNodes) {
             kids = ch->alternatives();
-
-            if (opt.sendNodes) {
-              connector.sendNode(node, pid, alt, kids, 2,
+            connector.sendNode(node, pid, alt, kids, 2,
                                oss.str().c_str(),  0, restart,
                                cur->getDomainSize());
-            }
-            cur->commit(*ch,0);
-            break;
           }
-        default:
-          GECODE_NEVER;
+          cur->commit(*ch,0);
+          break;
         }
+      default:
+        GECODE_NEVER;
       }
-      // Recompute and add constraint if necessary
-      do {
-        if (!path.next())
-          return NULL;
-        cur = path.recompute(d,opt.a_d,*this,best,mark);
-      } while (cur == NULL);
     }
     GECODE_NEVER;
     return NULL;
@@ -235,9 +245,11 @@ namespace Gecode { namespace Search { namespace Sequential {
     delete best;
     best = NULL;
     path.reset();
-    d = mark = 0U;
+    d = 0;
+    mark = 0;
     delete cur;
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
+      delete s;
       cur = NULL;
     } else {
       cur = s;

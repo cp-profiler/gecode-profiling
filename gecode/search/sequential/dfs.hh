@@ -84,7 +84,7 @@
 
   forceinline 
   DFS::DFS(Space* s, const Options& o, bool isRestarts)
-    : opt(o), path(static_cast<int>(opt.nogoods_limit)), d(0) {
+    : opt(o), path(opt.nogoods_limit), d(0) {
       // std::cout << "filename: " << o.problem_name << std::endl;
       // std::cout << "DFS\n";
 
@@ -116,6 +116,7 @@
     path.reset();
     d = 0;
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) {
+      delete s;
       cur = NULL;
     } else {
       cur = s;
@@ -134,80 +135,89 @@
     int alt = -1;
     int kids = -1;
     
-
+    /*
+     * The engine maintains the following invariant:
+     *  - If the current space (cur) is not NULL, the path always points
+     *    to exactly that space.
+     *  - If the current space (cur) is NULL, the path always points
+     *    to the next space (if there is any).
+     *
+     * This invariant is needed so that no-goods can be extracted properly
+     * when the engine is stopped or has found a solution.
+     *
+     */
     start();
     while (true) {
-      while (cur) {
-        if (stop(opt))
-          return NULL;
-        node++;
-
-
-        if (opt.sendNodes) {
-          oss.str("");
-          oss.clear();
-          if (node == 1) {
-            pid = -1;
-            alt = -1;
-          } else {
-            Path::Edge& edge = path.top();
-            pid = edge.pid();
-            alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
-            cur->print(*edge.choice(), alt, oss);
-          }
-        }
-
-        switch (cur->status(*this)) {
-        case SS_FAILED:
-          if (opt.sendNodes) {
-            connector->sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart,
-                               cur->getDomainSize());
-          }
-          fail++;
-          delete cur;
-          cur = NULL;
-          break;
-        case SS_SOLVED:
-          {
-            if (opt.sendNodes) {
-              connector->sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart,
-                                 cur->getDomainSize());
-            }
-            // Deletes all pending branchers
-            (void) cur->choice();
-            Space* s = cur;
-            cur = NULL;
-            return s;
-          }
-        case SS_BRANCH:
-          {
-            
-            Space* c;
-            if ((d == 0) || (d >= opt.c_d)) {
-              c = cur->clone();
-              d = 1;
-            } else {
-              c = NULL;
-              d++;
-            }
-            const Choice* ch = path.push(*this, node, cur, c);
-            if (opt.sendNodes) {
-              kids = ch->alternatives();
-              connector->sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
-                                 cur->getDomainSize());
-            }
-            cur->commit(*ch,0);
-            break;
-          }
-        default:
-          GECODE_NEVER;
-        }
-      }
-      do {
-        if (!path.next())
+      if (stop(opt))
+        return NULL;
+      while (cur == NULL) {
+        if (path.empty())
           return NULL;
         cur = path.recompute(d,opt.a_d,*this);
-      } while (cur == NULL);
+        if (cur != NULL)
+          break;
+        path.next();
+      }
+      node++;
+      if (opt.sendNodes) {
+        oss.str("");
+        oss.clear();
+        if (node == 1) {
+          pid = -1;
+          alt = -1;
+        } else {
+          Path::Edge& edge = path.top();
+          pid = edge.pid();
+          alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
+          cur->print(*edge.choice(), alt, oss);
+        }
+      }
+      switch (cur->status(*this)) {
+      case SS_FAILED:
+        if (opt.sendNodes) {
+          connector->sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart,
+                              cur->getDomainSize());
+        }
+        fail++;
+        delete cur;
+        cur = NULL;
+        path.next();
+        break;
+      case SS_SOLVED:
+        {
+          if (opt.sendNodes) {
+            connector->sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart,
+                                cur->getDomainSize());
+          }
+          // Deletes all pending branchers
+          (void) cur->choice();
+          Space* s = cur;
+          cur = NULL;
+          path.next();
+          return s;
+        }
+      case SS_BRANCH:
+        {
+          Space* c;
+          if ((d == 0) || (d >= opt.c_d)) {
+            c = cur->clone();
+            d = 1;
+          } else {
+            c = NULL;
+            d++;
+          }
+          const Choice* ch = path.push(*this,node,cur,c);
+          if (opt.sendNodes) {
+            kids = ch->alternatives();
+            connector->sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
+                                cur->getDomainSize());
+          }
+          cur->commit(*ch,0);
+          break;
+        }
+      default:
+        GECODE_NEVER;
+      }
     }
     GECODE_NEVER;
     return NULL;

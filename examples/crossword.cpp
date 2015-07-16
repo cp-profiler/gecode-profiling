@@ -84,7 +84,8 @@ public:
   };
   /// Actual model
   Crossword(const SizeOptions& opt)
-    : w(grids[opt.size()][0]), h(grids[opt.size()][1]),
+    : Script(opt), 
+      w(grids[opt.size()][0]), h(grids[opt.size()][1]),
       letters(*this,w*h,'a','z') {
     // Pointer into the grid specification (width and height already skipped)
     const int* g = &grids[opt.size()][2];
@@ -163,7 +164,7 @@ public:
     }
   }
   /// Print brancher information when branching on letters
-  static void printletters(const Space& home, const BrancherHandle& bh,
+  static void printletters(const Space& home, const BrancherHandle&,
                            unsigned int a,
                            IntVar, int i, const int& n,
                            std::ostream& o) {
@@ -174,7 +175,7 @@ public:
       << static_cast<char>(n);
   }
   /// Print brancher information when branching on words
-  static void printwords(const Space&, const BrancherHandle& bh,
+  static void printwords(const Space&, const BrancherHandle&,
                          unsigned int a,
                          IntVar, int i, const int& n,
                          std::ostream& o) {
@@ -182,6 +183,14 @@ public:
       << ((a == 0) ? "<=" : ">") << " "
       << n;
   }
+  /// Do not perform a restart when a solution is found
+  bool master(const CRI& cri) {
+    // Post no-goods
+    cri.nogoods().post(*this);
+    // Do not perform a restart if a solution has been found
+    return false;
+  }
+
   /// Constructor for cloning \a s
   Crossword(bool share, Crossword& s) 
     : Script(share,s), w(s.w), h(s.h) {

@@ -70,7 +70,8 @@ protected:
 public:
   /// Actual model
   GolombRuler(const SizeOptions& opt)
-    : m(*this,opt.size(),0,
+    : IntMinimizeScript(opt),
+      m(*this,opt.size(),0,
         (opt.size() < 31) ? (1 << (opt.size()-1))-1 : Int::Limits::max) {
 
     // Assume first mark to be zero
@@ -99,8 +100,7 @@ public:
     if (n > 2)
       rel(*this, d[0], IRT_LE, d[n_d-1]);
 
-    branch(*this, m, INT_VAR_NONE(), INT_VAL_SPLIT_MIN());
-    // branch(*this, m, INT_VAR_AFC_MAX(0.99), INT_VAL_MIN());
+    branch(*this, m, INT_VAR_NONE(), INT_VAL_MIN());
   }
 
   /// Return cost
@@ -137,8 +137,7 @@ main(int argc, char* argv[]) {
   opt.icl(ICL_BND);
   opt.parse(argc,argv);
   if (opt.size() > 0)
-    Script::run<GolombRuler, BAB,SizeOptions>(opt);
-    // Script::run<GolombRuler,DFS,SizeOptions>(opt);
+    IntMinimizeScript::run<GolombRuler,BAB,SizeOptions>(opt);
   return 0;
 }
 

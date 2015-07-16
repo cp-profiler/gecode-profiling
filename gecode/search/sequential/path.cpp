@@ -42,7 +42,7 @@
 namespace Gecode { namespace Search { namespace Sequential {
 
   void
-  Path::post(Space& home) {
+  Path::post(Space& home) const {
     GECODE_ES_FAIL(Meta::NoGoodsProp::post(home,*this));
   }
 

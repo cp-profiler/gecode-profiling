@@ -43,7 +43,7 @@
 namespace Gecode { namespace Search { namespace Meta {
 
   /// Class for a sentinel no-good literal
-  class NoNGL : public NGL {
+  class GECODE_VTABLE_EXPORT NoNGL : public NGL {
   public:
     /// Constructor for creation
     NoNGL(void);
@@ -64,7 +64,7 @@ namespace Gecode { namespace Search { namespace Meta {
   };
 
   /// No-good propagator
-  class NoGoodsProp : public Propagator {
+  class GECODE_SEARCH_EXPORT NoGoodsProp : public Propagator {
   protected:
     /// Root of no-good literal tree
     NGL* root;
@@ -83,7 +83,7 @@ namespace Gecode { namespace Search { namespace Meta {
     virtual ExecStatus propagate(Space& home, const ModEventDelta& med);
     /// Post propagator for path \a p
     template<class Path>
-    static ExecStatus post(Space& home, Path& p);
+    static ExecStatus post(Space& home, const Path& p);
     /// Delete propagator and return its size
     virtual size_t dispose(Space& home);
   };
@@ -142,9 +142,9 @@ namespace Gecode { namespace Search { namespace Meta {
 
   template<class Path>
   forceinline ExecStatus 
-  NoGoodsProp::post(Space& home, Path& p) {
+  NoGoodsProp::post(Space& home, const Path& p) {
     int s = 0;
-    int n = std::min(p.ds.entries(),p.ngdl());
+    int n = std::min(p.ds.entries(),static_cast<int>(p.ngdl()));
 
     unsigned long int n_nogood = 0;
 
@@ -220,7 +220,7 @@ namespace Gecode { namespace Search { namespace Meta {
       }
     }
 
-    p.ng(n_nogood);
+    const_cast<Path&>(p).ng(n_nogood);
 
     (void) new (home) NoGoodsProp(home,nn.next());
     return ES_OK;
@@ -230,4 +230,4 @@ namespace Gecode { namespace Search { namespace Meta {
 
 #endif
 
-// STATISTICS: search-other
+// STATISTICS: search-meta

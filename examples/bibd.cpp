@@ -109,7 +109,7 @@ public:
 
   /// Actual model
   BIBD(const BIBDOptions& o)
-    : opt(o), _p(*this,opt.v*opt.b,0,1) {
+    : Script(o), opt(o), _p(*this,opt.v*opt.b,0,1) {
     Matrix<BoolVarArray> p(_p,opt.b,opt.v);
 
     // r ones per row
@@ -128,11 +128,6 @@ public:
           row[j] = expr(*this, p(j,i1) && p(j,i2));
         linear(*this, row, IRT_EQ, opt.lambda);
       }
-
-    // IntVarArray ints(*this, opt.v*opt.b, 0, 1);
-    // for (int i = 0 ; i < opt.v*opt.b ; i++)
-    //   rel(*this, ints[i] == _p[i]);
-    // Matrix<IntVarArray> intm(ints, opt.b, opt.v);
 
     if (opt.symmetry() == SYMMETRY_LDSB) {
       Symmetries s;

@@ -45,32 +45,7 @@ namespace Gecode {
   template<class T>
   forceinline
   DFS<T>::DFS(T* s, const Search::Options& o, bool isRestarts)
-    : EngineBase(Search::dfs(s,o)) {}
-
-  template<class T>
-  forceinline T*
-  DFS<T>::next(void) {
-    return dynamic_cast<T*>(e->next());
-  }
-
-  template<class T>
-  forceinline Search::Statistics
-  DFS<T>::statistics(void) const {
-    return e->statistics();
-  }
-
-  template<class T>
-  forceinline bool
-  DFS<T>::stopped(void) const {
-    return e->stopped();
-  }
-
-  template<class T>
-  forceinline NoGoods&
-  DFS<T>::nogoods(void) {
-    return e->nogoods();
-  }
-
+    : Search::EngineBase<T>(Search::dfs(s,o)) {}
 
   template<class T>
   forceinline T*

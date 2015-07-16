@@ -5,12 +5,14 @@
  *     Guido Tack <tack@gecode.org>
  *
  *  Contributing authors:
+ *     Stefano Gualandi <stefano.gualandi@gmail.com>
  *     Mikael Lagerkvist <lagerkvist@gecode.org>
  *     David Rijsman <David.Rijsman@quintiq.com>
  *
  *  Copyright:
- *     David Rijsman, 2009
+ *     Stefano Gualandi, 2013
  *     Mikael Lagerkvist, 2006
+ *     David Rijsman, 2009
  *     Christian Schulte, 2002
  *     Guido Tack, 2004
  *
@@ -2183,6 +2185,31 @@ namespace Gecode {
   max(Home home, const IntVarArgs& x, IntVar y,
       IntConLevel icl=ICL_DEF);
 
+  /** \brief Post propagator for \f$ \operatorname{argmin} x=y\f$
+   *
+   * In case of ties, the smallest value for \a y is chosen 
+   * (provided \a tiebreak is true).
+   *
+   * If \a x is empty, an exception of type Int::TooFewArguments is thrown.
+   * If \a y occurs in \a x, an exception of type Int::ArgumentSame 
+   * is thrown.
+   */
+  GECODE_INT_EXPORT void
+  argmin(Home home, const IntVarArgs& x, IntVar y, bool tiebreak=true,
+         IntConLevel icl=ICL_DEF);
+  /** \brief Post propagator for \f$ \operatorname{argmax} x=y\f$
+   *
+   * In case of ties, the smallest value for \a y is chosen
+   * (provided \a tiebreak is true).
+   *
+   * If \a x is empty, an exception of type Int::TooFewArguments is thrown.
+   * If \a y occurs in \a x, an exception of type Int::ArgumentSame 
+   * is thrown.
+   */
+  GECODE_INT_EXPORT void
+  argmax(Home home, const IntVarArgs& x, IntVar y, bool tiebreak=true,
+         IntConLevel icl=ICL_DEF);
+
   /** \brief Post propagator for \f$ |x_0|=x_1\f$
    *
    * Supports both bounds consistency (\a icl = ICL_BND, default)
@@ -2465,8 +2492,6 @@ namespace Gecode {
    * \defgroup TaskModelIntBinPacking Bin packing constraints
    * \ingroup TaskModelInt
    *
-   * Constraints for modeling bin packing problems. Propagation follows:
-   *   Paul Shaw. A Constraint for Bin Packing. CP 2004.
    */
   /** \brief Post propagator for bin packing
    *
@@ -2478,6 +2503,8 @@ namespace Gecode {
    * constraint \f$l_j=\sum_{0\leq i<|b|\wedge b_i=j}s_i\f$ holds and that
    * for each \f$i\f$ with \f$0\leq i<|b|\f$ the constraint
    * \f$0\leq b_i<|l|\f$ holds.
+   *
+   * The propagation follows: Paul Shaw. A Constraint for Bin Packing. CP 2004.
    *
    * Throws the following exceptions:
    *  - Of type Int::ArgumentSizeMismatch if \a b and \a s are not of
@@ -2492,6 +2519,51 @@ namespace Gecode {
              const IntVarArgs& l, 
              const IntVarArgs& b, const IntArgs& s,
              IntConLevel icl=ICL_DEF);
+  /* \brief Post propagator for multi-dimensional bin packing
+   *
+   * In the following \a n refers to the number of items and \a m
+   * refers to the number of bins.
+   *
+   * The multi-dimensional bin-packing constraint enforces that
+   * all items are packed into bins
+   * \f$b_i\in\{0,\ldots,m-1\}\f$ for \f$0\leq i<n\f$
+   * and that the load of each bin corresponds to the items
+   * packed into it for each dimension \f$l_{j\cdot
+   * d + k} = \sum_{\{i\in\{0,\ldots,n-1\}|
+   * b_{j\cdot d+k}=i}\}s_{i\cdot d+k}\f$
+   * for \f$0\leq j<m\f$, \f$0\leq k<d\f$
+   * Furthermore, the load variables must satisfy the capacity
+   * constraints \f$l_{j\cdot d + k} \leq
+   * c_k\f$ for \f$0\leq j<m\f$, \f$0\leq k<d\f$.
+   *
+   * The constraint is implemented by the decomposition
+   * introduced in: Stefano Gualandi and Michele Lombardi. A
+   * simple and effective decomposition for the multidimensional
+   * binpacking constraint. CP 2013, pages 356--364.
+   *
+   * Posting the constraint returns a maximal set containing conflicting 
+   * items that require pairwise different bins.
+   *
+   * Note that posting the constraint has exponential complexity in the
+   * number of items due to the Bron-Kerbosch algorithm used for finding
+   * the maximal conflict item sets.
+   *
+   * Throws the following exceptions:
+   *  - Of type Int::ArgumentSizeMismatch if any of the following properties
+   *    is violated: \f$|b|=n\f$, \f$|l|=m\cdot d\f$, \f$|s|=n\cdot d\f$,
+   *    and \f$|c|=d\f$.
+   *  - Of type Int::ArgumentSame if \a l and \a b share unassigned variables.
+   *  - Of type Int::OutOfLimits if \a s or \a c contains a negative number.
+   * 
+   * \ingroup TaskModelIntBinPacking
+   */
+  GECODE_INT_EXPORT IntSet
+  binpacking(Home home, int d,
+             const IntVarArgs& l, const IntVarArgs& b, 
+             const IntArgs& s, const IntArgs& c,
+             IntConLevel icl=ICL_DEF);
+
+
   /**
    * \defgroup TaskModelIntGeoPacking Geometrical packing constraints
    * \ingroup TaskModelInt

@@ -233,19 +233,22 @@ endif
 
 KERNELBUILDDIRS = kernel
 
+ifeq "@enable_flatzinc@" "yes"
+EXTRA_HEADERS   = gecode/support/config.hpp gecode/flatzinc/parser.tab.hh
+else
 EXTRA_HEADERS   = gecode/support/config.hpp
+endif
 
 #
 # SEARCH COMPONENTS
 #
 
 SEARCHSRC0 = \
-	stop options cutoff \
+	stop options cutoff engine \
 	parallel/engine \
 	dfs parallel/dfs \
 	bab parallel/bab \
-	rbs meta/rbs \
-	meta/nogoods sequential/path parallel/path \
+	meta/rbs meta/nogoods sequential/path parallel/path \
 	connector message.pb
 SEARCHHDR0 = \
 	statistics.hpp stop.hpp options.hpp cutoff.hpp \
@@ -254,7 +257,7 @@ SEARCHHDR0 = \
 	parallel/path.hh parallel/engine.hh \
 	parallel/dfs.hh parallel/bab.hh \
 	meta/rbs.hh meta/nogoods.hh \
-	dfs.hpp bab.hpp rbs.hpp engine-base.hpp \
+	dfs.hpp bab.hpp rbs.hpp engine.hpp engine-base.hpp \
 	connector.hh message.pb.hh
 
 SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp)
@@ -306,6 +309,7 @@ INTSRC0 = \
 	channel.cpp channel/link-single.cpp channel/link-multi.cpp \
 	unshare.cpp sequence.cpp \
 	bin-packing.cpp bin-packing/propagate.cpp \
+	bin-packing/conflict-graph.cpp \
 	unary.cpp cumulative.cpp cumulatives.cpp \
 	circuit.cpp no-overlap.cpp nvalues.cpp \
 	member.cpp branch/activity.cpp \
@@ -316,10 +320,10 @@ INTSRC0 = \
 
 INTHDR0 = \
 	limits.hpp support-values.hh support-values.hpp \
-	div.hh div.hpp \
+	idx-view.hh idx-view.hpp div.hh div.hpp \
 	exec.hh exec/when.hpp \
-	arithmetic/abs.hpp arithmetic/max.hpp arithmetic/mult.hpp \
-	arithmetic/divmod.hpp \
+	arithmetic/abs.hpp arithmetic/max.hpp arithmetic/argmax.hpp \
+	arithmetic/mult.hpp arithmetic/divmod.hpp \
 	arithmetic/pow-ops.hpp arithmetic/pow.hpp arithmetic/nroot.hpp \
 	bool/or.hpp bool/eq.hpp bool/lq.hpp bool/eqv.hpp bool/base.hpp \
 	bool/clause.hpp bool/ite.hpp \
@@ -368,6 +372,7 @@ INTHDR0 = \
 	sequence.hh sequence/int.hpp sequence/view.hpp \
 	sequence/set-op.hpp sequence/violations.hpp \
 	bin-packing.hh bin-packing/propagate.hpp \
+	bin-packing/conflict-graph.hpp \
 	task.hh task/fwd-to-bwd.hpp task/array.hpp task/sort.hpp \
 	task/iter.hpp task/tree.hpp task/purge.hpp task/prop.hpp \
 	task/man-to-opt.hpp \
@@ -591,7 +596,7 @@ MMSRC0 = \
 	int-expr.cpp int-rel.cpp int-arith.cpp bool-expr.cpp \
 	set-expr.cpp set-rel.cpp \
 	float-expr.cpp float-rel.cpp float-arith.cpp \
-	reg.cpp
+	reg.cpp optimize.cpp
 MMHDR0 = \
 	int-rel.hpp float-rel.hpp exception.hpp matrix.hpp \
 	bool-expr.hpp set-expr.hpp set-rel.hpp \
@@ -825,7 +830,8 @@ INTEXAMPLESRC0 =						\
 	all-interval langford-number warehouses	radiotherapy    \
 	word-square crossword open-shop car-sequencing sat      \
 	bin-packing knights tsp perfect-square schurs-lemma     \
-	dominating-queens colored-matrix
+	dominating-queens colored-matrix multi-bin-packing	\
+	qcp
 
 INTEXAMPLEHDR  = $(INTEXAMPLEHDR0:%=examples/%.hpp)
 INTEXAMPLESRC  = $(INTEXAMPLESRC0:%=examples/%.cpp)
@@ -1053,6 +1059,100 @@ else
 SETTESTOBJ=
 endif
 
+FLATZINCTESTSRC0 = \
+  test/flatzinc.cpp \
+  test/flatzinc/bool_clause.cpp \
+  test/flatzinc/bug232.cpp \
+  test/flatzinc/bug319.cpp \
+  test/flatzinc/bugfix_r6746.cpp \
+  test/flatzinc/bugfix_r7854.cpp \
+  test/flatzinc/empty_domain_1.cpp \
+  test/flatzinc/empty_domain_2.cpp \
+  test/flatzinc/int_set_as_type1.cpp \
+  test/flatzinc/int_set_as_type2.cpp \
+  test/flatzinc/jobshop.cpp \
+  test/flatzinc/no_warn_empty_domain.cpp \
+  test/flatzinc/output_test.cpp \
+  test/flatzinc/queens4.cpp \
+  test/flatzinc/sat_arith1.cpp \
+  test/flatzinc/sat_array_bool_and.cpp \
+  test/flatzinc/sat_array_bool_or.cpp \
+  test/flatzinc/sat_cmp_reif.cpp \
+  test/flatzinc/sat_eq_reif.cpp \
+  test/flatzinc/test_approx_bnb.cpp \
+  test/flatzinc/test_array_just_right.cpp \
+  test/flatzinc/test_assigned_var_bounds_bad.cpp \
+  test/flatzinc/test_flatzinc_output_anns.cpp \
+  test/flatzinc/test_fzn_arith.cpp \
+  test/flatzinc/test_fzn_arrays.cpp \
+  test/flatzinc/test_fzn_coercions.cpp \
+  test/flatzinc/test_fzn_comparison.cpp \
+  test/flatzinc/test_fzn_logic.cpp \
+  test/flatzinc/test_fzn_sets.cpp \
+  test/flatzinc/test_int_div.cpp \
+  test/flatzinc/test_int_mod.cpp \
+  test/flatzinc/test_int_ranges_as_values.cpp \
+  test/flatzinc/test_seq_search.cpp \
+  test/flatzinc/2dpacking.cpp \
+  test/flatzinc/alpha.cpp \
+  test/flatzinc/battleships1.cpp \
+  test/flatzinc/battleships10.cpp \
+  test/flatzinc/battleships2.cpp \
+  test/flatzinc/battleships3.cpp \
+  test/flatzinc/battleships4.cpp \
+  test/flatzinc/battleships5.cpp \
+  test/flatzinc/battleships7.cpp \
+  test/flatzinc/battleships9.cpp \
+  test/flatzinc/blocksworld_instance_1.cpp \
+  test/flatzinc/blocksworld_instance_2.cpp \
+  test/flatzinc/cumulatives.cpp \
+  test/flatzinc/cutstock.cpp \
+  test/flatzinc/eq20.cpp \
+  test/flatzinc/factory_planning_instance.cpp \
+  test/flatzinc/golomb.cpp \
+  test/flatzinc/jobshop2x2.cpp \
+  test/flatzinc/knights.cpp \
+  test/flatzinc/langford2.cpp \
+  test/flatzinc/latin_squares_fd.cpp \
+  test/flatzinc/multidim_knapsack_simple.cpp \
+  test/flatzinc/packing.cpp \
+  test/flatzinc/perfsq.cpp \
+  test/flatzinc/perfsq2.cpp \
+  test/flatzinc/photo.cpp \
+  test/flatzinc/product_fd.cpp \
+  test/flatzinc/product_lp.cpp \
+  test/flatzinc/quasigroup_qg5.cpp \
+  test/flatzinc/queen_cp2.cpp \
+  test/flatzinc/queen_ip.cpp \
+  test/flatzinc/radiation.cpp \
+  test/flatzinc/simple_sat.cpp \
+  test/flatzinc/singHoist2.cpp \
+  test/flatzinc/sudoku.cpp \
+  test/flatzinc/template_design.cpp \
+  test/flatzinc/tenpenki_1.cpp \
+  test/flatzinc/tenpenki_2.cpp \
+  test/flatzinc/tenpenki_3.cpp \
+  test/flatzinc/tenpenki_4.cpp \
+  test/flatzinc/tenpenki_5.cpp \
+  test/flatzinc/tenpenki_6.cpp \
+  test/flatzinc/warehouses.cpp \
+  test/flatzinc/warehouses_small.cpp \
+  test/flatzinc/wolf_goat_cabbage.cpp \
+  test/flatzinc/zebra.cpp \
+  test/flatzinc/magicsq_3.cpp \
+  test/flatzinc/magicsq_4.cpp \
+  test/flatzinc/magicsq_5.cpp \
+  test/flatzinc/oss.cpp \
+  test/flatzinc/steiner_triples.cpp \
+  test/flatzinc/timetabling.cpp \
+  test/flatzinc/trucking.cpp
+
+ifeq "@enable_flatzinc@" "yes"
+FLATZINCTESTOBJ = $(FLATZINCTESTSRC0:%.cpp=%$(OBJSUFFIX))
+else
+FLATZINCTESTOBJ=
+endif
+
 BRANCHTESTSRC0 = \
 	test/branch.cpp test/branch/int.cpp test/branch/bool.cpp \
 	test/branch/set.cpp test/branch/float.cpp \
@@ -1070,20 +1170,24 @@ TESTSRC0 = test/test.cpp test/afc.cpp test/brancher-handle.cpp test/ldsb.cpp
 TESTSRC = \
 	$(TESTSRC0) $(INTTESTSRC0) $(SETTESTSRC0) $(FLOATTESTSRC0) \
 	$(BRANCHTESTSRC0) $(SEARCHTESTSRC0) \
-	$(ARRAYTESTSRC0)
+	$(ARRAYTESTSRC0) $(FLATZINCTESTSRC0)
 
 TESTHDR0 = \
 	test.hh test.hpp int.hh int.hpp set.hh set.hpp float.hh float.hpp \
-	branch.hh assign.hh
+	branch.hh assign.hh flatzinc.hh
 TESTHDR = $(TESTHDR0:%=test/%)
 TESTOBJ	= $(INTTESTOBJ) $(SETTESTOBJ) $(FLOATTESTOBJ) \
+	$(FLATZINCTESTOBJ:%.cpp=%$(OBJSUFFIX)) \
 	$(BRANCHTESTSRC0:%.cpp=%$(OBJSUFFIX)) \
 	$(SEARCHTESTSRC0:%.cpp=%$(OBJSUFFIX)) \
 	$(ARRAYTESTSRC0:%.cpp=%$(OBJSUFFIX)) \
 	$(TESTSRC0:%.cpp=%$(OBJSUFFIX))
 TESTSBJ	= $(TESTOBJ:%$(OBJSUFFIX)=%$(SBJSUFFIX))
 TESTEXE	= test/test$(EXESUFFIX)
-TESTBUILDDIRS = test test/int test/set test/float test/branch test/assign
+TESTBUILDDIRS = \
+	test test/int test/set test/float \
+	test/branch test/assign \
+	test/flatzinc
 
 BUILDDIRS = \
 	tools \
@@ -1809,7 +1913,7 @@ doinstallheaders: $(ALLHDR:%=$(top_srcdir)/%) $(EXTRA_HEADERS) $(VARIMPHDR)
 	    cp $$f $(DESTDIR)$(includedir)/gecode/kernel; done && \
 	for_extraheaders="$(EXTRA_HEADERS)" && \
 	  for f in $$for_extraheaders; do \
-	    cp $$f $(DESTDIR)$(includedir)/gecode/support; done && \
+	    cp $$f $(DESTDIR)$(includedir)/$$f; done && \
 	for_mznlib="$(FLATZINCMZNLIB)" && \
 	  for f in $$for_mznlib; do \
 		mkdir -p $(DESTDIR)$(datadir)/gecode/mznlib; \

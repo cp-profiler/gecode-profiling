@@ -4,7 +4,7 @@
  *     Guido Tack <tack@gecode.org>
  *
  *  Copyright:
- *     Guido Tack, 2012
+ *     Guido Tack, 2014
  *
  *  Last modified:
  *     $Date$ by $Author$
@@ -35,22 +35,43 @@
  *
  */
 
-#include <gecode/search.hh>
-#include <gecode/search/meta/rbs.hh>
+#include "test/flatzinc.hh"
 
-namespace Gecode { namespace Search {
-    
-  Engine* 
-  rbs(Space* s, MetaStop* stop,
-      Engine* e, const Options& o) {
-#ifdef GECODE_HAS_THREADS
-    Options to = o.expand();
-    return new Meta::RBS(s,o.cutoff,stop,e,to);
-#else
-    return new Meta::RBS(s,o.cutoff,stop,e,o);
-#endif
+namespace Test { namespace FlatZinc {
+
+  namespace {
+    /// Helper class to create and register tests
+    class Create {
+    public:
+
+      /// Perform creation and registration
+      Create(void) {
+        (void) new FlatZincTest("seq_search",
+"var 1..3: x :: output_var;\n\
+var 1..3: y :: output_var;\n\
+var 1..3: z :: output_var;\n\
+constraint int_ne(x, y);\n\
+constraint int_ne(x, z);\n\
+constraint int_ne(y, z);\n\
+solve\n\
+	:: seq_search([\n\
+		int_search([z], input_order, indomain_min, complete),\n\
+		int_search([y], input_order, indomain_min, complete),\n\
+		int_search([x], input_order, indomain_min, complete)\n\
+	])\n\
+	satisfy;\n\
+",
+"x = 3;\n\
+y = 2;\n\
+z = 1;\n\
+----------\n\
+");
+      }
+    };
+
+    Create c;
   }
 
 }}
 
-// STATISTICS: search-other
+// STATISTICS: test-flatzinc

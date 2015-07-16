@@ -41,11 +41,11 @@ dnl
 
 AC_REVISION([$Id$])
 AC_PREREQ(2.53)
-AC_INIT(GECODE, 4.2.2, users@gecode.org)
+AC_INIT(GECODE, 4.4.0, users@gecode.org)
 AC_CONFIG_HEADERS([gecode/support/config.hpp])
 AC_CONFIG_SRCDIR(gecode/kernel.hh)
 
-ac_gecode_soversion=37
+ac_gecode_soversion=41
 AC_SUBST(GECODE_SOVERSION, ${ac_gecode_soversion})
 ac_gecode_flatzincversion=1.6
 AC_SUBST(GECODE_FLATZINC_VERSION, ${ac_gecode_flatzincversion})
@@ -113,10 +113,7 @@ esac
 
 AC_GECODE_RESOURCE
 
-dnl check whether we can use GNU hash_map
-AC_CHECK_HEADER([ext/hash_map],
-  [AC_DEFINE([GECODE_HAS_GNU_HASH_MAP],[],
-             [Whether GNU hash_map is available])])
+AC_LANG(C++)
 
 dnl check whether we want to build universal binaries on Mac OS X
 AC_GECODE_UNIVERSAL
@@ -220,6 +217,16 @@ microsoft)
   AC_MSG_ERROR(Gecode currently only supports the GNU and Microsoft compilers.)
   ;;
 esac
+
+dnl check whether we can use GNU hash_map
+AC_CHECK_HEADER([ext/hash_map],
+  [AC_DEFINE([GECODE_HAS_GNU_HASH_MAP],[],
+             [Whether GNU hash_map is available])])
+
+dnl check whether we can use unordered_map
+AC_CHECK_HEADER([unordered_map],
+  [AC_DEFINE([GECODE_HAS_UNORDERED_MAP],[],
+             [Whether unordered_map is available])])
 
 dnl find out what parts the user wants to build
 

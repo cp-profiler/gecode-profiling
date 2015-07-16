@@ -238,7 +238,7 @@ namespace Gecode { namespace FlatZinc {
   protected:
       /// \name Search options
       //@{
-      Gecode::Driver::UnsignedIntOption _solutions; ///< How many solutions
+      Gecode::Driver::IntOption         _solutions; ///< How many solutions
       Gecode::Driver::BoolOption        _allSolutions; ///< Return all solutions
       Gecode::Driver::DoubleOption      _threads;   ///< How many threads to use
       Gecode::Driver::BoolOption        _free; ///< Use free search
@@ -255,6 +255,7 @@ namespace Gecode { namespace FlatZinc {
       Gecode::Driver::BoolOption        _nogoods;   ///< Whether to use no-goods
       Gecode::Driver::UnsignedIntOption _nogoods_limit; ///< Depth limit for extracting no-goods
       Gecode::Driver::BoolOption        _interrupt; ///< Whether to catch SIGINT
+      Gecode::Driver::DoubleOption      _step;        ///< Step option
       //@}
     
       /// \name Execution options
@@ -273,11 +274,11 @@ namespace Gecode { namespace FlatZinc {
     /// Constructor
     FlatZincOptions(const char* s)
     : Gecode::BaseOptions(s),
-      _solutions("-n","number of solutions (0 = all)",1),
-      _allSolutions("-a", "return all solutions (equal to -solutions 0)"),
+      _solutions("-n","number of solutions (0 = all, -1 = one/best)",-1),
+      _allSolutions("-a", "return all solutions (equal to -n 0)"),
       _threads("-p","number of threads (0 = #processing units)",
                Gecode::Search::Config::threads),
-      _free("--free", "no need to follow search-specification"),
+      _free("-f", "free search, no need to follow search-specification"),
       _decay("-decay","decay factor",0.99),
       _c_d("-c-d","recomputation commit distance",Gecode::Search::Config::c_d),
       _a_d("-a-d","recomputation adaption distance",Gecode::Search::Config::a_d),
@@ -293,6 +294,7 @@ namespace Gecode { namespace FlatZinc {
                      Search::Config::nogoods_limit),
       _interrupt("-interrupt","whether to catch Ctrl-C (true) or not (false)",
                  true),
+      _step("-step","step distance for float optimization",0.0),
       _mode("-mode","how to execute script",Gecode::SM_SOLUTION),
       _stat("-s","emit statistics"),
       _output("-o","file to send output to"),
@@ -317,6 +319,7 @@ namespace Gecode { namespace FlatZinc {
       add(_decay);
       add(_node); add(_fail); add(_time); add(_interrupt);
       add(_seed);
+      add(_step);
       add(_restart); add(_r_base); add(_r_scale); 
       add(_nogoods); add(_nogoods_limit);
       add(_mode); add(_stat);
@@ -327,7 +330,7 @@ namespace Gecode { namespace FlatZinc {
 
     void parse(int& argc, char* argv[]) {
       Gecode::BaseOptions::parse(argc,argv);
-      if (_allSolutions.value()) {
+      if (_allSolutions.value() && _solutions.value()==-1) {
         _solutions.value(0);
       }
       if (_stat.value())
@@ -341,7 +344,7 @@ namespace Gecode { namespace FlatZinc {
       Gecode::BaseOptions::help();
     }
   
-    unsigned int solutions(void) const { return _solutions.value(); }
+    int solutions(void) const { return _solutions.value(); }
     bool allSolutions(void) const { return _allSolutions.value(); }
     double threads(void) const { return _threads.value(); }
     bool free(void) const { return _free.value(); }
@@ -353,6 +356,7 @@ namespace Gecode { namespace FlatZinc {
     unsigned int fail(void) const { return _fail.value(); }
     unsigned int time(void) const { return _time.value(); }
     int seed(void) const { return _seed.value(); }
+    double step(void) const { return _step.value(); }
     const char* output(void) const { return _output.value(); }
     Gecode::ScriptMode mode(void) const {
       return static_cast<Gecode::ScriptMode>(_mode.value());
@@ -371,6 +375,7 @@ namespace Gecode { namespace FlatZinc {
     bool interrupt(void) const { return _interrupt.value(); }
     unsigned int port(void) const { return _port.value(); }
 
+    void allSolutions(bool b) { _allSolutions.value(b); }
   };
 
   class BranchInformation : public SharedHandle {
@@ -395,6 +400,23 @@ namespace Gecode { namespace FlatZinc {
                int a, int i, const FloatNumBranch& nl, std::ostream& o) const;
 #endif
   };
+
+ /**
+  * \brief A thread-safe random number generator
+  *
+  */
+ class GECODE_FLATZINC_EXPORT FznRnd {
+ protected:
+   /// The actual random number generator
+   Gecode::Support::RandomGenerator random;
+   /// A mutex for the random number generator
+   Gecode::Support::Mutex mutex;
+ public:
+   /// Constructor
+   FznRnd(unsigned int s=1);
+   /// Returns a random integer from the interval [0..n)
+   unsigned int operator ()(unsigned int n);
+ };
 
   /**
    * \brief A space that can be initialized with a %FlatZinc model
@@ -424,7 +446,13 @@ namespace Gecode { namespace FlatZinc {
   
     /// Whether to solve as satisfaction or optimization problem
     Meth _method;
+
+    /// Percentage of variables to keep in LNS (or 0 for no LNS)
+    unsigned int _lns;
     
+    /// Random number generator 
+    FznRnd* _random;
+
     /// Annotations on the solve item
     AST::Array* _solveAnnotations;
 
@@ -449,6 +477,10 @@ namespace Gecode { namespace FlatZinc {
     Gecode::IntVarArray iv;
     /// The introduced integer variables
     Gecode::IntVarArray iv_aux;
+    
+    /// The integer variables used in LNS
+    Gecode::IntVarArray iv_lns;
+
     /// Indicates whether an integer variable is introduced by mzn2fzn
     std::vector<bool> iv_introduced;
     /// Indicates whether an integer variable aliases a Boolean variable
@@ -474,11 +506,13 @@ namespace Gecode { namespace FlatZinc {
     Gecode::FloatVarArray fv_aux;
     /// Indicates whether a float variable is introduced by mzn2fzn
     std::vector<bool> fv_introduced;
+    /// Step by which a next solution has to have lower cost
+    Gecode::FloatNum step;
 #endif
     /// Whether the introduced variables still need to be copied
     bool needAuxVars;
     /// Construct empty space
-    FlatZincSpace(void);
+    FlatZincSpace(FznRnd* random = NULL);
   
     /// Destructor
     ~FlatZincSpace(void);
@@ -500,7 +534,7 @@ namespace Gecode { namespace FlatZinc {
     void newFloatVar(FloatVarSpec* vs);
   
     /// Post a constraint specified by \a ce
-    void postConstraint(const ConExpr& ce, AST::Node* annotation);
+    void postConstraints(std::vector<ConExpr*>& ces);
   
     /// Post the solve item
     void solve(AST::Array* annotation);
@@ -568,6 +602,8 @@ namespace Gecode { namespace FlatZinc {
     virtual void constrain(const Space& s);
     /// Copy function
     virtual Gecode::Space* copy(bool share);
+
+    virtual bool slave(const CRI& cri);
     
     /// \name AST to variable and value conversion
     //@{
@@ -627,7 +663,7 @@ namespace Gecode { namespace FlatZinc {
   GECODE_FLATZINC_EXPORT
   FlatZincSpace* parse(const std::string& fileName,
                        Printer& p, std::ostream& err = std::cerr,
-                       FlatZincSpace* fzs=NULL);
+                       FlatZincSpace* fzs=NULL, FznRnd* rnd=NULL);
 
   /**
    * \brief Parse FlatZinc from \a is into \a fzs and return it.
@@ -637,7 +673,7 @@ namespace Gecode { namespace FlatZinc {
   GECODE_FLATZINC_EXPORT
   FlatZincSpace* parse(std::istream& is,
                        Printer& p, std::ostream& err = std::cerr,
-                       FlatZincSpace* fzs=NULL);
+                       FlatZincSpace* fzs=NULL, FznRnd* rnd=NULL);
 
   struct ParseResult {
     FlatZincSpace* s;

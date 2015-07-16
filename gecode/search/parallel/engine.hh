@@ -251,8 +251,10 @@ namespace Gecode { namespace Search { namespace Parallel {
    */
   forceinline
   Engine::Worker::Worker(unsigned int wid, Space* s, Engine& e)
+        // XXX This initialisation of _nid is surely wrong
+        // Maybe _nid is not used at all?
     : _engine(e), _wid(wid), _nid(wid),
-      path(s == NULL ? 0 : static_cast<int>(e.opt().nogoods_limit)), d(0), 
+      path(s == NULL ? 0 : e.opt().nogoods_limit), d(0), 
       idle(false) {
     if (s != NULL) {
       if (s->status(*this) == SS_FAILED) {
