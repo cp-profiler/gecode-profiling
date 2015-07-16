@@ -2,7 +2,7 @@
 // source: message.proto
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
-#include "message.pb.hh"
+#include "gecode/search/message.pb.hh"
 
 #include <algorithm>
 

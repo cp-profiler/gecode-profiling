@@ -95,7 +95,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
   forceinline 
   BAB::BAB(Space* s, const Options& o, bool isRestarts)
-    : opt(o), connector(o.port), path(static_cast<int>(opt.nogoods_limit)), 
+    : opt(o), connector(o.port == 0 ? 6565 : o.port), path(static_cast<int>(opt.nogoods_limit)), 
       d(0), mark(0), best(NULL) {
 
 

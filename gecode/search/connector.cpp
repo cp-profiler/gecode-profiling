@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 
-Connector::Connector(unsigned int port, char tid)
-  : port(port), context(1), socket(context, ZMQ_PUSH) {
+Connector::Connector(unsigned int _port, char tid)
+  : port(_port), context(1), socket(context, ZMQ_PUSH) {
   begin_time = system_clock::now(); /// TODO: should be removed?
 }
 

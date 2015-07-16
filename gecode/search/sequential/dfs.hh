@@ -88,7 +88,7 @@
 
 
       if (opt.sendNodes) {
-        connector = new Connector(opt.port);
+        connector = new Connector(opt.port == 0 ? 6565 : o.port);
         connector->connectToSocket();
 
         if (isRestarts)
