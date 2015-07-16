@@ -64,6 +64,8 @@
     /// Socket handler
     Connector *connector;
 
+    std::ostringstream oss;
+
   public:
     /// Initialize for space \a s with options \a o
     /// isRestarts = true if running -restart option
@@ -139,15 +141,20 @@
         if (stop(opt))
           return NULL;
         node++;
-        std::ostringstream oss;
-        if (node == 1) {
-          pid = -1;
-          alt = -1;
-        } else {
-          Path::Edge& edge = path.top();
-          pid = edge.pid();
-          alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
-          cur->print(*edge.choice(), alt, oss);
+
+
+        if (opt.sendNodes) {
+          oss.str("");
+          oss.clear();
+          if (node == 1) {
+            pid = -1;
+            alt = -1;
+          } else {
+            Path::Edge& edge = path.top();
+            pid = edge.pid();
+            alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
+            cur->print(*edge.choice(), alt, oss);
+          }
         }
 
         switch (cur->status(*this)) {
@@ -184,8 +191,8 @@
               d++;
             }
             const Choice* ch = path.push(*this, node, cur, c);
-            kids = ch->alternatives();
             if (opt.sendNodes) {
+              kids = ch->alternatives();
               connector->sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
                                  cur->getDomainSize());
             }

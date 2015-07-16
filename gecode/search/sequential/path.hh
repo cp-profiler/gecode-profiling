@@ -298,12 +298,12 @@ namespace Gecode { namespace Search { namespace Sequential {
     int n = ds.entries();
     for (int i=l; i<n; i++) {
 
-      Path::Edge& edge = ds.top();
-      int pid = edge.pid();
-      int n_alt = edge.choice()->alternatives();
-      int first_alt = edge.alt();
-      if (i!=l) first_alt++;
       if (connector) {
+        Path::Edge& edge = ds.top();
+        int pid = edge.pid();
+        int n_alt = edge.choice()->alternatives();
+        int first_alt = edge.alt();
+        if (i!=l) first_alt++;
         for (int j = first_alt; j < n_alt; j++) {
           connector->sendNode(-1, pid, j, 0, 6, 0);
         }
