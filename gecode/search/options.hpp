@@ -43,9 +43,10 @@ namespace Gecode { namespace Search {
       threads(Config::threads), 
       c_d(Config::c_d), a_d(Config::a_d), 
       nogoods_limit(0),
+      port(6565),
       stop(NULL), cutoff(NULL),
-      sendNodes(true),
-      port(0)
+      sendNodes(true)
+      // port(0)
       {}
 
 }}
