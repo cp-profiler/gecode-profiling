@@ -395,7 +395,10 @@ namespace Gecode {
       _out_file("-file-sol", "where to print solutions "
                 "(supports stdout, stdlog, stderr)","stdout"),
       _log_file("-file-stat", "where to print statistics "
-                "(supports stdout, stdlog, stderr)","stdout")
+                "(supports stdout, stdlog, stderr)","stdout"),
+      _send_nodes("-send-nodes",
+                  "whether to send nodes for profiling",
+                  true)
   {
     
     _icl.add(ICL_DEF, "def"); _icl.add(ICL_VAL, "val");
@@ -420,6 +423,7 @@ namespace Gecode {
     add(_nogoods); add(_nogoods_limit);
     add(_mode); add(_iterations); add(_samples); add(_print_last);
     add(_out_file); add(_log_file);
+    add(_send_nodes);
   }
 
   

@@ -363,6 +363,7 @@ namespace Gecode {
     Driver::BoolOption        _print_last; ///< Print only last solution found
     Driver::StringValueOption _out_file;   ///< Where to print solutions
     Driver::StringValueOption _log_file;   ///< Where to print statistics
+    Driver::BoolOption        _send_nodes; ///< Whether to send nodes for profiling
     //@}
 
   public:
@@ -526,6 +527,11 @@ namespace Gecode {
     void log_file(const char* f);
     /// Get file name for Gecode stats
     const char* log_file(void) const;
+
+    /// Set default send nodes flag
+    void send_nodes(bool b);
+    /// Get send nodes flag
+    bool send_nodes(void) const;
     //@}
 
 #ifdef GECODE_HAS_GIST

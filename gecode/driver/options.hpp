@@ -437,6 +437,14 @@ namespace Gecode {
     return _log_file.value();
   }
 
+  inline void
+  Options::send_nodes(bool p) {
+    _send_nodes.value(p);
+  }
+  inline bool
+  Options::send_nodes(void) const {
+    return _send_nodes.value();
+  }
 #ifdef GECODE_HAS_GIST
   forceinline
   Options::_I::_I(void) : _click(heap,1), n_click(0),
