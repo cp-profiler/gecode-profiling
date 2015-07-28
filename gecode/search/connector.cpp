@@ -51,7 +51,7 @@ void Connector::sendOverSocket(message::Node &msg) {
 
 void Connector::sendNode(int sid, int pid, int alt, int kids,
                          int status, const char* label, unsigned int thread, int restart,
-                         float domain, const std::string& nogood) {
+                         float domain, const std::string& nogood, const std::string& info) {
 
   // current_time = system_clock::now();
   // unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
@@ -72,15 +72,16 @@ void Connector::sendNode(int sid, int pid, int alt, int kids,
   node.set_domain_size(domain);
   // node.set_solution(solution);
   node.set_nogood(nogood);
+  node.set_info(info);
 
   sendOverSocket(node);
 }
 
 void Connector::sendNode(int sid, int pid, int alt, int kids,
                          int status, unsigned int thread, int restart, float domain,
-                         const std::string& nogood) {
+                         const std::string& nogood, const std::string& info) {
 
-  sendNode(sid, pid, alt, kids, status, "n/a", thread, restart, domain, nogood);
+  sendNode(sid, pid, alt, kids, status, "n/a", thread, restart, domain, nogood, info);
 }
 
 void Connector::restartGist(int restart_id, const std::string& file_path) {

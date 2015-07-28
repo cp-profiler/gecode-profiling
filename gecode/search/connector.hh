@@ -42,7 +42,8 @@ public:
                 unsigned int thread,
                 int restart = -1,
                 float domain = -1,
-                const std::string& nogood = "");
+                const std::string& nogood = "",
+                const std::string& info = "");
 
   void sendNode(int sid,
                 int pid,
@@ -52,7 +53,8 @@ public:
                 unsigned int thread,
                 int restart = -1,
                 float domain = -1,
-                const std::string& nogood = "");
+                const std::string& nogood = "",
+                const std::string& info = "");
 
 };
 
