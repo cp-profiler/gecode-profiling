@@ -41,6 +41,8 @@
 
 #include <gecode/search/parallel/bab.hh>
 
+using Profiling::NodeStatus;
+
 namespace Gecode { namespace Search { namespace Parallel {
 
   /*
@@ -67,7 +69,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     int alt = -1;
     int kids = -1;
 
-    connector.connectToSocket();
+    connector.connect();
     std::cerr << "connected to socket! \n";
 
     /*
@@ -140,7 +142,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               switch (cur->status(*this)) {
               case SS_FAILED:
 
-                connector.sendNode(_nid, pid, alt, 0, 1, oss.str().c_str(), (char)(wid()),
+                connector.sendNode(_nid, pid, alt, 0, NodeStatus::FAILED, oss.str().c_str(), (char)(wid()),
                                     cur->getDomainSize());
 
                 fail++;
@@ -152,7 +154,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.sendNode(_nid, pid, alt, 0, 0, oss.str().c_str(), (char)wid(),
+                  connector.sendNode(_nid, pid, alt, 0, NodeStatus::SOLVED, oss.str().c_str(), (char)wid(),
                                       cur->getDomainSize());
 
                   // Deletes all pending branchers
@@ -178,7 +180,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                   const Choice* ch = path.push(*this, _nid, cur,c); // change node to _nid
 
                   kids = ch->alternatives();
-                  connector.sendNode(_nid, pid, alt, kids, 2, oss.str().c_str(), (char)wid(),
+                  connector.sendNode(_nid, pid, alt, kids, NodeStatus::BRANCH, oss.str().c_str(), (char)wid(),
                                       cur->getDomainSize());
 
                   cur->commit(*ch,0);
@@ -273,9 +275,9 @@ namespace Gecode { namespace Search { namespace Parallel {
   BAB::~BAB(void) {
     Connector connector(opt().port);
     std::cerr << "sending done...";
-    connector.connectToSocket();
-    connector.sendDoneSending();
-    connector.disconnectFromSocket();
+    connector.connect();
+    connector.done();
+    connector.disconnect();
 
     terminate();
     delete best;

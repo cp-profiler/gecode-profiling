@@ -146,12 +146,12 @@ namespace Gecode { namespace Search { namespace Parallel {
 
 
     Connector connector(0); // Yes, this one is only created to send "START"
-    connector.connectToSocket();
+    connector.connect();
 
     if (isRestart)
-      connector.restartGist(0, o.problem_name);
+      connector.restart(o.problem_name, 0);
     else
-      connector.restartGist(-1, o.problem_name);
+      connector.restart(o.problem_name);
 
 
 
@@ -169,7 +169,6 @@ namespace Gecode { namespace Search { namespace Parallel {
     for (unsigned int i=0; i<workers(); i++)
       Support::Thread::run(_worker[i]);
 
-    // connector.disconnectFromSocket();
   }
 
 

@@ -41,6 +41,8 @@
 
 #include <gecode/search/parallel/dfs.hh>
 
+using Profiling::NodeStatus;
+
 namespace Gecode { namespace Search { namespace Parallel {
 
   /*
@@ -66,7 +68,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     int alt = -1;
     int kids = -1;
 
-    connector.connectToSocket();
+    connector.connect();
     std::cerr << "connected to socket! \n";
     
     /*
@@ -142,7 +144,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               switch (cur->status(*this)) {
               case SS_FAILED:
 
-                connector.sendNode(_nid, pid, alt, 0, 1, oss.str().c_str(), (char)(wid()));
+                connector.sendNode(_nid, pid, alt, 0, NodeStatus::FAILED, oss.str().c_str(), (char)(wid()));
 
                 fail++;
                 delete cur;
@@ -153,7 +155,7 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.sendNode(_nid, pid, alt, 0, 0, oss.str().c_str(), (char)wid());
+                  connector.sendNode(_nid, pid, alt, 0, NodeStatus::SOLVED, oss.str().c_str(), (char)wid());
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -178,7 +180,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                   const Choice* ch = path.push(*this, _nid, cur,c);
 
                   kids = ch->alternatives();
-                  connector.sendNode(_nid, pid, alt, kids, 2, oss.str().c_str(), (char)wid());
+                  connector.sendNode(_nid, pid, alt, kids, NodeStatus::BRANCH, oss.str().c_str(), (char)wid());
 
                   cur->commit(*ch,0);
                   m.release();
@@ -268,9 +270,9 @@ namespace Gecode { namespace Search { namespace Parallel {
   DFS::~DFS(void) {
     Connector connector(opt().port);
     std::cerr << "sending done...";
-    connector.connectToSocket();
-    connector.sendDoneSending();
-    connector.disconnectFromSocket();
+    connector.connect();
+    connector.done();
+    connector.disconnect();
 
     terminate();
     heap.rfree(_worker);

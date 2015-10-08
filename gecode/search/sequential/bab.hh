@@ -52,6 +52,8 @@
 
 #include <iostream>
 
+using Profiling::NodeStatus;
+
 namespace Gecode { namespace FlatZinc {
   class FlatZincSpace;
 }}
@@ -103,12 +105,12 @@ namespace Gecode { namespace Search { namespace Sequential {
 
 
     if (opt.sendNodes) {
-      connector.connectToSocket();
+      connector.connect();
 
       if (isRestarts)
-        connector.restartGist(0, o.problem_name);
+        connector.restart(o.problem_name, 0);
       else
-        connector.restartGist(-1, o.problem_name);
+        connector.restart(o.problem_name);
     }
 
     // std::cout << "sequential BAB\n";
@@ -183,7 +185,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       switch (cur->status(*this)) {
       case SS_FAILED:
         if (opt.sendNodes) {
-          connector.sendNode(node, pid, alt, 0, 1,
+          connector.sendNode(node, pid, alt, 0, NodeStatus::FAILED,
                              oss.str().c_str(), 0, restart, 
                              cur->getDomainSize());
         }
@@ -194,7 +196,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         break;
       case SS_SOLVED:
         if (opt.sendNodes) {
-          connector.sendNode(node, pid, alt, 0, 0,
+          connector.sendNode(node, pid, alt, 0, NodeStatus::SOLVED,
                              oss.str().c_str(), 0, restart,
                              cur->getDomainSize());
         }
@@ -219,7 +221,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           const Choice* ch = path.push(*this,node,cur,c);
           if (opt.sendNodes) {
             kids = ch->alternatives();
-            connector.sendNode(node, pid, alt, kids, 2,
+            connector.sendNode(node, pid, alt, kids, NodeStatus::BRANCH,
                                oss.str().c_str(),  0, restart,
                                cur->getDomainSize());
           }
@@ -265,8 +267,8 @@ namespace Gecode { namespace Search { namespace Sequential {
   forceinline 
   BAB::~BAB(void) {
     if (opt.sendNodes) {
-      connector.sendDoneSending();
-      connector.disconnectFromSocket();
+      connector.done();
+      connector.disconnect();
     }
     path.reset();
     delete best;

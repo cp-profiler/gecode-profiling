@@ -45,6 +45,9 @@
 
 #include <gecode/search/connector.hh>
 
+using Profiling::Connector;
+using Profiling::NodeStatus;
+
 namespace Gecode { namespace Search { namespace Sequential {
 
   /**
@@ -304,7 +307,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         int first_alt = edge.alt();
         if (i!=l) first_alt++;
         for (int j = first_alt; j < n_alt; j++) {
-          connector->sendNode(-1, pid, j, 0, 6, 0);
+          connector->sendNode(-1, pid, j, 0, NodeStatus::MERGING, 0);
         }
       }
 

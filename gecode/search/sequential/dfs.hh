@@ -91,12 +91,12 @@
 
       if (opt.sendNodes) {
         connector = new Connector(opt.port == 0 ? 6565 : o.port);
-        connector->connectToSocket();
+        connector->connect();
 
         if (isRestarts)
-          connector->restartGist(0, o.problem_name);
+          connector->restart(o.problem_name, 0);
         else
-          connector->restartGist(-1, o.problem_name);
+          connector->restart(o.problem_name);
       }
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
@@ -175,7 +175,7 @@
       switch (cur->status(*this)) {
       case SS_FAILED:
         if (opt.sendNodes) {
-          connector->sendNode(node, pid, alt, 0, 1, oss.str().c_str(), 0, restart,
+          connector->sendNode(node, pid, alt, 0, NodeStatus::FAILED, oss.str().c_str(), 0, restart,
                               cur->getDomainSize());
         }
         fail++;
@@ -186,7 +186,7 @@
       case SS_SOLVED:
         {
           if (opt.sendNodes) {
-            connector->sendNode(node, pid, alt, 0, 0, oss.str().c_str(), 0, restart,
+            connector->sendNode(node, pid, alt, 0, NodeStatus::SOLVED, oss.str().c_str(), 0, restart,
                                 cur->getDomainSize());
           }
           // Deletes all pending branchers
@@ -209,7 +209,7 @@
           const Choice* ch = path.push(*this,node,cur,c);
           if (opt.sendNodes) {
             kids = ch->alternatives();
-            connector->sendNode(node, pid, alt, kids, 2, oss.str().c_str(), 0, restart,
+            connector->sendNode(node, pid, alt, kids, NodeStatus::BRANCH, oss.str().c_str(), 0, restart,
                                 cur->getDomainSize());
           }
           cur->commit(*ch,0);
@@ -232,8 +232,8 @@
   DFS::~DFS(void) {
     delete cur;
     if (opt.sendNodes) {
-      connector->sendDoneSending();
-      connector->disconnectFromSocket();
+      connector->done();
+      connector->disconnect();
       delete connector;
     }
     path.reset();

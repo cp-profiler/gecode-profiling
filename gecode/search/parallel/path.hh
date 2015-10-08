@@ -45,6 +45,8 @@
 
 #include <gecode/search/connector.hh>
 
+using Profiling::Connector;
+
 namespace Gecode { namespace Search { namespace Parallel {
 
   /**
@@ -114,7 +116,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     /// Stack to store edge information
     Support::DynamicStack<Edge,Heap> ds;
     /// Pointer to the connector
-    Connector* connector = nullptr;
+    Profiling::Connector* connector = nullptr;
     /// Depth limit for no-good generation
     unsigned int _ngdl;
     /// Number of edges that have work for stealing
@@ -329,7 +331,7 @@ namespace Gecode { namespace Search { namespace Parallel {
 
       if (connector) {
         for (int j = first_alt; j < n_alt; j++) {
-          connector->sendNode(-1, pid, j, 0, 6, 0);
+          connector->sendNode(-1, pid, j, 0, Profiling::NodeStatus::SKIPPED, 0);
         }
       }
       
