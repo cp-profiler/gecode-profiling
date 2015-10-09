@@ -1,4 +1,4 @@
-#include "connector.hh"
+#include <gecode/search/connector.hh>
 #include <iostream>
 #include <unistd.h>
 #include <ctime>
@@ -68,33 +68,33 @@ namespace Profiling {
     }
   }
 
-  void Connector::sendNode(int sid, int pid, int alt, int kids,
-                           NodeStatus status, const char* label, unsigned int thread, int restart,
-                           float domain, const std::string& nogood, const std::string& info) {
+  // void Connector::sendNode(int sid, int pid, int alt, int kids,
+  //                          NodeStatus status, const char* label, unsigned int thread, int restart,
+  //                          float domain, const std::string& nogood, const std::string& info) {
 
-    // current_time = system_clock::now();
-    // unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
+  //   // current_time = system_clock::now();
+  //   // unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
 
-    message::Node node;
+  //   message::Node node;
 
-    node.set_type(message::Node::NODE);
+  //   node.set_type(message::Node::NODE);
 
-    node.set_sid(sid);
-    node.set_pid(pid);
-    node.set_alt(alt);
-    node.set_kids(kids);
+  //   node.set_sid(sid);
+  //   node.set_pid(pid);
+  //   node.set_alt(alt);
+  //   node.set_kids(kids);
 
-    node.set_status(static_cast<message::Node::NodeStatus>(status));
-    node.set_label(label);
-    node.set_thread_id(thread);
-    node.set_restart_id(restart);
-    node.set_domain_size(domain);
-    // node.set_solution(solution);
-    node.set_nogood(nogood);
-    node.set_info(info);
+  //   node.set_status(static_cast<message::Node::NodeStatus>(status));
+  //   node.set_label(label);
+  //   node.set_thread_id(thread);
+  //   node.set_restart_id(restart);
+  //   node.set_domain_size(domain);
+  //   // node.set_solution(solution);
+  //   node.set_nogood(nogood);
+  //   node.set_info(info);
 
-    sendOverSocket(node);
-  }
+  //   sendOverSocket(node);
+  // }
 
   void Connector::sendNode(const Profiling::Node& node) {
     sendOverSocket(node.get_node());

@@ -1,8 +1,8 @@
 #ifndef CONNECTOR
 #define CONNECTOR
 
-#include "message.pb.hh"
-#include "zmq.hpp"
+#include <gecode/search/message.pb.hh>
+#include <gecode/search/zmq.hpp>
 
 namespace message {
   class Node;
@@ -47,17 +47,17 @@ namespace Profiling {
     /// disconnect from a socket
     void disconnect();
 
-    void sendNode(int sid,
-                  int pid,
-                  int alt,
-                  int kids,
-                  NodeStatus status,
-                  const char* label,
-                  unsigned int thread = -1,
-                  int restart = -1,
-                  float domain = -1,
-                  const std::string& nogood = "",
-                  const std::string& info = "");
+    // void sendNode(int sid,
+    //               int pid,
+    //               int alt,
+    //               int kids,
+    //               NodeStatus status,
+    //               const char* label,
+    //               unsigned int thread = -1,
+    //               int restart = -1,
+    //               float domain = -1,
+    //               const std::string& nogood = "",
+    //               const std::string& info = "");
 
     void sendNode(const Profiling::Node& node);
 
@@ -79,12 +79,34 @@ namespace Profiling {
 
     Node(int sid, int pid, int alt, int kids, NodeStatus status);
 
-    inline void set_label(const std::string& label) {
+    inline Node& set_label(const std::string& label) {
       _node.set_label(label);
+      return *this;
     }
 
-    inline void set_thread_id(unsigned int thread_id) {
+    inline Node& set_thread_id(unsigned int thread_id) {
       _node.set_thread_id(thread_id);
+      return *this;
+    }
+
+    inline Node& set_restart_id(int restart_id) {
+      _node.set_thread_id(restart_id);
+      return *this;
+    }
+
+    inline Node& set_domain_size(float domain_size) {
+      _node.set_domain_size(domain_size);
+      return *this;
+    }
+
+    inline Node& set_nogood(const std::string& nogood) {
+      _node.set_nogood(nogood);
+      return *this;
+    }
+
+    inline Node& set_info(const std::string& nogood) {
+      _node.set_nogood(nogood);
+      return *this;
     }
 
   };

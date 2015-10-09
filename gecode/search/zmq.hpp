@@ -25,7 +25,7 @@
 #ifndef __ZMQ_HPP_INCLUDED__
 #define __ZMQ_HPP_INCLUDED__
 
-#include "zmq.h"
+#include <zmq.h>
 
 #include <algorithm>
 #include <cassert>

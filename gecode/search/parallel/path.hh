@@ -331,7 +331,11 @@ namespace Gecode { namespace Search { namespace Parallel {
 
       if (connector) {
         for (int j = first_alt; j < n_alt; j++) {
-          connector->sendNode(-1, pid, j, 0, Profiling::NodeStatus::SKIPPED, 0);
+          Profiling::Node n(-1, pid, j, 0, Profiling::NodeStatus::SKIPPED);
+          n.set_label("")
+           .set_thread_id(0); /// TODO: ?
+
+          connector->sendNode(n);
         }
       }
       

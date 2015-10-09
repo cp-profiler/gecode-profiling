@@ -143,8 +143,14 @@ namespace Gecode { namespace Search { namespace Parallel {
 
               switch (cur->status(*this)) {
               case SS_FAILED:
+              {
 
-                connector.sendNode(_nid, pid, alt, 0, NodeStatus::FAILED, oss.str().c_str(), (char)(wid()));
+
+                Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED);
+                n.set_label(oss.str().c_str())
+                 .set_thread_id(static_cast<char>(wid()));
+
+                connector.sendNode(n);
 
                 fail++;
                 delete cur;
@@ -152,10 +158,15 @@ namespace Gecode { namespace Search { namespace Parallel {
                 path.next();
                 m.release();
                 break;
+              }
               case SS_SOLVED:
                 {
 
-                  connector.sendNode(_nid, pid, alt, 0, NodeStatus::SOLVED, oss.str().c_str(), (char)wid());
+                  Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED);
+                  n.set_label(oss.str().c_str())
+                   .set_thread_id(static_cast<char>(wid()));
+                   // .set_restart_id(restart)
+                  connector.sendNode(n);
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -180,7 +191,13 @@ namespace Gecode { namespace Search { namespace Parallel {
                   const Choice* ch = path.push(*this, _nid, cur,c);
 
                   kids = ch->alternatives();
-                  connector.sendNode(_nid, pid, alt, kids, NodeStatus::BRANCH, oss.str().c_str(), (char)wid());
+
+                  Profiling::Node n(_nid, pid, alt, kids, Profiling::NodeStatus::SOLVED);
+                  n.set_label(oss.str().c_str())
+                   .set_thread_id(static_cast<char>(wid()));
+                   // .set_restart_id(restart)
+                  connector.sendNode(n);
+
 
                   cur->commit(*ch,0);
                   m.release();
