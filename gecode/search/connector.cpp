@@ -14,7 +14,9 @@ std::string NumberToString ( T Number )
 
 namespace Profiling {
 
-  Node::Node(int sid, int pid, int alt, int kids, NodeStatus status) {
+  Node::Node(int sid, int pid, int alt, int kids, NodeStatus status, Connector& c) : _c(c) {
+
+    // std::cout << "Node::Node(...); sid: " << sid << std::endl;
     _node.set_type(message::Node::NODE);
 
     _node.set_sid(sid);
@@ -23,6 +25,14 @@ namespace Profiling {
     _node.set_kids(kids);
     _node.set_status(static_cast<message::Node::NodeStatus>(status));
     _node.set_thread_id(-1); /// -1 is default for thread id
+  }
+
+  Node::Node(const Node& node) : _c(node._c) {
+    // std::cout << "Node::Node(const Node&); sid: " << _node.sid() << std::endl;
+  }
+
+  Node::~Node() {
+    // std::cout << "Node::~Node(...); sid: " << _node.sid() << std::endl;
   }
 
 }
@@ -68,33 +78,37 @@ namespace Profiling {
     }
   }
 
-  // void Connector::sendNode(int sid, int pid, int alt, int kids,
-  //                          NodeStatus status, const char* label, unsigned int thread, int restart,
-  //                          float domain, const std::string& nogood, const std::string& info) {
+  void Connector::sendNode(int sid, int pid, int alt, int kids,
+                           NodeStatus status, const char* label, unsigned int thread, int restart,
+                           float domain, const std::string& nogood, const std::string& info) {
 
-  //   // current_time = system_clock::now();
-  //   // unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
+    // current_time = system_clock::now();
+    // unsigned long long timestamp = static_cast<long long>(duration_cast<microseconds>(current_time - begin_time).count());
 
-  //   message::Node node;
+    message::Node node;
 
-  //   node.set_type(message::Node::NODE);
+    node.set_type(message::Node::NODE);
 
-  //   node.set_sid(sid);
-  //   node.set_pid(pid);
-  //   node.set_alt(alt);
-  //   node.set_kids(kids);
+    node.set_sid(sid);
+    node.set_pid(pid);
+    node.set_alt(alt);
+    node.set_kids(kids);
 
-  //   node.set_status(static_cast<message::Node::NodeStatus>(status));
-  //   node.set_label(label);
-  //   node.set_thread_id(thread);
-  //   node.set_restart_id(restart);
-  //   node.set_domain_size(domain);
-  //   // node.set_solution(solution);
-  //   node.set_nogood(nogood);
-  //   node.set_info(info);
+    node.set_status(static_cast<message::Node::NodeStatus>(status));
+    node.set_label(label);
+    node.set_thread_id(thread);
+    node.set_restart_id(restart);
+    node.set_domain_size(domain);
+    // node.set_solution(solution);
+    node.set_nogood(nogood);
+    node.set_info(info);
 
-  //   sendOverSocket(node);
-  // }
+    sendOverSocket(node);
+  }
+
+  Node Connector::createNode(int sid, int pid, int alt, int kids, NodeStatus status) {
+    return Node(sid, pid, alt, kids, status, *this); 
+  }
 
   void Connector::sendNode(const Profiling::Node& node) {
     sendOverSocket(node.get_node());
@@ -135,6 +149,15 @@ namespace Profiling {
 
   void Connector::disconnect() {
     socket.close();
+  }
+
+}
+
+
+namespace Profiling {
+
+  void Node::send() {
+    this->_c.sendNode(*this);
   }
 
 }

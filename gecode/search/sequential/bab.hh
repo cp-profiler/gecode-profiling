@@ -186,12 +186,12 @@ namespace Gecode { namespace Search { namespace Sequential {
       case SS_FAILED:
         if (opt.sendNodes) {
 
-          Profiling::Node n(node, pid, alt, 0, Profiling::NodeStatus::FAILED);
-          n.set_label(oss.str().c_str())
+          connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::FAILED)
+           .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
-           .set_domain_size(cur->getDomainSize());
-          connector.sendNode(n);
+           .set_domain_size(cur->getDomainSize())
+           .send();
         }
         fail++;
         delete cur;
@@ -201,12 +201,12 @@ namespace Gecode { namespace Search { namespace Sequential {
       case SS_SOLVED:
         if (opt.sendNodes) {
 
-          Profiling::Node n(node, pid, alt, 0, Profiling::NodeStatus::SOLVED);
-          n.set_label(oss.str().c_str())
+          connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+           .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
-           .set_domain_size(cur->getDomainSize());
-          connector.sendNode(n);
+           .set_domain_size(cur->getDomainSize())
+           .send();
         }
         // Deletes all pending branchers
         (void) cur->choice();
@@ -230,12 +230,12 @@ namespace Gecode { namespace Search { namespace Sequential {
           if (opt.sendNodes) {
             kids = ch->alternatives();
 
-            Profiling::Node n(node, pid, alt, kids, Profiling::NodeStatus::BRANCH);
-            n.set_label(oss.str().c_str())
+            connector.createNode(node, pid, alt, kids, Profiling::NodeStatus::BRANCH)
+             .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
-             .set_domain_size(cur->getDomainSize());
-            connector.sendNode(n);
+             .set_domain_size(cur->getDomainSize())
+             .send();
           }
           cur->commit(*ch,0);
           break;

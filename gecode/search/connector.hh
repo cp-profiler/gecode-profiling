@@ -47,19 +47,21 @@ namespace Profiling {
     /// disconnect from a socket
     void disconnect();
 
-    // void sendNode(int sid,
-    //               int pid,
-    //               int alt,
-    //               int kids,
-    //               NodeStatus status,
-    //               const char* label,
-    //               unsigned int thread = -1,
-    //               int restart = -1,
-    //               float domain = -1,
-    //               const std::string& nogood = "",
-    //               const std::string& info = "");
+    void sendNode(int sid,
+                  int pid,
+                  int alt,
+                  int kids,
+                  NodeStatus status,
+                  const char* label,
+                  unsigned int thread = -1,
+                  int restart = -1,
+                  float domain = -1,
+                  const std::string& nogood = "",
+                  const std::string& info = "");
 
     void sendNode(const Profiling::Node& node);
+
+    Node createNode(int sid, int pid, int alt, int kids, NodeStatus status);
 
   };
 
@@ -68,6 +70,7 @@ namespace Profiling {
   private:
 
     message::Node _node;
+    Connector& _c;
 
     const message::Node& get_node() const {
       return _node;
@@ -77,7 +80,13 @@ namespace Profiling {
 
     friend class Connector;
 
-    Node(int sid, int pid, int alt, int kids, NodeStatus status);
+    Node(int sid, int pid, int alt, int kids, NodeStatus status, Connector& c);
+
+    Node(const Node& node);
+
+    ~Node();
+
+    void send();
 
     inline Node& set_label(const std::string& label) {
       _node.set_label(label);

@@ -146,11 +146,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               {
 
 
-                Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED);
-                n.set_label(oss.str().c_str())
-                 .set_thread_id(static_cast<char>(wid()));
-
-                connector.sendNode(n);
+                connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED)
+                 .set_label(oss.str().c_str())
+                 .set_thread_id(static_cast<char>(wid()))
+                 .send();
 
                 fail++;
                 delete cur;
@@ -162,11 +161,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED);
-                  n.set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()));
-                   // .set_restart_id(restart)
-                  connector.sendNode(n);
+                  connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+                   .set_label(oss.str().c_str())
+                   .set_thread_id(static_cast<char>(wid()))
+                   .send();
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -192,11 +190,10 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   kids = ch->alternatives();
 
-                  Profiling::Node n(_nid, pid, alt, kids, Profiling::NodeStatus::SOLVED);
-                  n.set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()));
-                   // .set_restart_id(restart)
-                  connector.sendNode(n);
+                  connector.createNode(_nid, pid, alt, kids, Profiling::NodeStatus::SOLVED)
+                   .set_label(oss.str().c_str())
+                   .set_thread_id(static_cast<char>(wid()))
+                   .send();
 
 
                   cur->commit(*ch,0);

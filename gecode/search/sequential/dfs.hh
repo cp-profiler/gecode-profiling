@@ -176,13 +176,12 @@
       case SS_FAILED:
         if (opt.sendNodes) {
 
-          Profiling::Node n(node, pid, alt, 0, NodeStatus::FAILED);
-          n.set_label(oss.str().c_str())
+          connector->createNode(node, pid, alt, 0, NodeStatus::FAILED)
+           .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
-           .set_domain_size(cur->getDomainSize());
-
-          connector->sendNode(n);
+           .set_domain_size(cur->getDomainSize())
+           .send();
         }
         fail++;
         delete cur;
@@ -193,13 +192,13 @@
         {
           if (opt.sendNodes) {
 
-            Profiling::Node n(node, pid, alt, 0, NodeStatus::SOLVED);
-            n.set_label(oss.str().c_str())
+            connector->createNode(node, pid, alt, 0, NodeStatus::SOLVED)
+             .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
-             .set_domain_size(cur->getDomainSize());
+             .set_domain_size(cur->getDomainSize())
+             .send();
 
-            connector->sendNode(n);
           }
           // Deletes all pending branchers
           (void) cur->choice();
@@ -222,13 +221,13 @@
           if (opt.sendNodes) {
             kids = ch->alternatives();
 
-            Profiling::Node n(node, pid, alt, kids, NodeStatus::BRANCH);
-            n.set_label(oss.str().c_str())
+            connector->createNode(node, pid, alt, kids, NodeStatus::BRANCH)
+             .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
-             .set_domain_size(cur->getDomainSize());
+             .set_domain_size(cur->getDomainSize())
+             .send();
 
-            connector->sendNode(n);
           }
           cur->commit(*ch,0);
           break;

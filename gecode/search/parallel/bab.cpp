@@ -143,11 +143,11 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_FAILED:
               {
 
-                Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED);
-                n.set_label(oss.str().c_str())
+                connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED)
+                 .set_label(oss.str().c_str())
                  .set_thread_id(static_cast<char>(wid()))
-                 .set_domain_size(cur->getDomainSize());
-                connector.sendNode(n);
+                 .set_domain_size(cur->getDomainSize())
+                 .send();
 
                 fail++;
                 delete cur;
@@ -159,12 +159,11 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  Profiling::Node n(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED);
-                  n.set_label(oss.str().c_str())
+                  connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+                   .set_label(oss.str().c_str())
                    .set_thread_id(static_cast<char>(wid()))
-                   // .set_restart_id(restart)
-                   .set_domain_size(cur->getDomainSize());
-                  connector.sendNode(n);
+                   .set_domain_size(cur->getDomainSize())
+                   .send();
 
                   // Deletes all pending branchers
                   (void) cur->choice();
@@ -190,12 +189,11 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   kids = ch->alternatives();
 
-                  Profiling::Node n(_nid, pid, alt, kids, Profiling::NodeStatus::BRANCH);
-                  n.set_label(oss.str().c_str())
+                  connector.createNode(_nid, pid, alt, kids, Profiling::NodeStatus::BRANCH)
+                   .set_label(oss.str().c_str())
                    .set_thread_id(static_cast<char>(wid()))
-                   // .set_restart_id(restart)
-                   .set_domain_size(cur->getDomainSize());
-                  connector.sendNode(n);
+                   .set_domain_size(cur->getDomainSize())
+                   .send();
 
                   cur->commit(*ch,0);
                   m.release();

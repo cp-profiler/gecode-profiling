@@ -307,13 +307,11 @@ namespace Gecode { namespace Search { namespace Sequential {
         int first_alt = edge.alt();
         if (i!=l) first_alt++;
         for (int j = first_alt; j < n_alt; j++) {
-          // connector->sendNode(-1, pid, j, 0, NodeStatus::SKIPPED, "", 0);
 
-          Profiling::Node n(-1, pid, j, 0, NodeStatus::SKIPPED);
-          n.set_label("")
-           .set_thread_id(0);
-
-          connector->sendNode(n);
+          connector->createNode(-1, pid, j, 0, NodeStatus::SKIPPED)
+           .set_label("")
+           .set_thread_id(0)
+           .send();
         }
       }
 
