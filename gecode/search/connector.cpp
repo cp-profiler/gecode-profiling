@@ -154,3 +154,5 @@ namespace Profiling {
   void Node::send() {
     this->_c.sendNode(*this);
   }
+
+}
