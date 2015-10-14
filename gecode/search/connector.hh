@@ -76,13 +76,14 @@ namespace Profiling {
       return _node;
     }
 
+    Node(const Node& node); /// no copying allowed
+
+
   public:
 
     friend class Connector;
 
     Node(int sid, int pid, int alt, int kids, NodeStatus status, Connector& c);
-
-    Node(const Node& node);
 
     ~Node();
 

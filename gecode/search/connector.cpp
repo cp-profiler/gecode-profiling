@@ -16,7 +16,6 @@ namespace Profiling {
 
   Node::Node(int sid, int pid, int alt, int kids, NodeStatus status, Connector& c) : _c(c) {
 
-    // std::cout << "Node::Node(...); sid: " << sid << std::endl;
     _node.set_type(message::Node::NODE);
 
     _node.set_sid(sid);
@@ -27,12 +26,8 @@ namespace Profiling {
     _node.set_thread_id(-1); /// -1 is default for thread id
   }
 
-  Node::Node(const Node& node) : _c(node._c) {
-    // std::cout << "Node::Node(const Node&); sid: " << _node.sid() << std::endl;
-  }
-
   Node::~Node() {
-    // std::cout << "Node::~Node(...); sid: " << _node.sid() << std::endl;
+
   }
 
 }
@@ -107,7 +102,7 @@ namespace Profiling {
   }
 
   Node Connector::createNode(int sid, int pid, int alt, int kids, NodeStatus status) {
-    return Node(sid, pid, alt, kids, status, *this); 
+    return Node(sid, pid, alt, kids, status, *this);
   }
 
   void Connector::sendNode(const Profiling::Node& node) {
@@ -159,5 +154,3 @@ namespace Profiling {
   void Node::send() {
     this->_c.sendNode(*this);
   }
-
-}
