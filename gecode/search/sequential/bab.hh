@@ -206,6 +206,7 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
+           .set_solution("[solution]")
            .send();
         }
         // Deletes all pending branchers
