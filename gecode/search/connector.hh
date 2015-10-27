@@ -100,7 +100,7 @@ namespace Profiling {
     }
 
     inline Node& set_restart_id(int restart_id) {
-      _node.set_thread_id(restart_id);
+      _node.set_restart_id(restart_id);
       return *this;
     }
 
