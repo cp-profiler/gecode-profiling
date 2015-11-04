@@ -181,6 +181,7 @@
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
+           .set_info(cur->getDomains())
            .send();
         }
         fail++;
@@ -197,8 +198,8 @@
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
+             .set_info(cur->getDomains())
              .send();
-
           }
           // Deletes all pending branchers
           (void) cur->choice();
@@ -226,6 +227,7 @@
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
+             .set_info(cur->getDomains())
              .send();
 
           }

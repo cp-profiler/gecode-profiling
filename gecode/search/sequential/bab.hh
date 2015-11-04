@@ -191,6 +191,7 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
+           .set_info(cur->getDomains())
            .send();
         }
         fail++;
@@ -206,6 +207,7 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
+           .set_info(cur->getDomains())
            .set_solution("[solution]")
            .send();
         }
@@ -236,6 +238,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
+             .set_info(cur->getDomains())
              .send();
           }
           cur->commit(*ch,0);

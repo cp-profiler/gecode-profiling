@@ -115,7 +115,7 @@ namespace Profiling {
     }
 
     inline Node& set_info(const std::string& nogood) {
-      _node.set_nogood(nogood);
+      _node.set_info(nogood);
       return *this;
     }
 

@@ -1989,6 +1989,25 @@ namespace Gecode { namespace FlatZinc {
     return total;
   }
 
+  std::string
+  FlatZincSpace::getDomains(void) const {
+    std::ostringstream oss;
+
+    for (int i = 0; i < iv.size(); i++)
+      oss << "iv[" << i << "]: " << iv[i] << std::endl;
+
+    for (int i = 0; i < iv_aux.size(); i++)
+      oss << "iv_aux[" << i << "]: " << iv_aux[i] << std::endl;
+
+    for (int i = 0; i < bv.size(); i++)
+      oss << "bv[" << i << "]: " << bv[i] << std::endl;
+
+    for (int i = 0; i < bv_aux.size(); i++)
+      oss << "bv_aux[" << i << "]: " << bv_aux[i] << std::endl;
+
+    return oss.str();
+  }
+
 
   void
   Printer::init(AST::Array* output) {

@@ -2008,6 +2008,8 @@ namespace Gecode {
 
     virtual float getDomainSize(void) const;
 
+    virtual std::string getDomains(void) const;
+
 
     GECODE_KERNEL_EXPORT unsigned int propagators(void) const;
     /**
@@ -3461,6 +3463,11 @@ namespace Gecode {
   forceinline float
   Space::getDomainSize(void) const {
     return -1;
+  }
+
+  forceinline std::string
+  Space::getDomains(void) const {
+    return "";
   }
 
 
