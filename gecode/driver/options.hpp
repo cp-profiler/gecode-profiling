@@ -445,6 +445,14 @@ namespace Gecode {
   Options::send_nodes(void) const {
     return _send_nodes.value();
   }
+  inline void
+  Options::send_domains(bool p) {
+    _send_domains.value(p);
+  }
+  inline bool
+  Options::send_domains(void) const {
+    return _send_domains.value();
+  }
 #ifdef GECODE_HAS_GIST
   forceinline
   Options::_I::_I(void) : _click(heap,1), n_click(0),

@@ -398,7 +398,8 @@ namespace Gecode {
                 "(supports stdout, stdlog, stderr)","stdout"),
       _send_nodes("-send-nodes",
                   "whether to send nodes for profiling",
-                  true)
+                  true),
+      _send_domains("-send-domains", "whether to send entire domains along with nodes", false)
   {
     
     _icl.add(ICL_DEF, "def"); _icl.add(ICL_VAL, "val");
@@ -423,7 +424,7 @@ namespace Gecode {
     add(_nogoods); add(_nogoods_limit);
     add(_mode); add(_iterations); add(_samples); add(_print_last);
     add(_out_file); add(_log_file);
-    add(_send_nodes);
+    add(_send_nodes); add(_send_domains);
   }
 
   

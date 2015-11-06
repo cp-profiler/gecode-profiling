@@ -88,7 +88,6 @@
       // std::cout << "filename: " << o.problem_name << std::endl;
       // std::cout << "DFS\n";
 
-
       if (opt.sendNodes) {
         connector = new Connector(opt.port == 0 ? 6565 : o.port);
         connector->connect();
@@ -176,12 +175,15 @@
       case SS_FAILED:
         if (opt.sendNodes) {
 
+          std::string info;
+          if (opt.sendDomains) { info += cur->getDomains(); }
+
           connector->createNode(node, pid, alt, 0, NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
-           .set_info(cur->getDomains())
+           .set_info(info)
            .send();
         }
         fail++;
@@ -193,12 +195,15 @@
         {
           if (opt.sendNodes) {
 
+            std::string info;
+            if (opt.sendDomains) { info += cur->getDomains(); }
+
             connector->createNode(node, pid, alt, 0, NodeStatus::SOLVED)
              .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
-             .set_info(cur->getDomains())
+             .set_info(info)
              .send();
           }
           // Deletes all pending branchers
@@ -222,12 +227,15 @@
           if (opt.sendNodes) {
             kids = ch->alternatives();
 
+            std::string info;
+            if (opt.sendDomains) { info += cur->getDomains(); }
+
             connector->createNode(node, pid, alt, kids, NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
-             .set_info(cur->getDomains())
+             .set_info(info)
              .send();
 
           }

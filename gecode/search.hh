@@ -469,6 +469,8 @@ namespace Gecode { namespace Search {
       Cutoff* cutoff;
       /// Whether to send nodes
       bool sendNodes;
+      /// Whether to send nodes
+      bool sendDomains;
       /// Which port to send nodes through
       unsigned int port;
       /// Default options

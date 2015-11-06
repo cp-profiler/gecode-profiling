@@ -364,6 +364,7 @@ namespace Gecode {
     Driver::StringValueOption _out_file;   ///< Where to print solutions
     Driver::StringValueOption _log_file;   ///< Where to print statistics
     Driver::BoolOption        _send_nodes; ///< Whether to send nodes for profiling
+    Driver::BoolOption        _send_domains; ///< Whether to send entire domains along with nodes for profiling
     //@}
 
   public:
@@ -532,6 +533,12 @@ namespace Gecode {
     void send_nodes(bool b);
     /// Get send nodes flag
     bool send_nodes(void) const;
+    //@}
+
+    /// Set default send domains flag
+    void send_domains(bool b);
+    /// Get send domains flag
+    bool send_domains(void) const;
     //@}
 
 #ifdef GECODE_HAS_GIST
