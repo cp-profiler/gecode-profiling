@@ -1,0 +1,5 @@
+*.o
+*.so
+*.so.*
+*~
+gecode/gist/moc_*.cpp
