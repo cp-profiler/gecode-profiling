@@ -35,19 +35,17 @@
  *
  */
 
-  #ifndef __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
-  #define __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
+#ifndef __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
+#define __GECODE_SEARCH_SEQUENTIAL_DFS_HH__
 
-  #include <gecode/search.hh>
-  #include <gecode/search/support.hh>
-  #include <gecode/search/worker.hh>
-  #include <gecode/search/sequential/path.hh>
+#include <gecode/search.hh>
+#include <gecode/search/support.hh>
+#include <gecode/search/worker.hh>
+#include <gecode/search/sequential/path.hh>
 
-  #include <gecode/search/connector.hh>
+#include "submodules/cpp-integration/connector.hh"
 
-
-
-  namespace Gecode { namespace Search { namespace Sequential {
+namespace Gecode { namespace Search { namespace Sequential {
 
 
   /// Depth-first search engine implementation

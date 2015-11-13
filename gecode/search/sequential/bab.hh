@@ -48,7 +48,7 @@
 #include <gecode/search/sequential/path.hh>
 #include <gecode/flatzinc.hh>
 
-#include <gecode/search/connector.hh>
+#include "submodules/cpp-integration/connector.hh"
 
 #include <iostream>
 

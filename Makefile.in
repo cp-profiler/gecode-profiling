@@ -248,8 +248,7 @@ SEARCHSRC0 = \
 	parallel/engine \
 	dfs parallel/dfs \
 	bab parallel/bab \
-	meta/rbs meta/nogoods sequential/path parallel/path \
-	connector message.pb
+	meta/rbs meta/nogoods sequential/path parallel/path
 SEARCHHDR0 = \
 	statistics.hpp stop.hpp options.hpp cutoff.hpp \
 	support.hh worker.hh exception.hpp \
@@ -257,11 +256,10 @@ SEARCHHDR0 = \
 	parallel/path.hh parallel/engine.hh \
 	parallel/dfs.hh parallel/bab.hh \
 	meta/rbs.hh meta/nogoods.hh \
-	dfs.hpp bab.hpp rbs.hpp engine.hpp engine-base.hpp \
-	connector.hh message.pb.hh
+	dfs.hpp bab.hpp rbs.hpp engine.hpp engine-base.hpp
 
-SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp)
-SEARCHHDR	= gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
+SEARCHSRC	= submodules/cpp-integration/connector.cpp submodules/cpp-integration/message.pb.cpp $(SEARCHSRC0:%=gecode/search/%.cpp)
+SEARCHHDR	= submodules/cpp-integration/connector.hh submodules/cpp-integration/message.pb.hh gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
 SEARCHOBJ	= $(SEARCHSRC:%.cpp=%$(OBJSUFFIX))
 
 ifeq "@enable_search@" "yes"

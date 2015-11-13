@@ -43,7 +43,7 @@
 #include <gecode/search/worker.hh>
 #include <gecode/search/meta/nogoods.hh>
 
-#include <gecode/search/connector.hh>
+#include "submodules/cpp-integration/connector.hh"
 
 using Profiling::Connector;
 

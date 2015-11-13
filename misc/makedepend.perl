@@ -52,12 +52,16 @@ while ($target = $ARGV[$i++]) {
   while ($f = pop @todo) {
     open FILE, "$root/$f" or
       open FILE, "$f" or die "File missing: $root/$f\n";
+
+    if ($f =~ /submodules/) {
+      next;
+    }
     
     while ($l = <FILE>) {
       if ($l =~ /^\#include <(gecode\/.*)>/ || $l =~ /^\#include "(.*)"/) {
 	$g = $1;
 	$g =~ s|^\./||og;
-	if (!($g =~ /^gecode\/third-party/) && !$done{$g}) {
+	if (!($g =~ /^gecode\/third-party/) && !($g =~ /^submodules/) && !$done{$g}) {
 	  push @todo, $g;
 	  if (-e "$root/$g") {
 	    $done{$g} = "$root/";
