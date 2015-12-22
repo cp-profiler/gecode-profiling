@@ -186,12 +186,15 @@ namespace Gecode { namespace Search { namespace Sequential {
       case SS_FAILED:
         if (opt.sendNodes) {
 
+          std::string info;
+          if (opt.sendDomains) { info += cur->getDomains(); }
+
           connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
-           .set_info(cur->getDomains())
+           .set_info(info)
            .send();
         }
         fail++;
@@ -201,13 +204,15 @@ namespace Gecode { namespace Search { namespace Sequential {
         break;
       case SS_SOLVED:
         if (opt.sendNodes) {
+          std::string info;
+          if (opt.sendDomains) { info += cur->getDomains(); }
 
           connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::SOLVED)
            .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
-           .set_info(cur->getDomains())
+           .set_info(info)
            .set_solution("[solution]")
            .send();
         }
@@ -233,12 +238,15 @@ namespace Gecode { namespace Search { namespace Sequential {
           if (opt.sendNodes) {
             kids = ch->alternatives();
 
+            std::string info;
+            if (opt.sendDomains) { info += cur->getDomains(); }
+
             connector.createNode(node, pid, alt, kids, Profiling::NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
-             .set_info(cur->getDomains())
+             .set_info(info)
              .send();
           }
           cur->commit(*ch,0);
