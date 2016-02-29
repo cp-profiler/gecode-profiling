@@ -62,8 +62,8 @@ namespace Gecode { namespace Int { namespace Branch {
   forceinline void
   ValCommitEq<View>::print(const Space&, unsigned int a, View, int i, 
                            int n, std::ostream& o) const {
-    o << "var[" << i << "] " 
-      << ((a == 0) ? "=" : "!=") << " " << n;
+    o << "var[" << i << "]"
+      << ((a == 0) ? "=" : "!=") << "" << n;
   }
 
   template<class View>
@@ -91,8 +91,8 @@ namespace Gecode { namespace Int { namespace Branch {
   forceinline void
   ValCommitLq<View>::print(const Space&, unsigned int a, View, int i,
                            int n, std::ostream& o) const {
-    o << "var[" << i << "] " 
-      << ((a == 0) ? "<=" : ">") << " " << n;
+    o << "var[" << i << "]"
+      << ((a == 0) ? "<=" : ">") << "" << n;
   }
 
   template<class View>
@@ -120,8 +120,8 @@ namespace Gecode { namespace Int { namespace Branch {
   forceinline void
   ValCommitGq<View>::print(const Space&, unsigned int a, View, int i, 
                            int n, std::ostream& o) const {
-    o << "var[" << i << "] " 
-      << ((a == 0) ? ">=" : "<") << " " << n;
+    o << "var[" << i << "]"
+      << ((a == 0) ? ">=" : "<") << "" << n;
   }
 
   template<class View>
@@ -149,8 +149,8 @@ namespace Gecode { namespace Int { namespace Branch {
   forceinline void
   ValCommitGr<View>::print(const Space&, unsigned int a, View, int i, 
                            int n, std::ostream& o) const {
-    o << "var[" << i << "] " 
-      << ((a == 0) ? ">" : "<=") << " " << n;
+    o << "var[" << i << "]"
+      << ((a == 0) ? ">" : "<=") << "" << n;
   }
 
 }}}

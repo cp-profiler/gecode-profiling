@@ -171,7 +171,7 @@ namespace Gecode { namespace Int { namespace Branch {
     if (vvp != NULL)
       vvp(home,*this,a,x,pvc.pos().pos,nn,o);
     else
-      o << "var[" << pvc.pos().pos << "] = " << nn;
+      o << "var[" << pvc.pos().pos << "]=" << nn;
   }
 
 }}}

@@ -71,7 +71,7 @@ namespace Gecode { namespace Float { namespace Branch {
   ValCommitLqGq::print(const Space&, unsigned int a, FloatView, int i, 
                        FloatNumBranch nl,
                        std::ostream& o) const {
-    o << "var[" << i << "] " 
+    o << "var[" << i << "]"
       << (((a == 0) == nl.l) ? "<=" : ">=") << "(" << nl.n << ")";
   }
 
