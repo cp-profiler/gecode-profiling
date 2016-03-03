@@ -45,7 +45,9 @@ namespace Gecode {
   template<class T>
   forceinline
   DFS<T>::DFS(T* s, const Search::Options& o, bool isRestarts)
-    : Search::EngineBase<T>(Search::dfs(s,o)) {}
+    : Search::EngineBase<T>(Search::dfs(s,o)) {
+    (void) isRestarts;
+  }
 
   template<class T>
   forceinline T*

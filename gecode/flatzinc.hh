@@ -381,6 +381,8 @@ namespace Gecode { namespace FlatZinc {
     void allSolutions(bool b) { _allSolutions.value(b); }
   };
 
+  enum BrancherVariableType { BRANCHER_INT, BRANCHER_BOOL, BRANCHER_SET, BRANCHER_FLOAT };
+
   class BranchInformation : public SharedHandle {
   public:
     /// Constructor
@@ -402,6 +404,18 @@ namespace Gecode { namespace FlatZinc {
     void print(const BrancherHandle& bh,
                int a, int i, const FloatNumBranch& nl, std::ostream& o) const;
 #endif
+    void addMappingIndices(BrancherVariableType vartype, const std::vector<int>& indices,
+                           const std::string& r0 = "=?", const std::string& r1 = "!=?");
+    const std::string& getVarName(const PosValChoice<int>& pvc) const;
+    const std::string& getRelation(const PosValChoice<int>& pvc, int a) const;
+    std::vector<int>& get_iv_tmp_indices(void);
+    std::vector<int>& get_bv_tmp_indices(void);
+    std::vector<int>& get_sv_tmp_indices(void);
+    std::vector<int>& get_fv_tmp_indices(void);
+    void newIntName(const std::string& name);
+    void newBoolName(const std::string& name);
+    void newSetName(const std::string& name);
+    void newFloatName(const std::string& name);
   };
 
  /**
@@ -524,17 +538,17 @@ namespace Gecode { namespace FlatZinc {
     void init(int intVars, int boolVars, int setVars, int floatVars);
 
     /// Create new integer variable from specification
-    void newIntVar(IntVarSpec* vs);
+    void newIntVar(IntVarSpec* vs, std::string name);
     /// Link integer variable \a iv to Boolean variable \a bv
     void aliasBool2Int(int iv, int bv);
     /// Return linked Boolean variable for integer variable \a iv
     int aliasBool2Int(int iv);
     /// Create new Boolean variable from specification
-    void newBoolVar(BoolVarSpec* vs);
+    void newBoolVar(BoolVarSpec* vs, std::string name);
     /// Create new set variable from specification
-    void newSetVar(SetVarSpec* vs);
+    void newSetVar(SetVarSpec* vs, std::string name);
     /// Create new float variable from specification
-    void newFloatVar(FloatVarSpec* vs);
+    void newFloatVar(FloatVarSpec* vs, std::string name);
   
     /// Post a constraint specified by \a ce
     void postConstraints(std::vector<ConExpr*>& ces);
@@ -552,6 +566,10 @@ namespace Gecode { namespace FlatZinc {
   
     /// Produce output on \a out using \a p
     void print(std::ostream& out, const Printer& p) const;
+
+    /// Print choice \a c with alternative \a a on stream \a o.
+    virtual
+    void print(const Choice& c, unsigned int a, std::ostream& o) const;
 
     /// Compare this space with space \a s and print the differences on 
     /// \a out

@@ -158,12 +158,16 @@ namespace Gecode { namespace FlatZinc {
       FlatZincSpace& fzs = static_cast<FlatZincSpace&>(*home.clone());
       fzs.needAuxVars = false;
       branch(fzs,fzs.iv_aux,int_varsel,int_valsel);
+      fzs.branchInfo.addMappingIndices(BRANCHER_INT, fzs.branchInfo.get_iv_tmp_indices());
       branch(fzs,fzs.bv_aux,bool_varsel,bool_valsel);
+      fzs.branchInfo.addMappingIndices(BRANCHER_BOOL, fzs.branchInfo.get_bv_tmp_indices());
 #ifdef GECODE_HAS_SET_VARS
       branch(fzs,fzs.sv_aux,set_varsel,set_valsel);
+      fzs.branchInfo.addMappingIndices(BRANCHER_SET, fzs.branchInfo.get_sv_tmp_indices());
 #endif
 #ifdef GECODE_HAS_FLOAT_VARS
       branch(fzs,fzs.fv_aux,float_varsel,float_valsel);
+      fzs.branchInfo.addMappingIndices(BRANCHER_FLOAT, fzs.branchInfo.get_fv_tmp_indices());
 #endif
       Search::Options opt; opt.clone = false;
       FlatZincSpace* sol = dfs(&fzs, opt);
@@ -239,6 +243,26 @@ namespace Gecode { namespace FlatZinc {
         : r0(r00), r1(r10), n(n0) {}
     };
     vector<BI> v;
+
+  private:
+    /// Mapping from the branchers' variables to the iv/bv array
+    /// indices.
+    std::vector<std::pair<BrancherVariableType, std::vector<int> > > brancherVariableMapping;
+    std::vector<std::pair<std::string, std::string> > brancherSymbols;
+
+    std::vector<std::string> iv_names;
+    std::vector<std::string> bv_names;
+    std::vector<std::string> sv_names;
+    std::vector<std::string> fv_names;
+    std::vector<int> iv_tmp_indices;
+    std::vector<int> bv_tmp_indices;
+    #ifdef GECODE_HAS_SET_VARS
+    std::vector<int> sv_tmp_indices;
+    #endif
+    #ifdef GECODE_HAS_FLOAT_VARS
+    std::vector<int> fv_tmp_indices;
+    #endif
+
     BranchInformationO(vector<BI> v0) : v(v0) {}
   public:
     BranchInformationO(void) {}
@@ -268,6 +292,45 @@ namespace Gecode { namespace FlatZinc {
         << (((a == 0) == nl.l) ? "<=" : ">=") << nl.n;
     }
 #endif
+    void
+    addMappingIndices(BrancherVariableType vartype, const std::vector<int>& indices,
+                      const std::string& r0, const std::string& r1) {
+      brancherVariableMapping.push_back(make_pair(vartype, indices));
+      brancherSymbols.push_back(make_pair(r0, r1));
+    }
+
+    const std::string&
+    getVarName(const PosValChoice<int>& pvc) const {
+      // The minus-one here is because brancher ids start at 1.
+      const std::vector<int>& v = brancherVariableMapping[pvc.id()-1].second;
+      int flatzincIndex = v[pvc.pos().pos];
+      switch (brancherVariableMapping[pvc.id()-1].first) {
+      case BRANCHER_INT:   return iv_names[flatzincIndex]; break;
+      case BRANCHER_BOOL:  return bv_names[flatzincIndex]; break;
+      case BRANCHER_SET:   return sv_names[flatzincIndex]; break;
+      case BRANCHER_FLOAT: return fv_names[flatzincIndex]; break;
+      default: abort();
+      }
+    }
+
+    const std::string&
+    getRelation(const PosValChoice<int>& pvc, int a) const {
+      // The minus-one here is because brancher ids start at 1.
+      if (a == 0)
+        return brancherSymbols[pvc.id()-1].first;
+      else
+        return brancherSymbols[pvc.id()-1].second;
+    }
+
+    std::vector<int>& get_iv_tmp_indices(void) { return iv_tmp_indices; }
+    std::vector<int>& get_bv_tmp_indices(void) { return bv_tmp_indices; }
+    std::vector<int>& get_sv_tmp_indices(void) { return sv_tmp_indices; }
+    std::vector<int>& get_fv_tmp_indices(void) { return fv_tmp_indices; }
+
+    void newIntName(const string& name) { iv_names.push_back(name); }
+    void newBoolName(const string& name) { bv_names.push_back(name); }
+    void newSetName(const string& name) { sv_names.push_back(name); }
+    void newFloatName(const string& name) { fv_names.push_back(name); }
   };
   
   BranchInformation::BranchInformation(void)
@@ -317,6 +380,46 @@ namespace Gecode { namespace FlatZinc {
     static_cast<const FlatZincSpace&>(home).branchInfo.print(bh,a,i,nl,o);
   }
 #endif
+
+  void
+  BranchInformation::addMappingIndices(BrancherVariableType vartype, const std::vector<int>& indices, const std::string& r0, const std::string& r1) {
+    static_cast<BranchInformationO*>(object())->addMappingIndices(vartype, indices, r0, r1);
+  }
+
+  const std::string&
+  BranchInformation::getVarName(const PosValChoice<int>& pvc) const {
+    return static_cast<BranchInformationO*>(object())->getVarName(pvc);
+  }
+
+  const std::string&
+  BranchInformation::getRelation(const PosValChoice<int>& pvc, int a) const {
+    return static_cast<BranchInformationO*>(object())->getRelation(pvc, a);
+  }
+
+  std::vector<int>&
+  BranchInformation::get_iv_tmp_indices(void) {
+    return static_cast<BranchInformationO*>(object())->get_iv_tmp_indices();
+  }
+
+  std::vector<int>&
+  BranchInformation::get_bv_tmp_indices(void) {
+    return static_cast<BranchInformationO*>(object())->get_bv_tmp_indices();
+  }
+
+  std::vector<int>&
+  BranchInformation::get_sv_tmp_indices(void) {
+    return static_cast<BranchInformationO*>(object())->get_sv_tmp_indices();
+  }
+
+  std::vector<int>&
+  BranchInformation::get_fv_tmp_indices(void) {
+    return static_cast<BranchInformationO*>(object())->get_fv_tmp_indices();
+  }
+
+  void BranchInformation::newIntName(const string& name) { static_cast<BranchInformationO*>(object())->newIntName(name); }
+  void BranchInformation::newBoolName(const string& name) { static_cast<BranchInformationO*>(object())->newBoolName(name); }
+  void BranchInformation::newSetName(const string& name) { static_cast<BranchInformationO*>(object())->newSetName(name); }
+  void BranchInformation::newFloatName(const string& name) { static_cast<BranchInformationO*>(object())->newFloatName(name); }
 
   FznRnd::FznRnd(unsigned int s) : random(s) {}
   
@@ -724,7 +827,7 @@ namespace Gecode { namespace FlatZinc {
   }
 
   void
-  FlatZincSpace::newIntVar(IntVarSpec* vs) {
+  FlatZincSpace::newIntVar(IntVarSpec* vs, string name) {
     if (vs->alias) {
       iv[intVarCount++] = iv[vs->i];
     } else {
@@ -739,6 +842,7 @@ namespace Gecode { namespace FlatZinc {
     iv_introduced[2*(intVarCount-1)] = vs->introduced;
     iv_introduced[2*(intVarCount-1)+1] = vs->funcDep;
     iv_boolalias[intVarCount-1] = -1;
+    branchInfo.newIntName(name);
   }
 
   void
@@ -751,7 +855,7 @@ namespace Gecode { namespace FlatZinc {
   }
 
   void
-  FlatZincSpace::newBoolVar(BoolVarSpec* vs) {
+  FlatZincSpace::newBoolVar(BoolVarSpec* vs, string name) {
     if (vs->alias) {
       bv[boolVarCount++] = bv[vs->i];
     } else {
@@ -759,11 +863,12 @@ namespace Gecode { namespace FlatZinc {
     }
     bv_introduced[2*(boolVarCount-1)] = vs->introduced;
     bv_introduced[2*(boolVarCount-1)+1] = vs->funcDep;
+    branchInfo.newBoolName(name);
   }
 
 #ifdef GECODE_HAS_SET_VARS
   void
-  FlatZincSpace::newSetVar(SetVarSpec* vs) {
+  FlatZincSpace::newSetVar(SetVarSpec* vs, string name) {
     if (vs->alias) {
       sv[setVarCount++] = sv[vs->i];
     } else if (vs->assigned) {
@@ -800,6 +905,7 @@ namespace Gecode { namespace FlatZinc {
     }
     sv_introduced[2*(setVarCount-1)] = vs->introduced;
     sv_introduced[2*(setVarCount-1)+1] = vs->funcDep;
+    branchInfo.newSetName(name);
   }
 #else
   void
@@ -810,7 +916,7 @@ namespace Gecode { namespace FlatZinc {
 
 #ifdef GECODE_HAS_FLOAT_VARS
   void
-  FlatZincSpace::newFloatVar(FloatVarSpec* vs) {
+  FlatZincSpace::newFloatVar(FloatVarSpec* vs, string name) {
     if (vs->alias) {
       fv[floatVarCount++] = fv[vs->i];
     } else {
@@ -830,6 +936,7 @@ namespace Gecode { namespace FlatZinc {
     }
     fv_introduced[2*(floatVarCount-1)] = vs->introduced;
     fv_introduced[2*(floatVarCount-1)+1] = vs->funcDep;
+    branchInfo.newFloatName(name);
   }
 #else
   void
@@ -956,6 +1063,7 @@ namespace Gecode { namespace FlatZinc {
               k--;
           IntVarArgs va(k);
           vector<string> names;
+          vector<int> indices;
           k=0;
           for (unsigned int i=0; i<vars->a.size(); i++) {
             if (vars->a[i]->isInt())
@@ -963,6 +1071,7 @@ namespace Gecode { namespace FlatZinc {
             va[k++] = iv[vars->a[i]->getIntVar()];
             iv_searched[vars->a[i]->getIntVar()] = true;
             names.push_back(vars->a[i]->getVarName());
+            indices.push_back(vars->a[i]->getIntVar());
           }
           std::string r0, r1;
           BrancherHandle bh = branch(*this, va, 
@@ -971,6 +1080,7 @@ namespace Gecode { namespace FlatZinc {
             NULL,
             &varValPrint<IntVar>);
           branchInfo.add(bh,r0,r1,names);
+          branchInfo.addMappingIndices(BRANCHER_INT, indices, r0, r1);
         } else if (flatAnn[i]->isCall("int_assign")) {
           AST::Call *call = flatAnn[i]->getCall("int_assign");
           AST::Array *args = call->getArgs(2);
@@ -1000,12 +1110,14 @@ namespace Gecode { namespace FlatZinc {
           BoolVarArgs va(k);
           k=0;
           vector<string> names;
+          vector<int> indices;
           for (unsigned int i=0; i<vars->a.size(); i++) {
             if (vars->a[i]->isBool())
               continue;
             va[k++] = bv[vars->a[i]->getBoolVar()];
             bv_searched[vars->a[i]->getBoolVar()] = true;
             names.push_back(vars->a[i]->getVarName());
+            indices.push_back(vars->a[i]->getBoolVar());
           }
           
           std::string r0, r1;
@@ -1014,6 +1126,7 @@ namespace Gecode { namespace FlatZinc {
             ann2ivalsel(args->a[2],r0,r1,rnd), NULL,
             &varValPrint<BoolVar>);
           branchInfo.add(bh,r0,r1,names);
+          branchInfo.addMappingIndices(BRANCHER_BOOL, indices, r0, r1);
         } else if (flatAnn[i]->isCall("int_default_search")) {
           AST::Call *call = flatAnn[i]->getCall("int_default_search");
           AST::Array *args = call->getArgs(2);
@@ -1038,12 +1151,14 @@ namespace Gecode { namespace FlatZinc {
           SetVarArgs va(k);
           k=0;
           vector<string> names;
+          vector<int> indices;
           for (unsigned int i=0; i<vars->a.size(); i++) {
             if (vars->a[i]->isSet())
               continue;
             va[k++] = sv[vars->a[i]->getSetVar()];
             sv_searched[vars->a[i]->getSetVar()] = true;
             names.push_back(vars->a[i]->getVarName());
+            indices.push_back(vars->a[i]->getSetVar());
           }
           std::string r0, r1;
           BrancherHandle bh = branch(*this, va, 
@@ -1052,6 +1167,7 @@ namespace Gecode { namespace FlatZinc {
             NULL,
             &varValPrint<SetVar>);
           branchInfo.add(bh,r0,r1,names);
+          branchInfo.addMappingIndices(BRANCHER_SET, indices, r0, r1);
 #else
           if (!ignoreUnknown) {
             err << "Warning, ignored search annotation: ";
@@ -1099,12 +1215,14 @@ namespace Gecode { namespace FlatZinc {
           FloatVarArgs va(k);
           k=0;
           vector<string> names;
+          vector<int> indices;
           for (unsigned int i=0; i<vars->a.size(); i++) {
             if (vars->a[i]->isFloat())
               continue;
             va[k++] = fv[vars->a[i]->getFloatVar()];
             fv_searched[vars->a[i]->getFloatVar()] = true;
             names.push_back(vars->a[i]->getVarName());
+            indices.push_back(vars->a[i]->getFloatVar());
           }
           std::string r0, r1;
           BrancherHandle bh = branch(*this, va,
@@ -1113,6 +1231,7 @@ namespace Gecode { namespace FlatZinc {
             NULL,
             &varValPrintF);
           branchInfo.add(bh,r0,r1,names);
+          branchInfo.addMappingIndices(BRANCHER_FLOAT, indices, r0, r1);
 #else
           if (!ignoreUnknown) {
             err << "Warning, ignored search annotation: ";
@@ -1145,15 +1264,18 @@ namespace Gecode { namespace FlatZinc {
     }
     IntVarArgs iv_sol(iv.size()-(introduced+funcdep+searched));
     IntVarArgs iv_tmp(introduced);
+    std::vector<int> iv_sol_indices;
     for (int i=iv.size(), j=0, k=0; i--;) {
       if (iv_searched[i] || (_method != SAT && _optVarIsInt && _optVar==i))
         continue;
       if (iv_introduced[2*i]) {
         if (!iv_introduced[2*i+1]) {
           iv_tmp[j++] = iv[i];
+          branchInfo.get_iv_tmp_indices().push_back(i);
         }
       } else {
         iv_sol[k++] = iv[i];
+        iv_sol_indices.push_back(i);
       }
     }
 
@@ -1173,23 +1295,29 @@ namespace Gecode { namespace FlatZinc {
     }
     BoolVarArgs bv_sol(bv.size()-(introduced+funcdep+searched));
     BoolVarArgs bv_tmp(introduced);
+    std::vector<int> bv_sol_indices;
     for (int i=bv.size(), j=0, k=0; i--;) {
       if (bv_searched[i])
         continue;
       if (bv_introduced[2*i]) {
         if (!bv_introduced[2*i+1]) {
           bv_tmp[j++] = bv[i];
+          branchInfo.get_bv_tmp_indices().push_back(i);
         }
       } else {
         bv_sol[k++] = bv[i];
+        bv_sol_indices.push_back(i);
       }
     }
 
     if (iv_sol.size() > 0) {
       branch(*this, iv_sol, def_int_varsel, def_int_valsel);
+      branchInfo.addMappingIndices(BRANCHER_INT, iv_sol_indices);
     }
-    if (bv_sol.size() > 0)
+    if (bv_sol.size() > 0) {
       branch(*this, bv_sol, def_bool_varsel, def_bool_valsel);
+      branchInfo.addMappingIndices(BRANCHER_BOOL, bv_sol_indices);
+    }
 #ifdef GECODE_HAS_FLOAT_VARS
     introduced = 0;
     funcdep = 0;
@@ -1207,20 +1335,25 @@ namespace Gecode { namespace FlatZinc {
     }
     FloatVarArgs fv_sol(fv.size()-(introduced+funcdep+searched));
     FloatVarArgs fv_tmp(introduced);
+    std::vector<int> fv_sol_indices;
     for (int i=fv.size(), j=0, k=0; i--;) {
       if (fv_searched[i] || (_method != SAT && !_optVarIsInt && _optVar==i))
         continue;
       if (fv_introduced[2*i]) {
         if (!fv_introduced[2*i+1]) {
           fv_tmp[j++] = fv[i];
+          branchInfo.get_fv_tmp_indices().push_back(i);
         }
       } else {
         fv_sol[k++] = fv[i];
+        fv_sol_indices.push_back(i);
       }
     }
 
-    if (fv_sol.size() > 0)
+    if (fv_sol.size() > 0) {
       branch(*this, fv_sol, def_float_varsel, def_float_valsel);
+      branchInfo.addMappingIndices(BRANCHER_FLOAT, fv_sol_indices);
+    }
 #endif
 #ifdef GECODE_HAS_SET_VARS
     introduced = 0;
@@ -1239,20 +1372,25 @@ namespace Gecode { namespace FlatZinc {
     }
     SetVarArgs sv_sol(sv.size()-(introduced+funcdep+searched));
     SetVarArgs sv_tmp(introduced);
+    std::vector<int> sv_sol_indices;
     for (int i=sv.size(), j=0, k=0; i--;) {
       if (sv_searched[i])
         continue;
       if (sv_introduced[2*i]) {
         if (!sv_introduced[2*i+1]) {
           sv_tmp[j++] = sv[i];
+          branchInfo.get_sv_tmp_indices().push_back(i);
         }
       } else {
         sv_sol[k++] = sv[i];
+        sv_sol_indices.push_back(i);
       }
     }
 
-    if (sv_sol.size() > 0)
+    if (sv_sol.size() > 0) {
       branch(*this, sv_sol, def_set_varsel, def_set_valsel);
+      branchInfo.addMappingIndices(BRANCHER_SET, sv_sol_indices);
+    }
 #endif
     iv_aux = IntVarArray(*this, iv_tmp);
     bv_aux = BoolVarArray(*this, bv_tmp);
@@ -1267,6 +1405,12 @@ namespace Gecode { namespace FlatZinc {
 #endif
 
     if (_method == MIN) {
+      std::vector<int> opt_index;
+      opt_index.push_back(_optVar);
+      if (_optVarIsInt)
+        branchInfo.addMappingIndices(BRANCHER_INT, opt_index, "=", "!=");
+      else
+        branchInfo.addMappingIndices(BRANCHER_FLOAT, opt_index);
       if (_optVarIsInt) {
         branch(*this, iv[_optVar], INT_VAL_MIN());
       } else {
@@ -1297,12 +1441,16 @@ namespace Gecode { namespace FlatZinc {
                              );
       } else {
         branch(*this,iv_aux,def_int_varsel,def_int_valsel);
+        branchInfo.addMappingIndices(BRANCHER_INT, branchInfo.get_iv_tmp_indices());
         branch(*this,bv_aux,def_bool_varsel,def_bool_valsel);
+        branchInfo.addMappingIndices(BRANCHER_BOOL, branchInfo.get_bv_tmp_indices());
   #ifdef GECODE_HAS_SET_VARS
         branch(*this,sv_aux,def_set_varsel,def_set_valsel);
+        branchInfo.addMappingIndices(BRANCHER_SET, branchInfo.get_sv_tmp_indices());
   #endif
   #ifdef GECODE_HAS_FLOAT_VARS
         branch(*this,fv_aux,def_float_varsel,def_float_valsel);
+        branchInfo.addMappingIndices(BRANCHER_FLOAT, branchInfo.get_fv_tmp_indices());
   #endif
         
       }
@@ -2009,6 +2157,14 @@ namespace Gecode { namespace FlatZinc {
     return oss.str();
   }
 
+  void
+  FlatZincSpace::print(const Choice& c, unsigned int a, std::ostream& o) const {
+    // XXX what about float vals?
+    const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
+    o << branchInfo.getVarName(pvc);
+    o << branchInfo.getRelation(pvc, a);
+    o << pvc.val();
+  }
 
   void
   Printer::init(AST::Array* output) {

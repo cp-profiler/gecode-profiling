@@ -1039,12 +1039,12 @@ namespace Gecode {
     unsigned int _id;  ///< Identity to match creating brancher
     unsigned int _alt; ///< Number of alternatives
 
-    /// Return id of the creating brancher
-    unsigned int id(void) const;
   protected:
     /// Initialize for particular brancher \a b and alternatives \a a
     Choice(const Brancher& b, const unsigned int a);
   public:
+    /// Return id of the creating brancher
+    unsigned int id(void) const;
     /// Return number of alternatives
     unsigned int alternatives(void) const;
     /// Destructor
@@ -1866,6 +1866,7 @@ namespace Gecode {
      * \ingroup TaskSearch
      */
     GECODE_KERNEL_EXPORT
+    virtual
     void print(const Choice& c, unsigned int a, std::ostream& o) const;
 
     /**

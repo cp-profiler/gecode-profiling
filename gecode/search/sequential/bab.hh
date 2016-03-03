@@ -46,7 +46,7 @@
 #include <gecode/search/support.hh>
 #include <gecode/search/worker.hh>
 #include <gecode/search/sequential/path.hh>
-#include <gecode/flatzinc.hh>
+// #include <gecode/flatzinc.hh>
 
 #include "submodules/cpp-integration/connector.hh"
 
@@ -54,9 +54,9 @@
 
 using Profiling::NodeStatus;
 
-namespace Gecode { namespace FlatZinc {
-  class FlatZincSpace;
-}}
+// namespace Gecode { namespace FlatZinc {
+//   class FlatZincSpace;
+// }}
 
 namespace Gecode { namespace Search { namespace Sequential {
 
