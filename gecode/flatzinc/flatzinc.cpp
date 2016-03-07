@@ -43,6 +43,8 @@
 #include <gecode/flatzinc/registry.hh>
 #include <gecode/flatzinc/plugin.hh>
 
+#include <gecode/flatzinc/logbrancher.hh>
+
 #include <gecode/search.hh>
 
 #include <vector>
@@ -2160,10 +2162,15 @@ namespace Gecode { namespace FlatZinc {
   void
   FlatZincSpace::print(const Choice& c, unsigned int a, std::ostream& o) const {
     // XXX what about float vals?
-    const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
-    o << branchInfo.getVarName(pvc);
-    o << branchInfo.getRelation(pvc, a);
-    o << pvc.val();
+    const LogChoice* logc = dynamic_cast<const LogChoice*>(&c);
+    if (logc != NULL) {
+      o << "special log choice print " << logc->cs[a].label << " " << logc->cs[a].irt << " " << logc->cs[a].val;
+    } else {
+      const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
+      o << branchInfo.getVarName(pvc);
+      o << branchInfo.getRelation(pvc, a);
+      o << pvc.val();
+    }
   }
 
   void

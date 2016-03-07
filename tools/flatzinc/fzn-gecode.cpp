@@ -89,6 +89,10 @@ int main(int argc, char** argv) {
       if (logname) {
         logstream.open(logname, ifstream::in);
         branch(*fg, pr.t, pr.a, logstream, opt.omitImplied());
+        // We add this dummy mapping so that the branchers and
+        // mappings have parallel indices.
+        std::vector<int> indices;
+        fg->branchInfo.addMappingIndices(FlatZinc::BRANCHER_INT, indices, "", "");
         opt.c_d(0);
         opt.a_d(0);
       }

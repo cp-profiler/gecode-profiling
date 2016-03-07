@@ -383,7 +383,7 @@ namespace Gecode { namespace FlatZinc {
 
   enum BrancherVariableType { BRANCHER_INT, BRANCHER_BOOL, BRANCHER_SET, BRANCHER_FLOAT };
 
-  class BranchInformation : public SharedHandle {
+  class GECODE_FLATZINC_EXPORT BranchInformation : public SharedHandle {
   public:
     /// Constructor
     BranchInformation(void);
