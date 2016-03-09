@@ -84,7 +84,6 @@ namespace Gecode { namespace Search { namespace Sequential {
   DFS::DFS(Space* s, const Options& o, bool isRestarts)
     : opt(o), path(opt.nogoods_limit), d(0) {
       // std::cout << "filename: " << o.problem_name << std::endl;
-      // std::cout << "DFS\n";
 
       if (opt.sendNodes) {
         connector = new Connector(opt.port == 0 ? 6565 : o.port);
@@ -169,6 +168,8 @@ namespace Gecode { namespace Search { namespace Sequential {
           cur->print(*edge.choice(), alt, oss);
         }
       }
+
+
       switch (cur->status(*this)) {
       case SS_FAILED:
         if (opt.sendNodes) {
@@ -233,6 +234,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
+             // .set_domain_size(cur->getDomainSizeExceptCurrent(*ch))
              .set_info(info)
              .send();
 

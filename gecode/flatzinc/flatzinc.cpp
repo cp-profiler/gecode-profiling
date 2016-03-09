@@ -324,6 +324,25 @@ namespace Gecode { namespace FlatZinc {
         return brancherSymbols[pvc.id()-1].second;
     }
 
+    const std::pair<BrancherVariableType, int >&
+    getVarTypeAndIndex(const PosValChoice<int>& pvc) const {
+      auto type_and_array = brancherVariableMapping[pvc.id()-1];
+      auto type = type_and_array.first;
+      auto fzn_idx = type_and_array.second[pvc.pos().pos];
+      return std::make_pair(type, fzn_idx);
+    }
+
+    const std::string&
+    getVarNameByTypeAndIndex(BrancherVariableType type, int idx) const {
+      switch (type) {
+        case BRANCHER_INT:   return iv_names[idx]; break;
+        case BRANCHER_BOOL:  return bv_names[idx]; break;
+        case BRANCHER_SET:   return sv_names[idx]; break;
+        case BRANCHER_FLOAT: return fv_names[idx]; break;
+        default: abort();
+      }
+    }
+
     std::vector<int>& get_iv_tmp_indices(void) { return iv_tmp_indices; }
     std::vector<int>& get_bv_tmp_indices(void) { return bv_tmp_indices; }
     std::vector<int>& get_sv_tmp_indices(void) { return sv_tmp_indices; }
@@ -391,6 +410,16 @@ namespace Gecode { namespace FlatZinc {
   const std::string&
   BranchInformation::getVarName(const PosValChoice<int>& pvc) const {
     return static_cast<BranchInformationO*>(object())->getVarName(pvc);
+  }
+
+  const std::pair<BrancherVariableType, int>&
+  BranchInformation::getVarTypeAndIndex(const PosValChoice<int>& pvc) const {
+    return static_cast<BranchInformationO*>(object())->getVarTypeAndIndex(pvc);
+  }
+
+  const std::string&
+  BranchInformation::getVarNameByTypeAndIndex(BrancherVariableType type, int idx) const {
+    return static_cast<BranchInformationO*>(object())->getVarNameByTypeAndIndex(type, idx);
   }
 
   const std::string&
@@ -2109,6 +2138,32 @@ namespace Gecode { namespace FlatZinc {
   }
 
   float
+  FlatZincSpace::getDomainSizeExceptCurrent(const Choice& c) const {
+    const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
+
+    auto& type_and_index = branchInfo.getVarTypeAndIndex(pvc);
+    auto var_type = type_and_index.first;
+    auto fzn_idx = type_and_index.second;
+
+    float cur_var_domain = 0;
+
+    switch (var_type) {
+      case BRANCHER_INT:
+        cur_var_domain = ::log(iv[fzn_idx].size());
+      break;
+      case BRANCHER_BOOL:
+        cur_var_domain = ::log(bv[fzn_idx].size());
+      break;
+      default:
+      break;
+    }
+
+    float full_domain_size = getDomainSize();
+
+    return full_domain_size - cur_var_domain;
+  }
+
+  float
   FlatZincSpace::getDomainSize(void) const {
 
     float total = 0;
@@ -2141,17 +2196,17 @@ namespace Gecode { namespace FlatZinc {
   }
 
   std::string
-  FlatZincSpace::getDomains(void) const {
+  FlatZincSpace::getDomains() const {
     std::ostringstream oss;
 
     for (int i = 0; i < iv.size(); i++)
-      oss << "iv[" << i << "]: " << iv[i] << std::endl;
+      oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_INT, i) << ": " << iv[i] << std::endl;
 
     for (int i = 0; i < iv_aux.size(); i++)
       oss << "iv_aux[" << i << "]: " << iv_aux[i] << std::endl;
 
     for (int i = 0; i < bv.size(); i++)
-      oss << "bv[" << i << "]: " << bv[i] << std::endl;
+      oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_BOOL, i) << ": " << bv[i] << std::endl;
 
     for (int i = 0; i < bv_aux.size(); i++)
       oss << "bv_aux[" << i << "]: " << bv_aux[i] << std::endl;

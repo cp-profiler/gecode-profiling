@@ -2008,6 +2008,7 @@ namespace Gecode {
 
 
     virtual float getDomainSize(void) const;
+    virtual float getDomainSizeExceptCurrent(const Choice& c) const;
 
     virtual std::string getDomains(void) const;
 
@@ -3463,6 +3464,11 @@ namespace Gecode {
 
   forceinline float
   Space::getDomainSize(void) const {
+    return -1;
+  }
+
+  forceinline float
+  Space::getDomainSizeExceptCurrent(const Choice& c) const {
     return -1;
   }
 
