@@ -43,6 +43,8 @@
 #include <gecode/search/worker.hh>
 #include <gecode/search/sequential/path.hh>
 
+#include <chrono>
+
 #include "submodules/cpp-integration/connector.hh"
 
 namespace Gecode { namespace Search { namespace Sequential {
@@ -61,6 +63,8 @@ namespace Gecode { namespace Search { namespace Sequential {
     unsigned int d;
     /// Socket handler
     Connector *connector;
+
+    std::chrono::steady_clock::time_point start_time;
 
     std::ostringstream oss;
 
@@ -103,6 +107,8 @@ namespace Gecode { namespace Search { namespace Sequential {
     } else {
       cur = snapshot(s,opt);
     }
+
+    start_time = std::chrono::steady_clock::now();
   }
 
   forceinline void
@@ -154,6 +160,9 @@ namespace Gecode { namespace Search { namespace Sequential {
           break;
         path.next();
       }
+      std::chrono::steady_clock::time_point current_time = std::chrono::steady_clock::now();
+      unsigned long long currentTimestamp =
+        std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time).count();
       node++;
       if (opt.sendNodes) {
         oss.str("");
@@ -183,6 +192,7 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_restart_id(restart)
            .set_domain_size(cur->getDomainSize())
            .set_info(info)
+           .set_time(currentTimestamp)
            .send();
         }
         fail++;
@@ -203,6 +213,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
              .set_info(info)
+             .set_time(currentTimestamp)
              .send();
           }
           // Deletes all pending branchers
@@ -236,6 +247,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_domain_size(cur->getDomainSize())
              // .set_domain_size(cur->getDomainSizeExceptCurrent(*ch))
              .set_info(info)
+             .set_time(currentTimestamp)
              .send();
 
           }
