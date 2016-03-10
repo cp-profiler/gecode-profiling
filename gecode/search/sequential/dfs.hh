@@ -186,6 +186,17 @@ namespace Gecode { namespace Search { namespace Sequential {
           std::string info;
           if (opt.sendDomains) { info += cur->getDomains(); }
 
+          /// **** JUST FOR DEBUGGING ****
+            // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
+
+            float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
+
+            assert(domain_diff < 1.1);
+
+            info += std::string("domain reduction: ")
+                    + std::to_string(::exp(domain_diff)) + "\n";
+          /// ****************************
+
           connector->createNode(node, pid, alt, 0, NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            .set_thread_id(0)
@@ -206,7 +217,16 @@ namespace Gecode { namespace Search { namespace Sequential {
 
             std::string info;
             if (opt.sendDomains) { info += cur->getDomains(); }
+            /// **** JUST FOR DEBUGGING ****
+            // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
 
+            float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
+
+            assert(domain_diff < 1.1);
+
+            info += std::string("domain reduction: ")
+                    + std::to_string(::exp(domain_diff)) + "\n";
+            /// ****************************
             connector->createNode(node, pid, alt, 0, NodeStatus::SOLVED)
              .set_label(oss.str().c_str())
              .set_thread_id(0)
@@ -240,12 +260,32 @@ namespace Gecode { namespace Search { namespace Sequential {
             std::string info;
             if (opt.sendDomains) { info += cur->getDomains(); }
 
+            if (path.domainStack().size() == 0) {
+              path.domainStack().push(LastDomainInfo{-1, -1, -1});
+            } else {
+              /// copy over last item, will be overridden
+              path.domainStack().push(path.topDomainInfo());
+            }
+
+            /// **** JUST FOR DEBUGGING ****
+            info += std::string("full domain size: ")
+                    + std::to_string(std::exp(cur->getDomainSize())) + "\n";
+
+            float domain_diff = cur->calcDomainSizeRed(ch, path.topDomainInfo());
+
+            assert(domain_diff < 1.1);
+
+            info += std::string("domain reduction: ")
+                    + std::to_string(std::exp(domain_diff)) + "\n";
+            info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
+            info += "edge stack size: " + std::to_string(path.entries()) + "\n";
+            /// ****************************
+
             connector->createNode(node, pid, alt, kids, NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
              .set_domain_size(cur->getDomainSize())
-             // .set_domain_size(cur->getDomainSizeExceptCurrent(*ch))
              .set_info(info)
              .set_time(currentTimestamp)
              .send();

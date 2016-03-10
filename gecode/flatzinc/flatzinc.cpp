@@ -324,7 +324,7 @@ namespace Gecode { namespace FlatZinc {
         return brancherSymbols[pvc.id()-1].second;
     }
 
-    const std::pair<BrancherVariableType, int >&
+    const std::pair<BrancherVariableType, int >
     getVarTypeAndIndex(const PosValChoice<int>& pvc) const {
       auto type_and_array = brancherVariableMapping[pvc.id()-1];
       auto type = type_and_array.first;
@@ -412,7 +412,7 @@ namespace Gecode { namespace FlatZinc {
     return static_cast<BranchInformationO*>(object())->getVarName(pvc);
   }
 
-  const std::pair<BrancherVariableType, int>&
+  const std::pair<BrancherVariableType, int>
   BranchInformation::getVarTypeAndIndex(const PosValChoice<int>& pvc) const {
     return static_cast<BranchInformationO*>(object())->getVarTypeAndIndex(pvc);
   }
@@ -2137,30 +2137,67 @@ namespace Gecode { namespace FlatZinc {
     return ICL_DEF;
   }
 
-  float
-  FlatZincSpace::getDomainSizeExceptCurrent(const Choice& c) const {
-    const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
-
-    auto& type_and_index = branchInfo.getVarTypeAndIndex(pvc);
-    auto var_type = type_and_index.first;
-    auto fzn_idx = type_and_index.second;
-
-    float cur_var_domain = 0;
-
-    switch (var_type) {
-      case BRANCHER_INT:
-        cur_var_domain = ::log(iv[fzn_idx].size());
-      break;
-      case BRANCHER_BOOL:
-        cur_var_domain = ::log(bv[fzn_idx].size());
-      break;
+  /// returns a logarithm of the domain size
+  float getVarDomainSize(const FlatZincSpace* space,
+                         BrancherVariableType type,
+                         int pos) {
+    switch (type) {
+      case BRANCHER_INT:  return ::log(space->iv[pos].size());
+      case BRANCHER_BOOL: return ::log(space->bv[pos].size());
       default:
-      break;
+        assert(false);
+        return 0;
     }
+  }
+ 
+  float
+  FlatZincSpace::calcDomainSizeRed(const Choice* choice, LastDomainInfo& d_info) const {
 
+    float reduction;
+    /// we will get full domain first and then subtract current variable
     float full_domain_size = getDomainSize();
 
-    return full_domain_size - cur_var_domain;
+    if (d_info.var_type == -1) { // no parent info (root node)
+      reduction = 0;
+    } else {
+      /// domain size of the current variable
+      float cv_domain_size = getVarDomainSize(this,
+            static_cast<BrancherVariableType>(d_info.var_type), d_info.fzn_idx);
+
+      float no_cur_var_domain_size  = full_domain_size - cv_domain_size;
+      reduction = no_cur_var_domain_size - d_info.domain_size;
+    }
+
+    /// Record information for children nodes (if a BRANCH)
+    if (choice != nullptr) {
+
+      BrancherVariableType var_type;
+      int fzn_idx;
+
+      const PosValChoice<int>* pvc = dynamic_cast<const PosValChoice<int>*>(choice);
+
+      if (pvc == nullptr) {
+        const LogChoice* lc = static_cast<const LogChoice*>(choice);
+        fzn_idx = lc->cs->pos;
+        /// TODO(maxim): always an integer variable?
+        var_type = BRANCHER_INT;
+      } else {
+        auto type_and_index = branchInfo.getVarTypeAndIndex(*pvc);
+        var_type = type_and_index.first;
+        fzn_idx = type_and_index.second;
+      }
+
+      float no_next_var_domain = getVarDomainSize(this, var_type, fzn_idx);
+
+      /// not including variable from next branching (will go to d_info)
+      float no_next_var_domain_size = full_domain_size - no_next_var_domain;
+
+      d_info.domain_size = no_next_var_domain_size;
+      d_info.var_type    = var_type;
+      d_info.fzn_idx     = fzn_idx;
+    }
+    
+    return reduction;
   }
 
   float
@@ -2190,8 +2227,6 @@ namespace Gecode { namespace FlatZinc {
 
     total = iv_size + iv_aux_size + bv_size + bv_aux_size;
 
-    // printf("domains: [%f, %f, %f, %f]\n", iv_size, iv_aux_size, bv_size, bv_aux_size);
-
     return total;
   }
 
@@ -2219,7 +2254,7 @@ namespace Gecode { namespace FlatZinc {
     // XXX what about float vals?
     const LogChoice* logc = dynamic_cast<const LogChoice*>(&c);
     if (logc != NULL) {
-      o << "special log choice print " << logc->cs[a].label << " " << logc->cs[a].irt << " " << logc->cs[a].val;
+      o << logc->cs[a].label;
     } else {
       const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
       o << branchInfo.getVarName(pvc);

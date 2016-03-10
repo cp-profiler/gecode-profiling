@@ -75,6 +75,20 @@
 #endif
 
 
+/// NOTE(maxim): Used for calculating domain size difference
+namespace Gecode {
+  struct LastDomainInfo {
+
+    int var_type; /// actual type: BrancherVariableType
+    int fzn_idx;
+    float domain_size;
+
+    LastDomainInfo(int type, int idx, float domain)
+      :var_type(type), fzn_idx(idx), domain_size(domain) {}
+  };
+
+}
+
 namespace Gecode { namespace Search {
 
   /// %Sequential search engine implementations

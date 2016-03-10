@@ -51,6 +51,7 @@
 namespace Gecode {
 
   class Space;
+  struct LastDomainInfo;
 
   /**
    * \defgroup FuncSupportShared Support for shared objects and handles
@@ -2008,7 +2009,8 @@ namespace Gecode {
 
 
     virtual float getDomainSize(void) const;
-    virtual float getDomainSizeExceptCurrent(const Choice& c) const;
+
+    virtual float calcDomainSizeRed(const Choice* c, LastDomainInfo& d_info) const;
 
     virtual std::string getDomains(void) const;
 
@@ -3468,7 +3470,7 @@ namespace Gecode {
   }
 
   forceinline float
-  Space::getDomainSizeExceptCurrent(const Choice& c) const {
+  Space::calcDomainSizeRed(const Choice* c, LastDomainInfo& d_info) const {
     return -1;
   }
 

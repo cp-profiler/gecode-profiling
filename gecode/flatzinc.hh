@@ -408,7 +408,7 @@ namespace Gecode { namespace FlatZinc {
                            const std::string& r0 = "=?", const std::string& r1 = "!=?");
     const std::string& getVarName(const PosValChoice<int>& pvc) const;
     const std::string& getRelation(const PosValChoice<int>& pvc, int a) const;
-    const std::pair<BrancherVariableType, int>& getVarTypeAndIndex(const PosValChoice<int>& pvc) const;
+    const std::pair<BrancherVariableType, int> getVarTypeAndIndex(const PosValChoice<int>& pvc) const;
     const std::string& getVarNameByTypeAndIndex(BrancherVariableType type, int idx) const;
 
     std::vector<int>& get_iv_tmp_indices(void);
@@ -583,7 +583,7 @@ namespace Gecode { namespace FlatZinc {
                  const Printer& p) const;
 
     /// Get domain size approximation not taking the current (branched on) variable into account
-    float getDomainSizeExceptCurrent(const Choice& c) const;
+    float calcDomainSizeRed(const Choice* c, LastDomainInfo& d_info) const;
 
     /// Get domain size approximation
     float getDomainSize(void) const;
