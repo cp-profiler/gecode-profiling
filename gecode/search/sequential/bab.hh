@@ -202,7 +202,10 @@ namespace Gecode { namespace Search { namespace Sequential {
 
             float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
 
-            assert(domain_diff < 1.1);
+            // assert(domain_diff < 1.1);
+            if (domain_diff > 1.1) {
+              std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+            }
 
             info += std::string("domain reduction: ")
                     + std::to_string(::exp(domain_diff)) + "\n";
@@ -212,7 +215,8 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
-           .set_domain_size(cur->getDomainSize())
+           // NOTE(maxim): changed to domain reduction for now
+            .set_domain_size(std::exp(domain_diff))
            .set_info(info)
            .set_time(currentTimestamp)
            .send();
@@ -232,7 +236,10 @@ namespace Gecode { namespace Search { namespace Sequential {
 
             float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
 
-            assert(domain_diff < 1.1);
+            // assert(domain_diff < 1.1);
+            if (domain_diff > 1.1) {
+              std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+            }
 
             info += std::string("domain reduction: ")
                     + std::to_string(::exp(domain_diff)) + "\n";
@@ -242,7 +249,8 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_label(oss.str().c_str())
            .set_thread_id(0)
            .set_restart_id(restart)
-           .set_domain_size(cur->getDomainSize())
+           // NOTE(maxim): changed to domain reduction for now
+            .set_domain_size(std::exp(domain_diff))
            .set_info(info)
            .set_time(currentTimestamp)
            .set_solution("[solution]")
@@ -283,9 +291,12 @@ namespace Gecode { namespace Search { namespace Sequential {
             /// **** JUST FOR DEBUGGING ****
               // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
 
-              float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
+              float domain_diff = cur->calcDomainSizeRed(ch, path.topDomainInfo());
 
-              assert(domain_diff < 1.1);
+              // assert(domain_diff < 1.1);
+              if (domain_diff > 1.1) {
+                std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+              }
 
               info += std::string("domain reduction: ")
                       + std::to_string(::exp(domain_diff)) + "\n";
@@ -295,7 +306,8 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_label(oss.str().c_str())
              .set_thread_id(0)
              .set_restart_id(restart)
-             .set_domain_size(cur->getDomainSize())
+             // NOTE(maxim): changed to domain reduction for now
+             .set_domain_size(std::exp(domain_diff))
              .set_time(currentTimestamp)
              .set_info(info)
              .send();
