@@ -2142,7 +2142,13 @@ namespace Gecode { namespace FlatZinc {
                          BrancherVariableType type,
                          int pos) {
     switch (type) {
-      case BRANCHER_INT:  return ::log(space->iv[pos].size());
+      case BRANCHER_INT:
+      /// TODO(maxim): shouldn't have to check this!
+        if (space->iv.size() <= pos) {
+          std::cerr << "space->iv.size() = " << space->iv.size() << " pos = " << pos << "\n";
+          return 0;
+        }
+        return ::log(space->iv[pos].size());
       case BRANCHER_BOOL: return ::log(space->bv[pos].size());
       default:
         assert(false);
