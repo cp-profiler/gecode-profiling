@@ -1670,6 +1670,7 @@ namespace Gecode { namespace FlatZinc {
     o.port = opt.port();
     if (opt.interrupt())
       Driver::CombinedStop::installCtrlHandler(true);
+    /// NOTE(maxim): RestartStop created here
     Meta<Engine,FlatZincSpace> se(this,o);
     int noOfSolutions = opt.solutions();
     if (noOfSolutions == -1) {
@@ -2185,7 +2186,10 @@ namespace Gecode { namespace FlatZinc {
       if (pvc == nullptr) {
         /// NOTE(maxim): sometimes (indomain search) the choice is
         /// PosValuesChoice, which we don't handle yet
-        const LogChoice* lc = static_cast<const LogChoice*>(choice);
+        const LogChoice* lc = dynamic_cast<const LogChoice*>(choice);
+
+        /// NOTE(maxim): handle float variables here as well
+        if (!lc) { return 1; }
         fzn_idx = lc->cs->pos;
         /// TODO(maxim): always an integer variable?
         var_type = BRANCHER_INT;
