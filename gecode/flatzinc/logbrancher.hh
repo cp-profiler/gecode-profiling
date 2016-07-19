@@ -8,7 +8,6 @@ namespace Gecode { namespace FlatZinc {
   
   class LogChoice : public Choice {
   public:
-     /// TODO(maxim): shouldn't rely on the default values of n, pos etc.
     struct C {
       int n;          // child number
       int pos;        // variable idx

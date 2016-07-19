@@ -52,7 +52,7 @@ namespace Gecode { namespace FlatZinc {
     /// replace '==' with '='
     void double_to_single(string& str) {
       size_t start = 0;
-      size_t pos = str.find('==');
+      size_t pos = str.find("==");
 
       while (pos != string::npos) {
         str = str.substr(0, pos) + "=" + str.substr(pos + 2);
@@ -79,181 +79,241 @@ namespace Gecode { namespace FlatZinc {
 
         /// surround = with whitespaces
 
-        if (!double_equals) {
-          size_t start = 0;
-          size_t pos = result.find("=");
-          while (pos != string::npos) {
-            size_t next;
-            if ((result.at(pos - 1) == ' ' && result.at(pos + 1) == ' ') ||
-              (result.at(pos - 1) == '!') || (result.at(pos - 1) == '<') ||
-              (result.at(pos - 1) == '>')) {
-              next += 1;
-            } else {
-              result = result.substr(0, pos) + " = " + result.substr(pos + 1);
-              next += 2;
-            }
-          pos = result.find("=", next); // advance due to whitespace added
+        size_t start = 0;
+        size_t pos = result.find("=");
+        while (pos != string::npos) {
+          size_t next;
+          if (
+            (result.at(pos - 1) == ' ' && result.at(pos + 1) == ' ') ||
+            (result.at(pos - 1) == '!') || (result.at(pos - 1) == '<') ||
+            (result.at(pos - 1) == '>') || (result.at(pos - 1) == '=') ||
+            (result.at(pos + 1) == '=')
+            ) {
+            next = pos;
+          } else {
+            result = result.substr(0, pos) + " = " + result.substr(pos + 1);
+            next = pos + 2;
           }
+        pos = result.find("=", next + 1); // advance due to whitespace added
         }
 
         return result;
     }
 
-    LogChoice* parseChoice(const LogBrancher& b, const FlatZincSpace& s, int nChildren, const string& raw_line, int* retry) {
+    vector<string> split(const string& line, string del) {
+      vector<string> res;
+
+      size_t prev = 0;
+
+      auto pos = line.find(del, 0);
+
+      while (pos != string::npos) {
+        auto str = line.substr(prev, pos - prev);
+        if (str.size() > 0) {
+          res.push_back(str);
+        }
+        prev = pos + 1;
+
+        pos = line.find(del, prev);
+      }
+
+      if (prev < line.size()) {
+        auto str = line.substr(prev, line.size() - prev);
+        if (str.size() > 0) {
+          res.push_back(str);
+        }
+      }
+
+      return res;
+    }
+
+
+    /// returns var_idx or aborts
+    int find_var(const LogBrancher& b, string var_str) {
+      auto bracket = var_str.find("[");
+
+      if (bracket != string::npos) {
+        string basevar = var_str.substr(0, bracket);
+        int array_idx = stoi(var_str.substr(bracket+1, var_str.size() - bracket-2));
+
+        SymbolEntry se;
+        if (b.symbols.get(basevar, se)) {
+          return b.arrays[se.i + array_idx];
+        } else {
+          std::cerr << "reading `var[id]`, `var` is not found\n";
+        }
+      } else {
+        SymbolEntry se;
+        if (b.symbols.get(var_str, se)) {
+          assert(se.t == ST_INTVAR);
+          return se.i;
+        } else if (var_str == "") {
+          std::cerr << "var is empty: ``\n";
+        } else {
+          std::cerr << "reading `var`, `var` is not found\n";
+        }
+
+      }
+      assert(false);
+      return -1;
+    }
+
+    IntRelType parse_operator(string op) {
+      IntRelType irt;
+      if (op=="=" || op == "==")
+        irt = IRT_EQ;
+      else if (op=="!=")
+        irt = IRT_NQ;
+      else if (op=="<")
+        irt = IRT_LE;
+      else if (op=="<=")
+        irt = IRT_LQ;
+      else if (op==">")
+        irt = IRT_GR;
+      else if (op==">=")
+        irt = IRT_GQ;
+      else {
+        irt = IRT_EQ; // silence "uninitialized" warning
+        GECODE_NEVER;
+      }
+
+      return irt;
+    }
+
+    bool processImplied(const FlatZincSpace& space, IntRelType irt,
+                        string& label, int var_idx, int val) {
+      bool choiceImplied = false;
+      switch (irt) {
+        case IRT_EQ:
+          if (space.iv[var_idx].assigned()) {
+            if (space.iv[var_idx].val()==val) choiceImplied = true;
+            label = string("[")+(space.iv[var_idx].val()==val ? "i":"f")+"] "+label;
+          } else if (!space.iv[var_idx].in(val)) {
+            label = string("[f] ")+label;
+          }
+          break;
+        case IRT_NQ:
+          if (space.iv[var_idx].assigned()) {
+            if (space.iv[var_idx].val()!=val) choiceImplied = true;
+            label = string("[")+(space.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
+          } else if (!space.iv[var_idx].in(val)) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          break;
+        case IRT_LQ:
+          if (space.iv[var_idx].max() <= val) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          else if (space.iv[var_idx].min() > val)
+            label = string("[f] ")+label;
+          break;
+        case IRT_LE:
+          if (space.iv[var_idx].max() < val) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          else if (space.iv[var_idx].min() >= val)
+            label = string("[f] ")+label;
+          break;
+        case IRT_GR:
+          if (space.iv[var_idx].min() > val) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          else if (space.iv[var_idx].max() <= val)
+            label = string("[f] ")+label;
+          break;
+        case IRT_GQ:
+          if (space.iv[var_idx].min() >= val) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          else if (space.iv[var_idx].max() < val)
+            label = string("[f] ")+label;
+          break;
+      }
+
+      return choiceImplied;
+    }
+
+    LogChoice* parseChoice(const LogBrancher& lb,
+                            const FlatZincSpace& space, int nChildren,
+                            const string& raw_line, int* retry) {
+
       std::string line = pre_process(raw_line);
       std::cout << "<> <> <> parsing choice: " << line << "\n";
-      if (nChildren==0)
-        return NULL;
-      size_t space = line.find(" ");
-      space = line.find(" ",space+1);
-      std::vector<LogChoice::C> children;
-      
-      // b.symbols.exec<PS>();
-            
-      for (int i=0; i<nChildren;i++) {
-        size_t next_space = line.find(" ",space+1);
-        if (next_space == string::npos) {
-          std::cerr << "npos\n";
-          next_space = line.size() - 1;
-          // line += " ";
-        }
-        stringstream nid_s(line.substr(space+1, next_space-space-1));
-        int n_id;
-        nid_s >> n_id;
-        std::cerr << ">>> n_id: " << n_id << "\n";
-        space = next_space;
-        next_space = line.find(" ",space+1);
-        string var = line.substr(space+1, next_space-space-1);
-        
-        int var_idx;
-        size_t bracket = var.find("[");
-        if (bracket!=string::npos) {
-          string basevar = var.substr(0,bracket);
-          string array_idx_s = var.substr(bracket+1,var.size()-bracket-2);
-          stringstream aidx(array_idx_s);
-          int array_idx;
-          aidx >> array_idx;
-          SymbolEntry se;
-          if (b.symbols.get(basevar,se)) {
-            var_idx = b.arrays[se.i + array_idx];
-          } else {
-            std::cerr << "return NULL: 1\n";
-            return NULL;
-          }
-        } else {        
-          SymbolEntry se;
-          std::cout << "var:|" << var << "|\n";
-          if (b.symbols.get(var,se)) {
-            assert(se.t==ST_INTVAR);
-            var_idx = se.i;
-          } else if (var == "") {
-            std::cout << "no decision\n";
+
+      if (nChildren == 0) return NULL;
+
+      vector<LogChoice::C> children;
+
+      const vector<string>& tokens = split(line, " ");
+
+      auto token_id = 2u;
+
+      for (auto i = 0u; i < nChildren; ++i) {
+        int n_id = stoi(tokens[token_id++]);
+        std::cerr << "----->>> n_id: " << n_id << "\n";
+
+        if (token_id < tokens.size()) {
+          string var_str = tokens[token_id];
+
+          int first = var_str[0];
+
+          /// a number, can't be a variable
+          if (48 <= first && first <= 57) {
+            std::cerr << "----->>> no decision specified\n";
             children.push_back(LogChoice::C(n_id));
-            space = next_space;
-            next_space = line.find(" ",space+1);
             continue;
           } else {
-            std::cerr << "return NULL: 2, not found: " << var << std::endl;
+            token_id++;
+          }
+
+          std::cerr << "----->>> var: " << var_str << "\n";
+          int var_idx = find_var(lb, var_str);
+          std::cerr << "----->>> var_idx: " << var_idx << "\n";
+
+          string op = tokens[token_id++];
+          std::cerr << "----->>> op: " << op << "\n";
+          IntRelType irt = parse_operator(op);
+
+          string val_s = tokens[token_id++];
+          int val = stoi(val_s);
+          std::cerr << "----->>> val: " << val << "\n";
+
+          string label = var_str + " " + op + " " + val_s;
+
+          auto choiceImplied = processImplied(space, irt, label, var_idx, val);
+
+          if (lb.omitImplied && choiceImplied) {
+            *retry = n_id;
+            std::cerr << "-----> IMPLIED CHOICE\n";
             return NULL;
           }
+
+          std::cerr << "----->>> using label: " << label << "\n";
+
+          children.push_back(LogChoice::C(n_id, var_idx, irt, val, label));
+
+        } else {
+          std::cerr << "----->> no var...\n";
+          token_id += 1;
+
+          children.push_back(LogChoice::C(n_id));
         }
-        
-        space = next_space;
-        next_space = line.find(" ",space+1);
-        string op = line.substr(space+1, next_space-space-1);
-        IntRelType irt;
-        if (op=="=")
-          irt = IRT_EQ;
-        else if (op=="!=")
-          irt = IRT_NQ;
-        else if (op=="<")
-          irt = IRT_LE;
-        else if (op=="<=")
-          irt = IRT_LQ;
-        else if (op==">")
-          irt = IRT_GR;
-        else if (op==">=")
-          irt = IRT_GQ;
-        else {
-          irt = IRT_EQ; // silence "uninitialized" warning
-          GECODE_NEVER;
-        }
-        space = next_space;
-        next_space = line.find(" ",space+1);
-        stringstream val_s(line.substr(space+1, next_space-space-1));
-        int val;
-        val_s >> val;
-        space = next_space;
-        string label = var+" "+op+" "+val_s.str();
-        bool thisChoiceImplied = false;
-        switch (irt) {
-          case IRT_EQ:
-            if (s.iv[var_idx].assigned()) {
-              if (s.iv[var_idx].val()==val) thisChoiceImplied = true;
-              label = string("[")+(s.iv[var_idx].val()==val ? "i":"f")+"] "+label;
-            } else if (!s.iv[var_idx].in(val)) {
-              label = string("[f] ")+label;
-            }
-            break;
-          case IRT_NQ:
-            if (s.iv[var_idx].assigned()) {
-              if (s.iv[var_idx].val()!=val) thisChoiceImplied = true;
-              label = string("[")+(s.iv[var_idx].val()!=val ? "i":"f")+"] "+label;
-            } else if (!s.iv[var_idx].in(val)) {
-              thisChoiceImplied = true;
-              label = string("[i] ")+label;
-            }
-            break;
-          case IRT_LQ:
-            if (s.iv[var_idx].max() <= val) {
-              thisChoiceImplied = true;
-              label = string("[i] ")+label;
-            }
-            else if (s.iv[var_idx].min() > val)
-              label = string("[f] ")+label;
-            break;
-          case IRT_LE:
-            if (s.iv[var_idx].max() < val) {
-              thisChoiceImplied = true;
-              label = string("[i] ")+label;
-            }
-            else if (s.iv[var_idx].min() >= val)
-              label = string("[f] ")+label;
-            break;
-          case IRT_GR:
-            if (s.iv[var_idx].min() > val) {
-              thisChoiceImplied = true;
-              label = string("[i] ")+label;
-            }
-            else if (s.iv[var_idx].max() <= val)
-              label = string("[f] ")+label;
-            break;
-          case IRT_GQ:
-            if (s.iv[var_idx].min() >= val) {
-              thisChoiceImplied = true;
-              label = string("[i] ")+label;
-            }
-            else if (s.iv[var_idx].max() < val)
-              label = string("[f] ")+label;
-            break;
-        }
-        // if (b.omitImplied && thisChoiceImplied) {
-        //   *retry = n_id;
-        //   std::cerr << "return NULL: 3\n";
-        //   return NULL;
-        // }
-        children.push_back(LogChoice::C(n_id,var_idx,irt,val,label));
       }
-      std::cerr << "successfully return log choice\n";
-      return new LogChoice(b,children);
+
+      return new LogChoice(lb, children);
     }
     
-  void parseNode(const std::string& line, int& nodeNumber, int& nChildren) {
-      size_t space = line.find(" ");
-      space = line.find(" ",space+1);
-      stringstream sstr(line.substr(0,space));
-      sstr >> nodeNumber >> nChildren;
-  }
+    void parseNode(const std::string& line, int& nodeNumber, int& nChildren) {
+        size_t space = line.find(" ");
+        space = line.find(" ",space+1);
+        stringstream sstr(line.substr(0,space));
+        sstr >> nodeNumber >> nChildren;
+    }
   }
 
   LogBrancher::LogBrancher(Space& home, bool share, LogBrancher& b)
@@ -282,7 +342,7 @@ namespace Gecode { namespace FlatZinc {
       std::cerr << "cur_node: " << cur_node << " nodeNumber: " << nodeNumber << " (at logbrancher.cpp:240)\n";
       if (nodeNumber==cur_node) {
         int retry = -1;
-        cur_choice = parseChoice(*this,s,nChildren,str_line,&retry);
+        cur_choice = parseChoice(*this, s, nChildren, str_line, &retry);
         if (retry != -1) {
           cur_node = retry;
           continue;
@@ -308,7 +368,7 @@ namespace Gecode { namespace FlatZinc {
     // std::cerr << "curr_node old: " << cur_node << " curr_node new: " << lcc.n << "\n";
     const LogChoice::C& lcc = lc.cs[a];
   
-    if (lc.cs->empty) {
+    if (lcc.empty) {
       std::cerr << "empty decision\n";
       return ES_OK;
     }
@@ -320,7 +380,7 @@ namespace Gecode { namespace FlatZinc {
 
     cur_node = lcc.n;
 
-    if (lc.cs->skip) {
+    if (lcc.skip) {
       std::cerr << "skip this node\n";
       return ES_OK;
     }

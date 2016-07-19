@@ -1343,7 +1343,15 @@ namespace Gecode { namespace FlatZinc {
 
     if (iv_sol.size() > 0) {
       branch(*this, iv_sol, def_int_varsel, def_int_valsel);
-      branchInfo.addMappingIndices(BRANCHER_INT, iv_sol_indices);
+
+      if (def_int_valsel.select() == IntValBranch::SEL_MIN ||
+          def_int_valsel.select() == IntValBranch::SEL_MED ||
+          def_int_valsel.select() == IntValBranch::SEL_MAX ||
+          def_int_valsel.select() == IntValBranch::SEL_RND) {
+        branchInfo.addMappingIndices(BRANCHER_INT, iv_sol_indices, "=", "!=");
+      } else {
+        branchInfo.addMappingIndices(BRANCHER_INT, iv_sol_indices);
+      }
     }
     if (bv_sol.size() > 0) {
       branch(*this, bv_sol, def_bool_varsel, def_bool_valsel);
