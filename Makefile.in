@@ -1464,7 +1464,7 @@ $(KERNELDLL): $(KERNELOBJ) $(SUPPORTDLL)
 $(SEARCHDLL): $(SEARCHOBJ) $(INTDLL) $(SUPPORTDLL) $(KERNELDLL)
 	$(CXX) $(DLLFLAGS) $(SEARCHOBJ) $(SEARCHSONAME) \
 		@DLLPATH@ $(LINKINT) $(LINKSUPPORT) $(LINKKERNEL) \
-		@LINKOUTPUT@$(SEARCHDLL) -lprotobuf -L/usr/local/lib
+		@LINKOUTPUT@$(SEARCHDLL) -lprotobuf -L/usr/local/lib -L/home/maxim/usr/local/lib
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOLINKSUFFIX))
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOSUFFIX))
 $(INTDLL): $(INTOBJ) $(SUPPORTDLL) $(KERNELDLL)
@@ -1740,7 +1740,7 @@ endif
 $(FLATZINCEXE): $(FLATZINCEXEOBJ) $(FLATZINCEXERES) $(ALLLIB)
 	$(CXX) @EXEOUTPUT@$@ $(FLATZINCEXEOBJ) $(FLATZINCEXERES) \
 	$(DLLPATH) $(CXXFLAGS) \
-	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lprotobuf -L/usr/local/lib
+	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lprotobuf -L/usr/local/lib -L/home/maxim/usr/local/lib
 	$(FIXMANIFEST) $@.manifest
 	$(MANIFEST) -manifest $@.manifest -outputresource:$@\;1
 

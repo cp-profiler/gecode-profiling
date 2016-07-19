@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
           std::cerr << "Could not open file " << opt.output() << " for output."
                     << std::endl;
           exit(EXIT_FAILURE);
-        }      
+        }
         fg->run(os, p, opt, t_total);
         os.close();
       } else {

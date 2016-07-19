@@ -190,7 +190,9 @@ namespace Gecode { namespace Search { namespace Sequential {
           cur->print(*edge.choice(), alt, oss);
         }
       }
-      switch (cur->status(*this)) {
+      SpaceStatus status = cur->status(*this);
+      // std::cerr << "STATUS: " << status << "\n";
+      switch (status) {
       case SS_FAILED:
         if (opt.sendNodes) {
 
@@ -203,9 +205,9 @@ namespace Gecode { namespace Search { namespace Sequential {
             float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
 
             // assert(domain_diff < 1.1);
-            if (domain_diff > 1.1) {
-              std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-            }
+            // if (domain_diff > 1.1) {
+            //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+            // }
 
             info += std::string("domain reduction: ")
                     + std::to_string(::exp(domain_diff)) + "\n";
@@ -237,9 +239,9 @@ namespace Gecode { namespace Search { namespace Sequential {
             float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
 
             // assert(domain_diff < 1.1);
-            if (domain_diff > 1.1) {
-              std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-            }
+            // if (domain_diff > 1.1) {
+            //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+            // }
 
             info += std::string("domain reduction: ")
                     + std::to_string(::exp(domain_diff)) + "\n";
@@ -294,9 +296,9 @@ namespace Gecode { namespace Search { namespace Sequential {
               float domain_diff = cur->calcDomainSizeRed(ch, path.topDomainInfo());
 
               // assert(domain_diff < 1.1);
-              if (domain_diff > 1.1) {
-                std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-              }
+              // if (domain_diff > 1.1) {
+              //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
+              // }
 
               info += std::string("domain reduction: ")
                       + std::to_string(::exp(domain_diff)) + "\n";

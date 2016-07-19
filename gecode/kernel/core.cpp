@@ -344,14 +344,18 @@ namespace Gecode {
      * can be used for commit an exhausted brancher can actually be deleted.
      * This becomes known when choice is called.
      */
-    while (b_status != Brancher::cast(&bl))
-      if (b_status->status(*this)) {
+    while (b_status != Brancher::cast(&bl)) {
+      bool res = b_status->status(*this);
+      // std::cerr << "status() returned (at core.cpp:349): " << res << "\n";
+      if (res) {
         // Brancher still has choices to generate
         s = SS_BRANCH; goto exit;
       } else {
         // Brancher is exhausted
+        std::cerr << "(!) next brancher requested\n";
         b_status = Brancher::cast(b_status->next());
       }
+    }
     // No brancher with alternatives left, space is solved
     s = SS_SOLVED;
   exit:

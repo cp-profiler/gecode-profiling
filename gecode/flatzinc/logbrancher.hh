@@ -8,15 +8,19 @@ namespace Gecode { namespace FlatZinc {
   
   class LogChoice : public Choice {
   public:
+     /// TODO(maxim): shouldn't rely on the default values of n, pos etc.
     struct C {
       int n;          // child number
       int pos;        // variable idx
       IntRelType irt; // operator
       int val;        // value
       std::string label;   // original label
-      C(void) {}
+      bool empty = false;
+      bool skip = false;
+      C() {}
+      C(int n_id) : n{n_id} { skip = true; }
       C(int n0, int pos0, IntRelType irt0, int val0, std::string label0)
-        : n(n0), pos(pos0), irt(irt0), val(val0), label(label0) {}
+        : n(n0), pos(pos0), irt(irt0), val(val0), label(label0) { }
     };
     C* cs;
     LogChoice(const LogBrancher& b, const std::vector<C>& children);
@@ -45,12 +49,23 @@ namespace Gecode { namespace FlatZinc {
     mutable LogChoice* cur_choice;
     mutable int cur_node;
 
-    LogBrancher(Home home, SymbolTable<SymbolEntry>& symbols0, std::vector<int>& arrays0, std::istream& log0, bool omitImplied0)
-      : Brancher(home), log(log0), omitImplied(omitImplied0), symbols(symbols0), arrays(arrays0), cur_choice(NULL), cur_node(0) {}
-    static void post(Home home, SymbolTable<SymbolEntry>& symbols, std::vector<int>& arrays, std::istream& log, bool omitImplied) {
-      (void) new (home) LogBrancher(home,symbols,arrays,log,omitImplied);
+    LogBrancher(Home home, SymbolTable<SymbolEntry>& symbols0,
+                std::vector<int>& arrays0, std::istream& log0,
+                bool omitImplied0)
+        : Brancher(home),
+          log(log0),
+          omitImplied(omitImplied0),
+          symbols(symbols0),
+          arrays(arrays0),
+          cur_choice(NULL),
+          cur_node(0) {}
+
+    static void post(Home home, SymbolTable<SymbolEntry>& symbols,
+                     std::vector<int>& arrays, std::istream& log,
+                     bool omitImplied) {
+      (void)new (home) LogBrancher{home, symbols, arrays, log, omitImplied};
     }
-    
+
     virtual Choice* choice(Space& home);
     virtual Choice* choice(const Space&, Archive&) {
       GECODE_NEVER;
@@ -72,6 +87,7 @@ namespace Gecode { namespace FlatZinc {
     
   };
 
-  GECODE_FLATZINC_EXPORT void branch(Home home, SymbolTable<SymbolEntry>& s, std::vector<int>& arrays, std::istream& log, bool omitImplied);
-
+  GECODE_FLATZINC_EXPORT void branch(Home home, SymbolTable<SymbolEntry>& s,
+                                     std::vector<int>& arrays,
+                                     std::istream& log, bool omitImplied);
 }}
