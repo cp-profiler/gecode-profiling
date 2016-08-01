@@ -8,6 +8,11 @@ namespace Gecode { namespace FlatZinc {
   
   class LogChoice : public Choice {
   public:
+    enum class VarType {
+      INT,
+      BOOL
+    };
+
     struct C {
       int n;          // child number
       int pos;        // variable idx
@@ -16,11 +21,19 @@ namespace Gecode { namespace FlatZinc {
       std::string label;   // original label
       bool empty = false;
       bool skip = false;
+      VarType var_type;
       C() {}
       C(int n_id) : n{n_id} { skip = true; }
-      C(int n0, int pos0, IntRelType irt0, int val0, std::string label0)
-        : n(n0), pos(pos0), irt(irt0), val(val0), label(label0) { }
+      C(int n0, int pos0, IntRelType irt0, int val0, std::string label0,
+        VarType vt)
+          : n(n0),
+            pos(pos0),
+            irt(irt0),
+            val(val0),
+            label(label0),
+            var_type{vt} {}
     };
+
     C* cs;
     LogChoice(const LogBrancher& b, const std::vector<C>& children);
 

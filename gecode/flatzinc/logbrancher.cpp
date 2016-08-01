@@ -145,7 +145,6 @@ namespace Gecode { namespace FlatZinc {
       } else {
         SymbolEntry se;
         if (b.symbols.get(var_str, se)) {
-          assert(se.t == ST_INTVAR);
           return se.i;
         } else if (var_str == "") {
           std::cerr << "var is empty: ``\n";
@@ -280,22 +279,36 @@ namespace Gecode { namespace FlatZinc {
           IntRelType irt = parse_operator(op);
 
           string val_s = tokens[token_id++];
-          int val = stoi(val_s);
+
+          int val;
+          LogChoice::VarType var_type;
+          if (val_s == "true") {
+            var_type = LogChoice::VarType::BOOL;
+            val = 1;
+          } else if (val_s == "false") {
+            var_type = LogChoice::VarType::BOOL;
+            val = 0;
+          } else {
+            var_type = LogChoice::VarType::INT;
+            val = stoi(val_s);
+          }
+
           std::cerr << "----->>> val: " << val << "\n";
 
           string label = var_str + " " + op + " " + val_s;
 
-          auto choiceImplied = processImplied(space, irt, label, var_idx, val);
+          // auto choiceImplied = processImplied(space, irt, label, var_idx, val);
 
-          if (lb.omitImplied && choiceImplied) {
-            *retry = n_id;
-            std::cerr << "-----> IMPLIED CHOICE\n";
-            return NULL;
-          }
+          /// TODO(maxim): re-enable this functionality
+          // if (lb.omitImplied && choiceImplied) {
+          //   *retry = n_id;
+          //   std::cerr << "-----> IMPLIED CHOICE\n";
+          //   return NULL;
+          // }
 
           std::cerr << "----->>> using label: " << label << "\n";
 
-          children.push_back(LogChoice::C(n_id, var_idx, irt, val, label));
+          children.push_back(LogChoice::C(n_id, var_idx, irt, val, label, var_type));
 
         } else {
           std::cerr << "----->> no var...\n";
@@ -386,7 +399,14 @@ namespace Gecode { namespace FlatZinc {
     }
 
     FlatZincSpace& s = static_cast<FlatZincSpace&>(home);
-    rel(s, s.iv[lcc.pos], lcc.irt, lcc.val);
+
+    if (lcc.var_type == LogChoice::VarType::INT) {
+      Gecode::rel(s, s.iv[lcc.pos], lcc.irt, lcc.val);
+    } else if (lcc.var_type == LogChoice::VarType::BOOL) {
+      Gecode::rel(s, s.bv[lcc.pos], lcc.irt, lcc.val);
+    } else {
+      assert(false);
+    }
     return s.failed() ? ES_FAILED : ES_OK;
   }
 
