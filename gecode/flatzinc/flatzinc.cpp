@@ -2158,7 +2158,8 @@ namespace Gecode { namespace FlatZinc {
           return 0;
         }
         return ::log(space->iv[pos].size());
-      case BRANCHER_BOOL: return ::log(space->bv[pos].size());
+      case BRANCHER_BOOL:
+        return ::log(space->bv[pos].size());
       default:
         assert(false);
         return 0;
@@ -2186,10 +2187,11 @@ namespace Gecode { namespace FlatZinc {
     /// Record information for children nodes (if a BRANCH)
     if (choice != nullptr) {
 
-      BrancherVariableType var_type;
       int fzn_idx;
 
       const PosValChoice<int>* pvc = dynamic_cast<const PosValChoice<int>*>(choice);
+
+      BrancherVariableType var_type;
 
       if (pvc == nullptr) {
         /// NOTE(maxim): sometimes (indomain search) the choice is
@@ -2199,7 +2201,7 @@ namespace Gecode { namespace FlatZinc {
         /// NOTE(maxim): handle float variables here as well
         if (!lc) { return 1; }
         fzn_idx = lc->cs->pos;
-        /// TODO(maxim): always an integer variable?
+
         var_type = BRANCHER_INT;
       } else {
         auto type_and_index = branchInfo.getVarTypeAndIndex(*pvc);

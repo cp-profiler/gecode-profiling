@@ -99,9 +99,9 @@ int main(int argc, char** argv) {
       fg->createBranchers(fg->solveAnnotations(), opt.seed(), opt.decay(),
                           false, std::cerr);
 
-      if (logname==NULL) {
-        fg->shrinkArrays(p);
-      }
+      // if (logname==NULL) {
+      //   fg->shrinkArrays(p);
+      // }
     
       if (opt.output()) {
         std::ofstream os(opt.output());
