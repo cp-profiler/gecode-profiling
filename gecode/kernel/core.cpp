@@ -352,7 +352,6 @@ namespace Gecode {
         s = SS_BRANCH; goto exit;
       } else {
         // Brancher is exhausted
-        std::cerr << "(!) next brancher requested\n";
         b_status = Brancher::cast(b_status->next());
       }
     }

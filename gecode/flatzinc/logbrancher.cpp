@@ -32,21 +32,41 @@ namespace Gecode { namespace FlatZinc {
         found = true;
       }
 
+      auto sym_len = symbols.size();
+
       while (pos != string::npos) {
         size_t next;
-        if (str.at(pos - 1) == ' ' && str.at(pos + 2) == ' ') {
+        if (str.at(pos - 1) == ' ' && str.at(pos + sym_len) == ' ') {
           // next = pos + 1;
           next = pos;
         } else {
-          str = str.substr(0, pos) + " " + symbols + " " + str.substr(pos + 2);
-          std::cerr << "replaced " << symbols << ": " << str << "\n";
-          next = pos + 2;
+          str = str.substr(0, pos) + " " + symbols + " " + str.substr(pos + sym_len);
+          next = pos + sym_len;
         }
-        std::cerr << "next: " << next << "\n";
         pos = str.find(symbols, next + 1); // advance due to whitespace added
       }
 
       return found;
+    }
+
+    void surround_single(string& str, string symbol) {
+      size_t start = 0;
+      size_t pos = str.find(symbol);
+      while (pos != string::npos) {
+        size_t next;
+        if (
+          (str.at(pos - 1) == ' ' && str.at(pos + 1) == ' ') ||
+          (str.at(pos - 1) == '!') || (str.at(pos - 1) == '<') ||
+          (str.at(pos - 1) == '>') || (str.at(pos - 1) == '=') ||
+          (str.at(pos + 1) == '=')
+          ) {
+          next = pos;
+        } else {
+          str = str.substr(0, pos) + " " + symbol + " " + str.substr(pos + 1);
+          next = pos + 2;
+        }
+      pos = str.find(symbol, next + 1); // advance due to whitespace added
+      }
     }
 
     /// replace '==' with '='
@@ -66,36 +86,25 @@ namespace Gecode { namespace FlatZinc {
         bool complex_equals = false;
         bool double_equals = false;
 
-        /// surround != with whitespaces
-        complex_equals |= surround_two_symbols(result, "!=");
-        complex_equals |= surround_two_symbols(result, ">=");
-        complex_equals |= surround_two_symbols(result, "<=");
-
         double_equals |= surround_two_symbols(result, "==");
 
         if (double_equals) {
           double_to_single(result);
         }
 
+        /// surround != with whitespaces
+        complex_equals |= surround_two_symbols(result, "!=");
+        complex_equals |= surround_two_symbols(result, ">=");
+        complex_equals |= surround_two_symbols(result, "<=");
+
         /// surround = with whitespaces
 
-        size_t start = 0;
-        size_t pos = result.find("=");
-        while (pos != string::npos) {
-          size_t next;
-          if (
-            (result.at(pos - 1) == ' ' && result.at(pos + 1) == ' ') ||
-            (result.at(pos - 1) == '!') || (result.at(pos - 1) == '<') ||
-            (result.at(pos - 1) == '>') || (result.at(pos - 1) == '=') ||
-            (result.at(pos + 1) == '=')
-            ) {
-            next = pos;
-          } else {
-            result = result.substr(0, pos) + " = " + result.substr(pos + 1);
-            next = pos + 2;
-          }
-        pos = result.find("=", next + 1); // advance due to whitespace added
-        }
+        // surround_two_symbols(result, "<");
+        // surround_two_symbols(result, ">");
+
+        surround_single(result, "=");
+        surround_single(result, "<");
+        surround_single(result, ">");
 
         return result;
     }
@@ -242,7 +251,7 @@ namespace Gecode { namespace FlatZinc {
                             const string& raw_line, int* retry) {
 
       std::string line = pre_process(raw_line);
-      std::cout << "<> <> <> parsing choice: " << line << "\n";
+      // std::cout << "<> <> <> parsing choice: " << line << "\n";
 
       if (nChildren == 0) return NULL;
 
@@ -254,7 +263,6 @@ namespace Gecode { namespace FlatZinc {
 
       for (auto i = 0u; i < nChildren; ++i) {
         int n_id = stoi(tokens[token_id++]);
-        std::cerr << "----->>> n_id: " << n_id << "\n";
 
         if (token_id < tokens.size()) {
           string var_str = tokens[token_id];
@@ -263,19 +271,15 @@ namespace Gecode { namespace FlatZinc {
 
           /// a number, can't be a variable
           if (48 <= first && first <= 57) {
-            std::cerr << "----->>> no decision specified\n";
             children.push_back(LogChoice::C(n_id));
             continue;
           } else {
             token_id++;
           }
 
-          std::cerr << "----->>> var: " << var_str << "\n";
           int var_idx = find_var(lb, var_str);
-          std::cerr << "----->>> var_idx: " << var_idx << "\n";
 
           string op = tokens[token_id++];
-          std::cerr << "----->>> op: " << op << "\n";
           IntRelType irt = parse_operator(op);
 
           string val_s = tokens[token_id++];
@@ -293,8 +297,6 @@ namespace Gecode { namespace FlatZinc {
             val = stoi(val_s);
           }
 
-          std::cerr << "----->>> val: " << val << "\n";
-
           string label = var_str + " " + op + " " + val_s;
 
           // auto choiceImplied = processImplied(space, irt, label, var_idx, val);
@@ -306,12 +308,11 @@ namespace Gecode { namespace FlatZinc {
           //   return NULL;
           // }
 
-          std::cerr << "----->>> using label: " << label << "\n";
 
           children.push_back(LogChoice::C(n_id, var_idx, irt, val, label, var_type));
 
         } else {
-          std::cerr << "----->> no var...\n";
+          std::cerr << "no var...\n";
           token_id += 1;
 
           children.push_back(LogChoice::C(n_id));
@@ -342,7 +343,6 @@ namespace Gecode { namespace FlatZinc {
 
   bool
   LogBrancher::status(const Space& home) const {
-    std::cerr << "LogBrancher::status\n";
     const FlatZincSpace& s = static_cast<const FlatZincSpace&>(home);
     if (cur_choice)
       return true;
@@ -352,7 +352,6 @@ namespace Gecode { namespace FlatZinc {
       // std::cerr << "parsing: " << str_line << std::endl;
       int nodeNumber, nChildren;
       parseNode(str_line, nodeNumber, nChildren);
-      std::cerr << "cur_node: " << cur_node << " nodeNumber: " << nodeNumber << " (at logbrancher.cpp:240)\n";
       if (nodeNumber==cur_node) {
         int retry = -1;
         cur_choice = parseChoice(*this, s, nChildren, str_line, &retry);
@@ -376,25 +375,22 @@ namespace Gecode { namespace FlatZinc {
 
   ExecStatus
   LogBrancher::commit(Space& home, const Choice& c, unsigned int a) {
-    std::cerr << "LogBrancher::commit\n";
     const LogChoice& lc = static_cast<const LogChoice&>(c);
-    // std::cerr << "curr_node old: " << cur_node << " curr_node new: " << lcc.n << "\n";
     const LogChoice::C& lcc = lc.cs[a];
   
     if (lcc.empty) {
-      std::cerr << "empty decision\n";
+
       return ES_OK;
     }
     if (cur_choice && cur_choice->cs[a].n == lcc.n) {
       cur_choice = NULL;
     }
 
-    std::cerr << "[cur_node] old: " << cur_node << " new: " << lcc.n << "\n";
 
     cur_node = lcc.n;
 
     if (lcc.skip) {
-      std::cerr << "skip this node\n";
+
       return ES_OK;
     }
 
