@@ -346,7 +346,7 @@ namespace Gecode {
      */
     while (b_status != Brancher::cast(&bl)) {
       bool res = b_status->status(*this);
-      // std::cerr << "status() returned (at core.cpp:349): " << res << "\n";
+
       if (res) {
         // Brancher still has choices to generate
         s = SS_BRANCH; goto exit;

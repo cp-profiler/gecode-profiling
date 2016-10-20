@@ -48,10 +48,6 @@ include(FindProtobuf)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
 
-find_package(ZeroMQ REQUIRED)
-include_directories(${ZEROMQ_INCLUDE_DIRS})
-
-
 include(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -427,7 +423,6 @@ target_link_libraries(gecode-test gecodeminimodel)
 add_executable(fzn-gecode ${FLATZINCEXESRC})
 target_link_libraries(fzn-gecode gecodeflatzinc gecodegist gecodeminimodel gecodedriver)
 target_link_libraries(gecodesearch ${PROTOBUF_LIBRARY})
-target_link_libraries(gecodesearch ${ZEROMQ_LIBRARIES})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

@@ -13,8 +13,9 @@ namespace Gecode { namespace FlatZinc {
     }
   };
 
-  LogChoice::LogChoice(const LogBrancher& b, const std::vector<C>& children)
-    : Choice(b,children.size()) {
+  LogChoice::LogChoice(const LogBrancher& b, const std::vector<C>& children,
+                       bool stop_marker)
+      : Choice(b, children.size()), stop_marker(stop_marker) {
     cs = heap.alloc<C>(children.size());
     for (unsigned int i=0; i<children.size(); i++)
       cs[i] = children[i];
@@ -139,6 +140,7 @@ namespace Gecode { namespace FlatZinc {
 
     /// returns var_idx or aborts
     int find_var(const LogBrancher& b, string var_str) {
+
       auto bracket = var_str.find("[");
 
       if (bracket != string::npos) {
@@ -251,13 +253,29 @@ namespace Gecode { namespace FlatZinc {
                             const string& raw_line, int* retry) {
 
       std::string line = pre_process(raw_line);
-      // std::cout << "<> <> <> parsing choice: " << line << "\n";
+      std::cout << "<> <> <> parsing choice: " << line << "\n";
 
-      if (nChildren == 0) return NULL;
+      const vector<string>& tokens = split(line, " ");
+
+      bool stop_marker = false;
+
+      if (nChildren == 0) {
+
+        if (tokens.back() == "stop") {
+        /// tell Gecode to abandon current branch
+          stop_marker = true;
+        } else {
+          return NULL;
+        }
+      }
 
       vector<LogChoice::C> children;
 
-      const vector<string>& tokens = split(line, " ");
+      if (stop_marker) {
+        /// NOTE(maxim): add a dummy child
+        children.push_back(LogChoice::C(-1));
+      }
+
 
       auto token_id = 2u;
 
@@ -319,7 +337,7 @@ namespace Gecode { namespace FlatZinc {
         }
       }
 
-      return new LogChoice(lb, children);
+      return new LogChoice(lb, children, stop_marker);
     }
     
     void parseNode(const std::string& line, int& nodeNumber, int& nChildren) {
@@ -377,6 +395,10 @@ namespace Gecode { namespace FlatZinc {
   LogBrancher::commit(Space& home, const Choice& c, unsigned int a) {
     const LogChoice& lc = static_cast<const LogChoice&>(c);
     const LogChoice::C& lcc = lc.cs[a];
+
+    if (lc.stop_marker) {
+      return ES_FAILED;
+    }
   
     if (lcc.empty) {
 

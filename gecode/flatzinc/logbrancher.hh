@@ -35,7 +35,9 @@ namespace Gecode { namespace FlatZinc {
     };
 
     C* cs;
-    LogChoice(const LogBrancher& b, const std::vector<C>& children);
+    bool stop_marker; /// force the search to fail in the current node
+    LogChoice(const LogBrancher& b, const std::vector<C>& children,
+              bool stop_marker = false);
 
     virtual size_t size(void) const {
       return sizeof(LogChoice)+alternatives()*sizeof(C);
@@ -92,6 +94,8 @@ namespace Gecode { namespace FlatZinc {
       return new (home) LogBrancher(home,share,*this);
     }
     
+    /* determines whether to continue branching with this brancher
+       or move on to the (possibly) next brancher */
     virtual bool status(const Space& home) const;
     
     virtual void print(const Space& home, const Choice& c, unsigned int a,
