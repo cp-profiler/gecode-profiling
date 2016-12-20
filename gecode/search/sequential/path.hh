@@ -261,7 +261,8 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::next(void) {
     while (!ds.empty())
       if (ds.top().rightmost()) {
-        domain_info_stack.pop();
+        if (!domain_info_stack.empty())
+          domain_info_stack.pop();
         ds.pop().dispose();
       } else {
         ds.top().next();

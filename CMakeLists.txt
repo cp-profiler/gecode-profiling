@@ -44,9 +44,65 @@ project(GECODE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-include(FindProtobuf)
-find_package(Protobuf REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIR})
+#include(FindProtobuf)
+#find_package(Protobuf REQUIRED)
+#include_directories(${PROTOBUF_INCLUDE_DIR})
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf")
+  include_directories("submodules/cpp-integration/protobuf")
+  if (WIN32)
+    include_directories("submodules/cpp-integration/protobuf/config_win")
+  else()
+    include_directories("submodules/cpp-integration/protobuf/config_unix")
+  endif()
+else()
+  message("Configuring without CP Profiler support.")
+endif()
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf")
+
+  set(GECODE_PROFILER_SOURCES
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/connector.cpp
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/message.pb.cpp
+
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/compiler/importer.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/compiler/parser.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor.pb.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor_database.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/dynamic_message.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/extension_set.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/extension_set_heavy.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/generated_message_reflection.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/generated_message_util.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/coded_stream.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/gzip_stream.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/printer.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/strtod.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/tokenizer.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/message.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/message_lite.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/reflection_ops.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/repeated_field.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/service.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/common.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/once.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/stringprintf.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/structurally_valid.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/strutil.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/substitute.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/text_format.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/unknown_field_set.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/wire_format.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/wire_format_lite.cc
+  )
+
+endif()
 
 include(CheckCXXCompilerFlag)
 
@@ -385,6 +441,9 @@ foreach (lib support kernel search int set float
         set(sources ${sources} ${src})
       endif ()
     endforeach ()
+    if (lib STREQUAL "search")
+      set(sources ${sources} ${GECODE_PROFILER_SOURCES})
+    endif()
     add_library(gecode${lib} ${sources} ${${libupper}HDR})
     target_include_directories(gecode${lib}
       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
@@ -417,12 +476,12 @@ if (FLOATSRC)
   target_link_libraries(gecodeminimodel gecodefloat)
 endif ()
 
-add_executable(gecode-test ${TESTSRC} ${TESTHDR})
-target_link_libraries(gecode-test gecodeminimodel)
+# add_executable(gecode-test ${TESTSRC} ${TESTHDR})
+# target_link_libraries(gecode-test gecodeminimodel gecodeflatzinc)
 
-add_executable(fzn-gecode ${FLATZINCEXESRC})
-target_link_libraries(fzn-gecode gecodeflatzinc gecodegist gecodeminimodel gecodedriver)
-target_link_libraries(gecodesearch ${PROTOBUF_LIBRARY})
+# add_executable(fzn-gecode ${FLATZINCEXESRC})
+# target_link_libraries(fzn-gecode gecodeflatzinc gecodegist gecodeminimodel gecodedriver)
+#target_link_libraries(gecodesearch ${PROTOBUF_LIBRARY})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -431,11 +490,11 @@ if (${BUILD_EXAMPLES})
   add_subdirectory(examples)
 endif()
 
-enable_testing()
-add_test(test gecode-test
-  -iter 2 -test Branch::Int::Dense::3
-  -test Int::Linear::Int::Int::Eq::Bnd::12::4
-  -test Int::Distinct::Random
-  -test Int::Arithmetic::Mult::XYZ::Bnd::C
-  -test Int::Arithmetic::Mult::XYZ::Dom::A
-  -test Search::BAB::Sol::BalGr::Binary::Binary::Binary::1::1)
+# enable_testing()
+# add_test(test gecode-test
+#   -iter 2 -test Branch::Int::Dense::3
+#   -test Int::Linear::Int::Int::Eq::Bnd::12::4
+#   -test Int::Distinct::Random
+#   -test Int::Arithmetic::Mult::XYZ::Bnd::C
+#   -test Int::Arithmetic::Mult::XYZ::Dom::A
+#   -test Search::BAB::Sol::BalGr::Binary::Binary::Binary::1::1)
