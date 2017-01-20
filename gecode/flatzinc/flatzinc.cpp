@@ -304,8 +304,14 @@ namespace Gecode { namespace FlatZinc {
     const std::string&
     getVarName(const PosValChoice<int>& pvc) const {
       // The minus-one here is because brancher ids start at 1.
+      // NOTE(maxim): temporary hack
+      static std::string dummy_string = "";
       const std::vector<int>& v = brancherVariableMapping[pvc.id()-1].second;
-      int flatzincIndex = v[pvc.pos().pos];
+      auto pos = pvc.pos().pos;
+      if (v.size() <= pos) {
+        return dummy_string;
+      }
+      int flatzincIndex = v[pos];
       switch (brancherVariableMapping[pvc.id()-1].first) {
       case BRANCHER_INT:   return iv_names[flatzincIndex]; break;
       case BRANCHER_BOOL:  return bv_names[flatzincIndex]; break;
@@ -324,6 +330,7 @@ namespace Gecode { namespace FlatZinc {
         return brancherSymbols[pvc.id()-1].second;
     }
 
+    /// NOTE(maxim): broken!
     const std::pair<BrancherVariableType, int >
     getVarTypeAndIndex(const PosValChoice<int>& pvc) const {
       auto type_and_array = brancherVariableMapping[pvc.id()-1];
@@ -2160,6 +2167,11 @@ namespace Gecode { namespace FlatZinc {
         }
         return ::log(space->iv[pos].size());
       case BRANCHER_BOOL:
+        // NOTE(maxim): quick hack
+        if (space->bv.size() <= pos) {
+          std::cerr << "space->bv.size() = " << space->bv.size() << " pos = " << pos << "\n";
+          return 0;
+        }
         return ::log(space->bv[pos].size());
       default:
         assert(false);
@@ -2285,10 +2297,19 @@ namespace Gecode { namespace FlatZinc {
     if (logc != NULL) {
       o << logc->cs[a].label;
     } else {
-      const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
-      o << branchInfo.getVarName(pvc);
-      o << branchInfo.getRelation(pvc, a);
-      o << pvc.val();
+      const PosValChoice<int>* pvc = dynamic_cast<const PosValChoice<int>*>(&c);
+
+      if (pvc != NULL) {
+        o << branchInfo.getVarName(*pvc);
+        o << branchInfo.getRelation(*pvc, a);
+        o << pvc->val();
+      } else {
+        o << "??";
+      }
+      // const PosValChoice<int>& pvc = static_cast<const PosValChoice<int>&>(c);
+      // o << branchInfo.getVarName(pvc);
+      // o << branchInfo.getRelation(pvc, a);
+      // o << pvc.val();
     }
   }
 
