@@ -487,6 +487,8 @@ namespace Gecode { namespace Search {
       bool sendDomains;
       /// Which port to send nodes through
       unsigned int port;
+      /// ID of exectution for profiler
+      unsigned int execution_id;
       /// Default options
       GECODE_SEARCH_EXPORT static const Options def;
       /// Initialize with default values

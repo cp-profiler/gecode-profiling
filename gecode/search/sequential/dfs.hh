@@ -90,9 +90,9 @@ namespace Gecode { namespace Search { namespace Sequential {
         connector->connect();
 
         if (isRestarts)
-          connector->restart(o.problem_name, 0);
+          connector->restart(o.problem_name, 0, "", opt.execution_id);
         else
-          connector->restart(o.problem_name);
+          connector->restart(o.problem_name, -1, "", opt.execution_id);
       }
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 

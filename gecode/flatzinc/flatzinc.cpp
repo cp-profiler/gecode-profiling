@@ -1675,6 +1675,7 @@ namespace Gecode { namespace FlatZinc {
     o.problem_name = opt.name();
     o.sendNodes = opt.sendNodes();
     o.sendDomains = opt.sendDomains();
+    o.execution_id = opt.execution_id();
     o.port = opt.port();
     if (opt.interrupt())
       Driver::CombinedStop::installCtrlHandler(true);
@@ -2267,6 +2268,12 @@ namespace Gecode { namespace FlatZinc {
 
     for (int i = 0; i < bv_aux.size(); i++)
       oss << "bv_aux[" << i << "]: " << bv_aux[i] << std::endl;
+    
+    for (int i = 0; i < sv.size(); i++)
+      oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_SET, i) << ": " << sv[i] << std::endl;
+
+    for (int i = 0; i < sv_aux.size(); i++)
+      oss << "sv_aux[" << i << "]: " << sv_aux[i] << std::endl;
 
     return oss.str();
   }

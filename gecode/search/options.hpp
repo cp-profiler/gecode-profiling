@@ -45,7 +45,8 @@ namespace Gecode { namespace Search {
       nogoods_limit(0),
       stop(NULL), cutoff(NULL),
       sendNodes(true),
-      port(6565)
+      port(6565),
+      execution_id(0)
       {}
 
 }}

@@ -71,6 +71,7 @@ namespace Gecode { namespace FlatZinc {
 
   void
   Registry::add(const std::string& id, poster p) {
+    r["gecode_" + id] = p;
     r[id] = p;
   }
 

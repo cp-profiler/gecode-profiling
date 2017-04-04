@@ -149,9 +149,9 @@ namespace Gecode { namespace Search { namespace Parallel {
     connector.connect();
 
     if (isRestart)
-      connector.restart(o.problem_name, 0);
+      connector.restart(o.problem_name, 0, "", o.execution_id);
     else
-      connector.restart(o.problem_name);
+      connector.restart(o.problem_name, -1, "", o.execution_id);
 
 
 

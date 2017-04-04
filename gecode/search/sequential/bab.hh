@@ -112,9 +112,9 @@ namespace Gecode { namespace Search { namespace Sequential {
       connector.connect();
 
       if (isRestarts)
-        connector.restart(o.problem_name, 0);
+        connector.restart(o.problem_name, 0, "", opt.execution_id);
       else
-        connector.restart(o.problem_name);
+        connector.restart(o.problem_name, -1, "", opt.execution_id);
     }
 
     // std::cout << "sequential BAB\n";
