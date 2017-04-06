@@ -166,8 +166,6 @@ namespace Gecode { namespace Search { namespace Sequential {
           pid = edge.pid();
           alt = std::min(edge.alt(), edge.choice()->alternatives() - 1);
           cur->print(*edge.choice(), alt, oss);
-
-          std::cerr << "label: " << oss.str() << "\n";
         }
       }
 

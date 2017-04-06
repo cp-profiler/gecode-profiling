@@ -134,6 +134,19 @@ namespace Gecode { namespace Search { namespace Sequential {
     // std::cout << "initial domain size: " << s->getDomainSize() << std::endl; // TODO: delete this
   }
 
+  static std::vector<std::string> split(const std::string &s, char delim) {
+      std::stringstream ss;
+      ss.str(s);
+      std::string item;
+      std::vector<std::string> result;
+
+      while (std::getline(ss, item, delim)) {
+          result.push_back(item);
+      }
+
+      return result;
+  }
+
   forceinline Space*
   BAB::next(void) {
     /*
@@ -281,7 +294,24 @@ namespace Gecode { namespace Search { namespace Sequential {
             kids = ch->alternatives();
 
             std::string info;
-            if (opt.sendDomains) { info += cur->getDomains(); }
+            if (opt.sendDomains) {
+
+              auto domains = cur->getDomains();
+
+              /// remove X_INTRODUCED*:
+              auto rows = split(domains, '\n');
+
+              std::stringstream filtred;
+
+              for (const auto& row : rows) {
+                if (row.substr(0,12) != "X_INTRODUCED") {
+                  filtred << row << "\n";
+                }
+              }
+
+              info += filtred.str();
+
+            }
 
             if (path.domainStack().size() == 0) {
               path.domainStack().push(LastDomainInfo{-1, -1, -1});

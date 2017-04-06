@@ -2272,20 +2272,20 @@ namespace Gecode { namespace FlatZinc {
     for (int i = 0; i < iv.size(); i++)
       oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_INT, i) << ": " << iv[i] << std::endl;
 
-    for (int i = 0; i < iv_aux.size(); i++)
-      oss << "iv_aux[" << i << "]: " << iv_aux[i] << std::endl;
+    // for (int i = 0; i < iv_aux.size(); i++)
+    //   oss << "iv_aux[" << i << "]: " << iv_aux[i] << std::endl;
 
     for (int i = 0; i < bv.size(); i++)
       oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_BOOL, i) << ": " << bv[i] << std::endl;
 
-    for (int i = 0; i < bv_aux.size(); i++)
-      oss << "bv_aux[" << i << "]: " << bv_aux[i] << std::endl;
+    // for (int i = 0; i < bv_aux.size(); i++)
+    //   oss << "bv_aux[" << i << "]: " << bv_aux[i] << std::endl;
     
     for (int i = 0; i < sv.size(); i++)
       oss << branchInfo.getVarNameByTypeAndIndex(BRANCHER_SET, i) << ": " << sv[i] << std::endl;
 
-    for (int i = 0; i < sv_aux.size(); i++)
-      oss << "sv_aux[" << i << "]: " << sv_aux[i] << std::endl;
+    // for (int i = 0; i < sv_aux.size(); i++)
+    //   oss << "sv_aux[" << i << "]: " << sv_aux[i] << std::endl;
 
     return oss.str();
   }
