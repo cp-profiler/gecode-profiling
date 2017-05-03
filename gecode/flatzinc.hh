@@ -268,6 +268,7 @@ namespace Gecode { namespace FlatZinc {
       Gecode::Driver::BoolOption        _sendNodes;
       Gecode::Driver::BoolOption        _sendDomains;
       Gecode::Driver::BoolOption        _omitImplied;
+      Gecode::Driver::StringValueOption      _replayLog;
 
       Gecode::Driver::IntOption         _port;       ///< Which port to send nodes through
       Gecode::Driver::IntOption         _execution_id;       ///< Which port to send nodes through
@@ -304,6 +305,7 @@ namespace Gecode { namespace FlatZinc {
       _sendNodes("-send-nodes", "whether to send nodes to visualizer", true),
       _sendDomains("-send-domains", "whether to send entire domains along with nodes", false),
       _omitImplied("-omit-implied", "whether to omit implied choices when replaying search", true), 
+      _replayLog("-replay-log", "Path to search log to be replayed", ""),
       _port("-port", "which port to send nodes through", 6565),
       _execution_id("--execution_id", "the ID of this execution (if known)", 0)
     {
@@ -329,8 +331,8 @@ namespace Gecode { namespace FlatZinc {
       add(_mode); add(_stat);
       add(_output);
       add(_sendNodes); add(_sendDomains);
-      add(_omitImplied); add(_port);
-      add(_execution_id);
+      add(_omitImplied); add(_replayLog);
+      add(_port); add(_execution_id);
     }
 
     void parse(int& argc, char* argv[]) {
@@ -378,6 +380,7 @@ namespace Gecode { namespace FlatZinc {
     bool sendNodes(void) const { return _sendNodes.value(); }
     bool sendDomains(void) const { return _sendDomains.value(); }
     bool omitImplied(void) const { return _omitImplied.value(); }
+    const char* replayLog(void) const { return _replayLog.value(); }
     bool interrupt(void) const { return _interrupt.value(); }
     unsigned int port(void) const { return _port.value(); }
     unsigned int execution_id(void) const { return _execution_id.value(); }

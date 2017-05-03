@@ -59,11 +59,6 @@ int main(int argc, char** argv) {
   const char* filename = argv[1];
   opt.name(filename);
 
-  const char* logname = NULL;
-  if (argc==3) {
-    logname = argv[2];
-  }
-
   FlatZinc::Printer p;
   FlatZinc::FlatZincSpace* fg = NULL;
   FlatZinc::FznRnd rnd(opt.seed());
@@ -84,9 +79,10 @@ int main(int argc, char** argv) {
 
     if (fg) {
 
+      std::string logname(opt.replayLog());
       ifstream logstream;
       
-      if (logname) {
+      if (!logname.empty()) {
         logstream.open(logname, ifstream::in);
         branch(*fg, pr.t, pr.a, logstream, opt.omitImplied());
         // We add this dummy mapping so that the branchers and
