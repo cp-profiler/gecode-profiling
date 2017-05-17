@@ -16,7 +16,7 @@ namespace Gecode { namespace FlatZinc {
   LogChoice::LogChoice(const LogBrancher& b, const std::vector<C>& children,
                        bool stop_marker)
       : Choice(b, children.size()), stop_marker(stop_marker) {
-    cs = heap.alloc<C>(children.size());
+    cs = heap.alloc<C>(static_cast<int>(children.size()));
     for (unsigned int i=0; i<children.size(); i++)
       cs[i] = children[i];
   }
