@@ -186,9 +186,6 @@ namespace Gecode { namespace Search { namespace Sequential {
           break;
         path.next();
       }
-      std::chrono::steady_clock::time_point current_time = std::chrono::steady_clock::now();
-      unsigned long long currentTimestamp =
-        std::chrono::duration_cast<std::chrono::microseconds>(current_time - start_time).count();
       node++;
       if (opt.sendNodes) {
         oss.str("");
@@ -231,9 +228,8 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
-            .set_domain_size(std::exp(domain_diff))
+            // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
-           .set_time(currentTimestamp)
            .send();
         }
         fail++;
@@ -265,9 +261,8 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
-            .set_domain_size(std::exp(domain_diff))
+            // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
-           .set_time(currentTimestamp)
            .set_solution("[solution]")
            .send();
         }
@@ -339,8 +334,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_thread_id(0)
              .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
-             .set_domain_size(std::exp(domain_diff))
-             .set_time(currentTimestamp)
+             // .set_domain_size(std::exp(domain_diff))
              .set_info(info)
              .send();
           }

@@ -199,7 +199,7 @@ namespace Gecode { namespace Search { namespace Sequential {
            .set_thread_id(0)
            .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
-           .set_domain_size(std::exp(domain_diff))
+           // .set_domain_size(std::exp(domain_diff))
            // .set_domain_size(cur->getDomainSize())
            .set_info(info)
            .send();
@@ -233,7 +233,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_thread_id(0)
              .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
-             .set_domain_size(std::exp(domain_diff))
+             // .set_domain_size(std::exp(domain_diff))
              // .set_domain_size(cur->getDomainSize())
              .set_info(info)
              .send();
@@ -291,7 +291,7 @@ namespace Gecode { namespace Search { namespace Sequential {
              .set_thread_id(0)
              .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
-             .set_domain_size(std::exp(domain_diff))
+             // .set_domain_size(std::exp(domain_diff))
              // .set_domain_size(cur->getDomainSize())
              .set_info(info)
              .send();

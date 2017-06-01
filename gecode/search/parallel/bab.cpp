@@ -146,7 +146,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                 connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED)
                  .set_label(oss.str().c_str())
                  .set_thread_id(static_cast<char>(wid()))
-                 .set_domain_size(cur->getDomainSize())
+                 // .set_domain_size(cur->getDomainSize())
                  .send();
 
                 fail++;
@@ -162,7 +162,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                   connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
                    .set_thread_id(static_cast<char>(wid()))
-                   .set_domain_size(cur->getDomainSize())
+                   // .set_domain_size(cur->getDomainSize())
                    .send();
 
                   // Deletes all pending branchers
@@ -192,7 +192,7 @@ namespace Gecode { namespace Search { namespace Parallel {
                   connector.createNode(_nid, pid, alt, kids, Profiling::NodeStatus::BRANCH)
                    .set_label(oss.str().c_str())
                    .set_thread_id(static_cast<char>(wid()))
-                   .set_domain_size(cur->getDomainSize())
+                   // .set_domain_size(cur->getDomainSize())
                    .send();
 
                   cur->commit(*ch,0);

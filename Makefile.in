@@ -258,8 +258,8 @@ SEARCHHDR0 = \
 	meta/rbs.hh meta/nogoods.hh \
 	dfs.hpp bab.hpp rbs.hpp engine.hpp engine-base.hpp
 
-SEARCHSRC	= submodules/cpp-integration/connector.cpp submodules/cpp-integration/message.pb.cpp $(SEARCHSRC0:%=gecode/search/%.cpp)
-SEARCHHDR	= submodules/cpp-integration/connector.hh submodules/cpp-integration/message.pb.hh gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
+SEARCHSRC	= submodules/cpp-integration/connector.cpp submodules/cpp-integration/message.cpp $(SEARCHSRC0:%=gecode/search/%.cpp)
+SEARCHHDR	= submodules/cpp-integration/connector.hh submodules/cpp-integration/message.hh gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
 SEARCHOBJ	= $(SEARCHSRC:%.cpp=%$(OBJSUFFIX))
 
 ifeq "@enable_search@" "yes"
@@ -1464,7 +1464,7 @@ $(KERNELDLL): $(KERNELOBJ) $(SUPPORTDLL)
 $(SEARCHDLL): $(SEARCHOBJ) $(INTDLL) $(SUPPORTDLL) $(KERNELDLL)
 	$(CXX) $(DLLFLAGS) $(SEARCHOBJ) $(SEARCHSONAME) \
 		@DLLPATH@ $(LINKINT) $(LINKSUPPORT) $(LINKKERNEL) \
-		@LINKOUTPUT@$(SEARCHDLL) -lprotobuf -L/usr/local/lib -L/home/maxim/usr/local/lib
+		@LINKOUTPUT@$(SEARCHDLL) -L/usr/local/lib
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOLINKSUFFIX))
 	$(CREATELINK) $@ $(@:%$(DLLSUFFIX)=%$(SOSUFFIX))
 $(INTDLL): $(INTOBJ) $(SUPPORTDLL) $(KERNELDLL)
@@ -1740,7 +1740,7 @@ endif
 $(FLATZINCEXE): $(FLATZINCEXEOBJ) $(FLATZINCEXERES) $(ALLLIB)
 	$(CXX) @EXEOUTPUT@$@ $(FLATZINCEXEOBJ) $(FLATZINCEXERES) \
 	$(DLLPATH) $(CXXFLAGS) \
-	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT) -lprotobuf -L/usr/local/lib -L/home/maxim/usr/local/lib
+	$(LINKALL) $(GLDFLAGS) $(LINKSTATICQT)
 	$(FIXMANIFEST) $@.manifest
 	$(MANIFEST) -manifest $@.manifest -outputresource:$@\;1
 
