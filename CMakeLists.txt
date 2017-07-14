@@ -48,58 +48,16 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 #find_package(Protobuf REQUIRED)
 #include_directories(${PROTOBUF_INCLUDE_DIR})
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf")
-  include_directories("submodules/cpp-integration/protobuf")
-  if (WIN32)
-    include_directories("submodules/cpp-integration/protobuf/config_win")
-  else()
-    include_directories("submodules/cpp-integration/protobuf/config_unix")
-  endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/")
 else()
   message("Configuring without CP Profiler support.")
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf")
+if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/")
 
   set(GECODE_PROFILER_SOURCES
     ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/connector.cpp
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/message.pb.cpp
-
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/compiler/importer.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/compiler/parser.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor.pb.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/descriptor_database.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/dynamic_message.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/extension_set.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/extension_set_heavy.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/generated_message_reflection.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/generated_message_util.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/coded_stream.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/gzip_stream.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/printer.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/strtod.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/tokenizer.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/io/zero_copy_stream_impl_lite.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/message.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/message_lite.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/reflection_ops.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/repeated_field.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/service.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_gcc.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/atomicops_internals_x86_msvc.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/common.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/once.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/stringprintf.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/structurally_valid.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/strutil.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/stubs/substitute.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/text_format.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/unknown_field_set.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/wire_format.cc
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/protobuf/google/protobuf/wire_format_lite.cc
+    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/message.cpp
   )
 
 endif()
@@ -275,6 +233,7 @@ else ()
 endif ()
 
 # Don't use Qt if GECODE_USE_QT is set to FALSE.
+set(GECODE_USE_QT FALSE)
 if (NOT DEFINED GECODE_USE_QT OR GECODE_USE_QT)
   find_package(Qt5 QUIET COMPONENTS Core Gui Widgets PrintSupport)
   if (Qt5_FOUND)
