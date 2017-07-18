@@ -83,6 +83,7 @@ int main(int argc, char** argv) {
       ifstream logstream;
       
       if (!logname.empty()) {
+        std::cout << "reading search log\n";
         logstream.open(logname, ifstream::in);
         branch(*fg, pr.t, pr.a, logstream, opt.omitImplied());
         // We add this dummy mapping so that the branchers and

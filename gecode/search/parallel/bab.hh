@@ -144,8 +144,7 @@ namespace Gecode { namespace Search { namespace Parallel {
 
     // std::cout << "parallel BAB\n";
 
-
-    Connector connector(0); // Yes, this one is only created to send "START"
+    Connector connector(o.port == 0 ? 6565 : o.port); // Yes, this one is only created to send "START"
     connector.connect();
 
     if (isRestart)

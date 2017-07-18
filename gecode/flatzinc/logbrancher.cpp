@@ -253,7 +253,7 @@ namespace Gecode { namespace FlatZinc {
                             const string& raw_line, int* retry) {
 
       std::string line = pre_process(raw_line);
-      std::cout << "<> <> <> parsing choice: " << line << "\n";
+      // std::cout << "<> <> <> parsing choice: " << line << "\n";
 
       const vector<string>& tokens = split(line, " ");
 
@@ -319,7 +319,6 @@ namespace Gecode { namespace FlatZinc {
 
           // auto choiceImplied = processImplied(space, irt, label, var_idx, val);
 
-          /// TODO(maxim): re-enable this functionality
           // if (lb.omitImplied && choiceImplied) {
           //   *retry = n_id;
           //   std::cerr << "-----> IMPLIED CHOICE\n";
@@ -362,6 +361,12 @@ namespace Gecode { namespace FlatZinc {
   bool
   LogBrancher::status(const Space& home) const {
     const FlatZincSpace& s = static_cast<const FlatZincSpace&>(home);
+
+    if (s.iv.assigned() && s.bv.assigned()) {
+      std::cout << "assigned\n";
+      return false;
+    }
+
     if (cur_choice)
       return true;
     while (log.good()) {
@@ -370,6 +375,8 @@ namespace Gecode { namespace FlatZinc {
       // std::cerr << "parsing: " << str_line << std::endl;
       int nodeNumber, nChildren;
       parseNode(str_line, nodeNumber, nChildren);
+
+      // some entries will be ingored, because cur_node is expected next
       if (nodeNumber==cur_node) {
         int retry = -1;
         cur_choice = parseChoice(*this, s, nChildren, str_line, &retry);
