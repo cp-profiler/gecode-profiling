@@ -26,7 +26,6 @@ namespace Gecode { namespace FlatZinc {
     /// surrounds `symbols` with whitespaces; returns `true` if a match found
     bool surround_two_symbols(string& str, string symbols) {
       bool found = false;
-      size_t start = 0;
       size_t pos = str.find(symbols);
 
       if (pos != string::npos) {
@@ -51,7 +50,6 @@ namespace Gecode { namespace FlatZinc {
     }
 
     void surround_single(string& str, string symbol) {
-      size_t start = 0;
       size_t pos = str.find(symbol);
       while (pos != string::npos) {
         size_t next;
@@ -72,7 +70,6 @@ namespace Gecode { namespace FlatZinc {
 
     /// replace '==' with '='
     void double_to_single(string& str) {
-      size_t start = 0;
       size_t pos = str.find("==");
 
       while (pos != string::npos) {
@@ -167,6 +164,8 @@ namespace Gecode { namespace FlatZinc {
       assert(false);
       return -1;
     }
+
+
 
     IntRelType parse_operator(string op) {
       IntRelType irt;
@@ -317,13 +316,14 @@ namespace Gecode { namespace FlatZinc {
 
           string label = var_str + " " + op + " " + val_s;
 
-          // auto choiceImplied = processImplied(space, irt, label, var_idx, val);
+          /// TODO(maxim): make this work with BOOL variables
+          auto choiceImplied = processImplied(space, irt, label, var_idx, val);
 
-          // if (lb.omitImplied && choiceImplied) {
-          //   *retry = n_id;
-          //   std::cerr << "-----> IMPLIED CHOICE\n";
-          //   return NULL;
-          // }
+          if (lb.omitImplied && choiceImplied) {
+            *retry = n_id;
+            std::cerr << "-----> IMPLIED CHOICE\n";
+            return NULL;
+          }
 
 
           children.push_back(LogChoice::C(n_id, var_idx, irt, val, label, var_type));
@@ -372,20 +372,20 @@ namespace Gecode { namespace FlatZinc {
     while (log.good()) {
       string str_line;
       getline(log, str_line);
-      // std::cerr << "parsing: " << str_line << std::endl;
+      std::cerr << "parsing: " << str_line << std::endl;
       int nodeNumber, nChildren;
       parseNode(str_line, nodeNumber, nChildren);
 
       // some entries will be ingored, because cur_node is expected next
-      if (nodeNumber==cur_node) {
-        int retry = -1;
-        cur_choice = parseChoice(*this, s, nChildren, str_line, &retry);
-        if (retry != -1) {
-          cur_node = retry;
-          continue;
-        }
-        return cur_choice!=NULL;
+      if (nodeNumber != cur_node) continue;
+
+      int retry = -1;
+      cur_choice = parseChoice(*this, s, nChildren, str_line, &retry);
+      if (retry != -1) {
+        cur_node = retry;
+        continue;
       }
+      return cur_choice!=NULL;
     }
     GECODE_NEVER;
     return false;
