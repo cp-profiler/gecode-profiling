@@ -258,8 +258,8 @@ SEARCHHDR0 = \
 	meta/rbs.hh meta/nogoods.hh \
 	dfs.hpp bab.hpp rbs.hpp engine.hpp engine-base.hpp
 
-SEARCHSRC	= submodules/cpp-integration/connector.cpp submodules/cpp-integration/message.cpp $(SEARCHSRC0:%=gecode/search/%.cpp)
-SEARCHHDR	= submodules/cpp-integration/connector.hh submodules/cpp-integration/message.hh gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
+SEARCHSRC	= $(SEARCHSRC0:%=gecode/search/%.cpp)
+SEARCHHDR	= gecode/search.hh $(SEARCHHDR0:%=gecode/search/%)
 SEARCHOBJ	= $(SEARCHSRC:%.cpp=%$(OBJSUFFIX))
 
 ifeq "@enable_search@" "yes"

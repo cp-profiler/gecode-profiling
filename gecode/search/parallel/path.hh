@@ -43,7 +43,7 @@
 #include <gecode/search/worker.hh>
 #include <gecode/search/meta/nogoods.hh>
 
-#include "submodules/cpp-integration/connector.hh"
+#include "submodules/cpp-integration/connector.hpp"
 
 using Profiling::Connector;
 
@@ -115,7 +115,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   protected:
     /// Stack to store edge information
     Support::DynamicStack<Edge,Heap> ds;
-    /// Pointer to the connector
+    /// Pointer to the nonnector
     Profiling::Connector* connector = nullptr;
     /// Depth limit for no-good generation
     unsigned int _ngdl;
@@ -331,9 +331,8 @@ namespace Gecode { namespace Search { namespace Parallel {
 
       if (connector) {
         for (int j = first_alt; j < n_alt; j++) {
-          connector->createNode(-1, pid, j, 0, Profiling::NodeStatus::SKIPPED)
+          connector->createNode({-1, -1, 0}, {pid, -1, 0}, j, 0, Profiling::NodeStatus::SKIPPED)
           .set_label("")
-          .set_thread_id(0) /// TODO: ?
           .send();
         }
       }

@@ -39,7 +39,6 @@
 #define __GECODE_SEARCH_PARALLEL_DFS_HH__
 
 #include <gecode/search/parallel/engine.hh>
-#include "submodules/cpp-integration/connector.hh"
 
 namespace Gecode { namespace Search { namespace Parallel {
 

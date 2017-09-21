@@ -62,7 +62,7 @@ namespace Gecode { namespace Search { namespace Parallel {
   void
   BAB::Worker::run(void) {
 
-    Connector connector(engine().opt().port, _wid);
+    Connector connector(engine().opt().port);
     path.setConnector(&connector);
 
     pid = -1;
@@ -143,9 +143,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_FAILED:
               {
 
-                connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED)
+                connector.createNode(
+                    {_nid, 0, static_cast<char>(wid())},
+                    {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::FAILED)
                  .set_label(oss.str().c_str())
-                 .set_thread_id(static_cast<char>(wid()))
                  // .set_domain_size(cur->getDomainSize())
                  .send();
 
@@ -159,9 +160,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+                  connector.createNode(
+                      {_nid, 0, static_cast<char>(wid())},
+                      {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()))
                    // .set_domain_size(cur->getDomainSize())
                    .send();
 
@@ -189,9 +191,10 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   kids = ch->alternatives();
 
-                  connector.createNode(_nid, pid, alt, kids, Profiling::NodeStatus::BRANCH)
+                  connector.createNode(
+                      {_nid, 0, static_cast<char>(wid())},
+                      {pid, 0, static_cast<char>(wid())}, alt, kids, Profiling::NodeStatus::BRANCH)
                    .set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()))
                    // .set_domain_size(cur->getDomainSize())
                    .send();
 

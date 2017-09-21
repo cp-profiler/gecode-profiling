@@ -44,7 +44,7 @@
 #include <gecode/search/meta/nogoods.hh>
 #include <stack>
 
-#include "submodules/cpp-integration/connector.hh"
+#include "submodules/cpp-integration/connector.hpp"
 
 using Profiling::Connector;
 using Profiling::NodeStatus;
@@ -330,9 +330,8 @@ namespace Gecode { namespace Search { namespace Sequential {
         if (i!=l) first_alt++;
         for (int j = first_alt; j < n_alt; j++) {
 
-          connector->createNode(-1, pid, j, 0, NodeStatus::SKIPPED)
+          connector->createNode({-1,-1,0}, {pid, -1, 0}, j, 0, NodeStatus::SKIPPED)
            .set_label("")
-           .set_thread_id(0)
            .send();
         }
       }

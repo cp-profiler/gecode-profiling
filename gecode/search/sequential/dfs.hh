@@ -43,7 +43,7 @@
 #include <gecode/search/worker.hh>
 #include <gecode/search/sequential/path.hh>
 
-#include "submodules/cpp-integration/connector.hh"
+#include "submodules/cpp-integration/connector.hpp"
 
 namespace Gecode { namespace Search { namespace Sequential {
 
@@ -60,7 +60,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     /// Distance until next clone
     unsigned int d;
     /// Socket handler
-    Connector *connector;
+    Profiling::Connector *connector;
 
     std::ostringstream oss;
 
@@ -90,9 +90,9 @@ namespace Gecode { namespace Search { namespace Sequential {
         connector->connect();
 
         if (isRestarts)
-          connector->restart(o.problem_name, 0, "", opt.execution_id);
+          connector->restart(o.problem_name, 0, opt.execution_id);
         else
-          connector->restart(o.problem_name, -1, "", opt.execution_id);
+          connector->restart(o.problem_name, -1, opt.execution_id);
       }
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
@@ -194,10 +194,8 @@ namespace Gecode { namespace Search { namespace Sequential {
             //         + std::to_string(::exp(domain_diff)) + "\n";
           /// ****************************
 
-          connector->createNode(node, pid, alt, 0, NodeStatus::FAILED)
+          connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::FAILED)
            .set_label(oss.str().c_str())
-           .set_thread_id(0)
-           .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
            // .set_domain_size(std::exp(domain_diff))
            // .set_domain_size(cur->getDomainSize())
@@ -228,10 +226,8 @@ namespace Gecode { namespace Search { namespace Sequential {
             // info += std::string("domain reduction: ")
             //         + std::to_string(::exp(domain_diff)) + "\n";
             /// ****************************
-            connector->createNode(node, pid, alt, 0, NodeStatus::SOLVED)
+            connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::SOLVED)
              .set_label(oss.str().c_str())
-             .set_thread_id(0)
-             .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))
              // .set_domain_size(cur->getDomainSize())
@@ -286,10 +282,8 @@ namespace Gecode { namespace Search { namespace Sequential {
             info += "edge stack size: " + std::to_string(path.entries()) + "\n";
             /// ****************************
 
-            connector->createNode(node, pid, alt, kids, NodeStatus::BRANCH)
+            connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, kids, NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
-             .set_thread_id(0)
-             .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))
              // .set_domain_size(cur->getDomainSize())

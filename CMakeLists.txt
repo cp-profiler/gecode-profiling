@@ -53,15 +53,6 @@ else()
   message("Configuring without CP Profiler support.")
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/cpp-integration/")
-
-  set(GECODE_PROFILER_SOURCES
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/connector.cpp
-    ${CMAKE_SOURCE_DIR}/submodules/cpp-integration/message.cpp
-  )
-
-endif()
-
 include(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)

@@ -50,7 +50,7 @@
 
 #include <chrono>
 
-#include "submodules/cpp-integration/connector.hh"
+#include "submodules/cpp-integration/connector.hpp"
 
 #include <iostream>
 
@@ -112,9 +112,9 @@ namespace Gecode { namespace Search { namespace Sequential {
       connector.connect();
 
       if (isRestarts)
-        connector.restart(o.problem_name, 0, "", opt.execution_id);
+        connector.restart(o.problem_name, 0, opt.execution_id);
       else
-        connector.restart(o.problem_name, -1, "", opt.execution_id);
+        connector.restart(o.problem_name, -1, opt.execution_id);
     }
 
     // std::cout << "sequential BAB\n";
@@ -223,10 +223,10 @@ namespace Gecode { namespace Search { namespace Sequential {
                     + std::to_string(::exp(domain_diff)) + "\n";
           /// ****************************
 
-          connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::FAILED)
+          connector.createNode(
+              {node, restart, 0}, 
+              {pid, restart, 0}, alt, 0, Profiling::NodeStatus::FAILED)
            .set_label(oss.str().c_str())
-           .set_thread_id(0)
-           .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
             // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
@@ -256,14 +256,13 @@ namespace Gecode { namespace Search { namespace Sequential {
                     + std::to_string(::exp(domain_diff)) + "\n";
           /// ****************************
 
-          connector.createNode(node, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+          connector.createNode(
+              {node, restart, 0},
+              {pid, restart, 0}, alt, 0, Profiling::NodeStatus::SOLVED)
            .set_label(oss.str().c_str())
-           .set_thread_id(0)
-           .set_restart_id(restart)
            // NOTE(maxim): changed to domain reduction for now
             // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
-           .set_solution("[solution]")
            .send();
         }
         // Deletes all pending branchers
@@ -329,10 +328,10 @@ namespace Gecode { namespace Search { namespace Sequential {
                       + std::to_string(::exp(domain_diff)) + "\n";
             /// ****************************
 
-            connector.createNode(node, pid, alt, kids, Profiling::NodeStatus::BRANCH)
+            connector.createNode(
+                {node, restart, 0},
+                {pid, restart, 0}, alt, kids, Profiling::NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
-             .set_thread_id(0)
-             .set_restart_id(restart)
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))
              .set_info(info)

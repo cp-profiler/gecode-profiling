@@ -37,7 +37,6 @@
 
 #include <gecode/search/sequential/path.hh>
 
-#include "submodules/cpp-integration/connector.hh"
 
 namespace Gecode { namespace Search { namespace Sequential {
 

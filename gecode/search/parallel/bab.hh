@@ -39,7 +39,9 @@
 #define __GECODE_SEARCH_PARALLEL_BAB_HH__
 
 #include <gecode/search/parallel/engine.hh>
-#include "submodules/cpp-integration/connector.hh"
+#include "submodules/cpp-integration/connector.hpp"
+
+using Profiling::Connector;
 
 namespace Gecode { namespace Search { namespace Parallel {
 
@@ -148,9 +150,9 @@ namespace Gecode { namespace Search { namespace Parallel {
     connector.connect();
 
     if (isRestart)
-      connector.restart(o.problem_name, 0, "", o.execution_id);
+      connector.restart(o.problem_name, 0, o.execution_id);
     else
-      connector.restart(o.problem_name, -1, "", o.execution_id);
+      connector.restart(o.problem_name, -1, o.execution_id);
 
 
 

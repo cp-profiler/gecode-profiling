@@ -146,9 +146,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               {
 
 
-                connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::FAILED)
+                connector.createNode(
+                    {_nid, 0, static_cast<char>(wid())},
+                    {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::FAILED)
                  .set_label(oss.str().c_str())
-                 .set_thread_id(static_cast<char>(wid()))
                  .send();
 
                 fail++;
@@ -161,9 +162,10 @@ namespace Gecode { namespace Search { namespace Parallel {
               case SS_SOLVED:
                 {
 
-                  connector.createNode(_nid, pid, alt, 0, Profiling::NodeStatus::SOLVED)
+                  connector.createNode(
+                      {_nid, 0,static_cast<char>(wid())},
+                      {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()))
                    .send();
 
                   // Deletes all pending branchers
@@ -190,9 +192,10 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   kids = ch->alternatives();
 
-                  connector.createNode(_nid, pid, alt, kids, Profiling::NodeStatus::SOLVED)
+                  connector.createNode(
+                      {_nid, 0, static_cast<char>(wid())},
+                      {pid, 0, static_cast<char>(wid())}, alt, kids, Profiling::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
-                   .set_thread_id(static_cast<char>(wid()))
                    .send();
 
 
