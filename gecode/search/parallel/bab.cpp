@@ -41,7 +41,7 @@
 
 #include <gecode/search/parallel/bab.hh>
 
-using Profiling::NodeStatus;
+using cpprofiler::NodeStatus;
 
 namespace Gecode { namespace Search { namespace Parallel {
 
@@ -145,7 +145,7 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                 connector.createNode(
                     {_nid, 0, static_cast<char>(wid())},
-                    {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::FAILED)
+                    {pid, 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::FAILED)
                  .set_label(oss.str().c_str())
                  // .set_domain_size(cur->getDomainSize())
                  .send();
@@ -162,7 +162,7 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   connector.createNode(
                       {_nid, 0, static_cast<char>(wid())},
-                      {pid, 0, static_cast<char>(wid())}, alt, 0, Profiling::NodeStatus::SOLVED)
+                      {pid, 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
                    // .set_domain_size(cur->getDomainSize())
                    .send();
@@ -193,7 +193,7 @@ namespace Gecode { namespace Search { namespace Parallel {
 
                   connector.createNode(
                       {_nid, 0, static_cast<char>(wid())},
-                      {pid, 0, static_cast<char>(wid())}, alt, kids, Profiling::NodeStatus::BRANCH)
+                      {pid, 0, static_cast<char>(wid())}, alt, kids, cpprofiler::NodeStatus::BRANCH)
                    .set_label(oss.str().c_str())
                    // .set_domain_size(cur->getDomainSize())
                    .send();

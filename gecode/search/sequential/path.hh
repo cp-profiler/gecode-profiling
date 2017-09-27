@@ -46,8 +46,8 @@
 
 #include "submodules/cpp-integration/connector.hpp"
 
-using Profiling::Connector;
-using Profiling::NodeStatus;
+using cpprofiler::Connector;
+using cpprofiler::NodeStatus;
 
 namespace Gecode { namespace Search { namespace Sequential {
 

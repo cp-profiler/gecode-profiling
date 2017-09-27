@@ -41,7 +41,7 @@
 #include <gecode/search/parallel/engine.hh>
 #include "submodules/cpp-integration/connector.hpp"
 
-using Profiling::Connector;
+using cpprofiler::Connector;
 
 namespace Gecode { namespace Search { namespace Parallel {
 
@@ -149,12 +149,7 @@ namespace Gecode { namespace Search { namespace Parallel {
     Connector connector(o.port == 0 ? 6565 : o.port); // Yes, this one is only created to send "START"
     connector.connect();
 
-    if (isRestart)
-      connector.restart(o.problem_name, 0, o.execution_id);
-    else
-      connector.restart(o.problem_name, -1, o.execution_id);
-
-
+    connector.start(o.problem_name, o.execution_id, isRestart);
 
     // Create workers
     _worker = static_cast<Worker**>

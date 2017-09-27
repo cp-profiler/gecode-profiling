@@ -54,7 +54,7 @@
 
 #include <iostream>
 
-using Profiling::NodeStatus;
+using cpprofiler::NodeStatus;
 
 // namespace Gecode { namespace FlatZinc {
 //   class FlatZincSpace;
@@ -110,11 +110,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
     if (opt.sendNodes) {
       connector.connect();
-
-      if (isRestarts)
-        connector.restart(o.problem_name, 0, opt.execution_id);
-      else
-        connector.restart(o.problem_name, -1, opt.execution_id);
+      connector.start(o.problem_name, opt.execution_id, isRestarts);
     }
 
     // std::cout << "sequential BAB\n";
@@ -225,7 +221,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
           connector.createNode(
               {node, restart, 0}, 
-              {pid, restart, 0}, alt, 0, Profiling::NodeStatus::FAILED)
+              {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            // NOTE(maxim): changed to domain reduction for now
             // .set_domain_size(std::exp(domain_diff))
@@ -258,7 +254,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
           connector.createNode(
               {node, restart, 0},
-              {pid, restart, 0}, alt, 0, Profiling::NodeStatus::SOLVED)
+              {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::SOLVED)
            .set_label(oss.str().c_str())
            // NOTE(maxim): changed to domain reduction for now
             // .set_domain_size(std::exp(domain_diff))
@@ -330,7 +326,7 @@ namespace Gecode { namespace Search { namespace Sequential {
 
             connector.createNode(
                 {node, restart, 0},
-                {pid, restart, 0}, alt, kids, Profiling::NodeStatus::BRANCH)
+                {pid, restart, 0}, alt, kids, cpprofiler::NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))

@@ -60,7 +60,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     /// Distance until next clone
     unsigned int d;
     /// Socket handler
-    Profiling::Connector *connector;
+    cpprofiler::Connector *connector;
 
     std::ostringstream oss;
 
@@ -88,11 +88,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       if (opt.sendNodes) {
         connector = new Connector(opt.port == 0 ? 6565 : o.port);
         connector->connect();
-
-        if (isRestarts)
-          connector->restart(o.problem_name, 0, opt.execution_id);
-        else
-          connector->restart(o.problem_name, -1, opt.execution_id);
+        connector->start(o.problem_name, opt.execution_id, isRestarts);
       }
       
     if ((s == NULL) || (s->status(*this) == SS_FAILED)) { 
