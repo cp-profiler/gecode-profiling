@@ -147,8 +147,8 @@ namespace Gecode { namespace Search { namespace Parallel {
 
 
                 connector.createNode(
-                    {_nid, 0, static_cast<char>(wid())},
-                    {pid, 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::FAILED)
+                    {static_cast<int32_t>(_nid), 0, static_cast<char>(wid())},
+                    {static_cast<int32_t>(pid), 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::FAILED)
                  .set_label(oss.str().c_str())
                  .send();
 
@@ -163,8 +163,8 @@ namespace Gecode { namespace Search { namespace Parallel {
                 {
 
                   connector.createNode(
-                      {_nid, 0,static_cast<char>(wid())},
-                      {pid, 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::SOLVED)
+                      {static_cast<int32_t>(_nid), 0,static_cast<char>(wid())},
+                      {static_cast<int32_t>(pid), 0, static_cast<char>(wid())}, alt, 0, cpprofiler::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
                    .send();
 
@@ -193,8 +193,8 @@ namespace Gecode { namespace Search { namespace Parallel {
                   kids = ch->alternatives();
 
                   connector.createNode(
-                      {_nid, 0, static_cast<char>(wid())},
-                      {pid, 0, static_cast<char>(wid())}, alt, kids, cpprofiler::NodeStatus::SOLVED)
+                      {static_cast<int32_t>(_nid), 0, static_cast<char>(wid())},
+                      {static_cast<int32_t>(pid), 0, static_cast<char>(wid())}, alt, kids, cpprofiler::NodeStatus::SOLVED)
                    .set_label(oss.str().c_str())
                    .send();
 

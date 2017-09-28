@@ -220,7 +220,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           /// ****************************
 
           connector.createNode(
-              {node, restart, 0}, 
+              {static_cast<int32_t>(node), restart, 0},
               {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            // NOTE(maxim): changed to domain reduction for now
@@ -253,7 +253,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           /// ****************************
 
           connector.createNode(
-              {node, restart, 0},
+              {static_cast<int32_t>(node), restart, 0},
               {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::SOLVED)
            .set_label(oss.str().c_str())
            // NOTE(maxim): changed to domain reduction for now
@@ -325,7 +325,7 @@ namespace Gecode { namespace Search { namespace Sequential {
             /// ****************************
 
             connector.createNode(
-                {node, restart, 0},
+                {static_cast<int32_t>(node), restart, 0},
                 {pid, restart, 0}, alt, kids, cpprofiler::NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              // NOTE(maxim): changed to domain reduction for now

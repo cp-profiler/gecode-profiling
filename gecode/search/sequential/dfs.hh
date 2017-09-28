@@ -190,7 +190,7 @@ namespace Gecode { namespace Search { namespace Sequential {
             //         + std::to_string(::exp(domain_diff)) + "\n";
           /// ****************************
 
-          connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::FAILED)
+          connector->createNode({static_cast<int32_t>(node), restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::FAILED)
            .set_label(oss.str().c_str())
            // NOTE(maxim): changed to domain reduction for now
            // .set_domain_size(std::exp(domain_diff))
@@ -222,7 +222,7 @@ namespace Gecode { namespace Search { namespace Sequential {
             // info += std::string("domain reduction: ")
             //         + std::to_string(::exp(domain_diff)) + "\n";
             /// ****************************
-            connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::SOLVED)
+            connector->createNode({static_cast<int32_t>(node), restart, 0}, {pid, restart, 0}, alt, 0, NodeStatus::SOLVED)
              .set_label(oss.str().c_str())
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))
@@ -278,7 +278,7 @@ namespace Gecode { namespace Search { namespace Sequential {
             info += "edge stack size: " + std::to_string(path.entries()) + "\n";
             /// ****************************
 
-            connector->createNode({node, restart, 0}, {pid, restart, 0}, alt, kids, NodeStatus::BRANCH)
+            connector->createNode({static_cast<int32_t>(node), restart, 0}, {pid, restart, 0}, alt, kids, NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
              // NOTE(maxim): changed to domain reduction for now
              // .set_domain_size(std::exp(domain_diff))
