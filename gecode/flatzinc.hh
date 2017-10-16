@@ -303,11 +303,11 @@ namespace Gecode { namespace FlatZinc {
       _output("-o","file to send output to"),
 
       _sendNodes("-send-nodes", "whether to send nodes to visualizer", true),
-      _sendDomains("-send-domains", "whether to send entire domains along with nodes", false),
+      _sendDomains("--cpprofiler_send_domains", "whether to send entire domains along with nodes", false),
       _omitImplied("-omit-implied", "whether to omit implied choices when replaying search", true), 
       _replayLog("--replay-log", "Path to search log to be replayed", ""),
-      _port("--profiler_port", "which port to send nodes through", 6565),
-      _execution_id("--execution_id", "the ID of this execution (if known)", 0)
+      _port("--cpprofiler_port", "which port to send nodes through", 6565),
+      _execution_id("--cpprofiler_id", "the ID of this execution (if known)", 0)
     {
 
       _mode.add(Gecode::SM_SOLUTION, "solution");
