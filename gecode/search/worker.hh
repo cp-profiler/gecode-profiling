@@ -67,6 +67,8 @@ namespace Gecode { namespace Search {
     /// Reset statistics with root depth \a d
     void reset(unsigned long int d=0);
 
+    int restart_id(void) const;
+
     /// The same but specify parent id
     void reset(unsigned long int d, unsigned int pid);
 
@@ -106,6 +108,11 @@ namespace Gecode { namespace Search {
     root_depth = d;
     if (depth < d)
       depth = d;
+  }
+
+  forceinline int
+  Worker::restart_id(void) const {
+    return restart;
   }
 
   forceinline void

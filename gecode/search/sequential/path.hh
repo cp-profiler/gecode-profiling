@@ -145,7 +145,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     /// Return position on stack of last copy
     int lc(void) const;
     /// Unwind the stack up to position \a l (after failure)
-    void unwind(int l);
+    void unwind(int l, int restart_id);
     /// Commit space \a s as described by stack entry at position \a i
     void commit(Space* s, int i) const;
     /// Recompute space according to path 
@@ -317,7 +317,7 @@ namespace Gecode { namespace Search { namespace Sequential {
   }
 
   forceinline void
-  Path::unwind(int l) {
+  Path::unwind(int l, int restart_id) {
     assert((ds[l].space() == NULL) || ds[l].space()->failed());
     int n = ds.entries();
     for (int i=l; i<n; i++) {
@@ -330,7 +330,7 @@ namespace Gecode { namespace Search { namespace Sequential {
         if (i!=l) first_alt++;
         for (int j = first_alt; j < n_alt; j++) {
 
-          connector->createNode({-1,-1,0}, {pid, -1, 0}, j, 0, NodeStatus::SKIPPED)
+          connector->createNode({-1,-1,0}, {pid, restart_id, 0}, j, 0, NodeStatus::SKIPPED)
            .set_label("")
            .send();
         }
@@ -403,7 +403,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           // s must be deleted as it is not on the stack
           delete s;
           stat.fail++;
-          unwind(i);
+          unwind(i, stat.restart_id());
           return NULL;
         }
         ds[i].space(s->clone());
@@ -455,7 +455,7 @@ namespace Gecode { namespace Search { namespace Sequential {
       if (s->status(stat) == SS_FAILED) {
         // s does not need deletion as it is on the stack (unwind does this)
         stat.fail++;
-        unwind(l);
+        unwind(l, stat.restart_id());
         return NULL;
       }
       // It is important to replace the space on the stack with the
@@ -495,7 +495,7 @@ namespace Gecode { namespace Search { namespace Sequential {
           // s must be deleted as it is not on the stack
           delete s;
           stat.fail++;
-          unwind(i);
+          unwind(i, stat.restart_id());
           return NULL;
         }
         ds[i].space(s->clone());
