@@ -189,6 +189,34 @@ namespace Gecode { namespace FlatZinc {
       return irt;
     }
 
+    bool processImpliedBool(const FlatZincSpace& space, IntRelType irt,
+                        string& label, int var_idx, int val) {
+      bool choiceImplied = false;
+
+      switch(irt) {
+        case IRT_EQ:
+          if (space.bv[var_idx].assigned()) {
+            if (space.bv[var_idx].val() == val) {
+              label = string("[")+(space.bv[var_idx].val()==val ? "i":"f")+"] "+label;
+              choiceImplied = true;
+            } else if (!space.bv[var_idx].in(val)) {
+              label = string("[f] ")+label;
+            }
+          }
+        break;
+        case IRT_NQ:
+          if (space.bv[var_idx].assigned()) {
+            if (space.bv[var_idx].val()!=val) choiceImplied = true;
+            label = string("[")+(space.bv[var_idx].val()!=val ? "i":"f")+"] "+label;
+          } else if (!space.bv[var_idx].in(val)) {
+            choiceImplied = true;
+            label = string("[i] ")+label;
+          }
+          break;
+      }
+      return choiceImplied;
+    }
+
     bool processImplied(const FlatZincSpace& space, IntRelType irt,
                         string& label, int var_idx, int val) {
       bool choiceImplied = false;
@@ -316,8 +344,17 @@ namespace Gecode { namespace FlatZinc {
 
           string label = var_str + " " + op + " " + val_s;
 
+          // std::cerr << label << "\n";
+
           /// TODO(maxim): make this work with BOOL variables
-          auto choiceImplied = processImplied(space, irt, label, var_idx, val);
+
+          bool choiceImplied = false;
+
+          if (var_type == LogChoice::VarType::BOOL) {
+            choiceImplied = processImpliedBool(space, irt, label, var_idx, val);
+          } else if (var_type == LogChoice::VarType::INT) {
+            choiceImplied = processImplied(space, irt, label, var_idx, val);
+          }
 
           if (lb.omitImplied && choiceImplied) {
             *retry = n_id;
@@ -372,7 +409,7 @@ namespace Gecode { namespace FlatZinc {
     while (log.good()) {
       string str_line;
       getline(log, str_line);
-      std::cerr << "parsing: " << str_line << std::endl;
+      // std::cerr << "parsing: " << str_line << std::endl;
       int nodeNumber, nChildren;
       parseNode(str_line, nodeNumber, nChildren);
 
@@ -385,6 +422,11 @@ namespace Gecode { namespace FlatZinc {
         cur_node = retry;
         continue;
       }
+
+      if (cur_choice == nullptr) {
+        std::cerr << "no cur_choice\n";
+      }
+
       return cur_choice!=NULL;
     }
     GECODE_NEVER;
