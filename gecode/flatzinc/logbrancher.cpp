@@ -346,8 +346,6 @@ namespace Gecode { namespace FlatZinc {
 
           // std::cerr << label << "\n";
 
-          /// TODO(maxim): make this work with BOOL variables
-
           bool choiceImplied = false;
 
           if (var_type == LogChoice::VarType::BOOL) {

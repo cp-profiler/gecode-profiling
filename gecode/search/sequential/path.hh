@@ -114,9 +114,6 @@ namespace Gecode { namespace Search { namespace Sequential {
     /// Stack to store edge information
     Support::DynamicStack<Edge,Heap> ds;
 
-    /// NOTE(maxim): Used for calculating domain size difference
-    std::stack<LastDomainInfo> domain_info_stack;
-
     /// Pointer to the connector
     Connector* connector = nullptr;
     /// Depth limit for no-good generation
@@ -136,10 +133,7 @@ namespace Gecode { namespace Search { namespace Sequential {
     void next(void);
     /// Provide access to topmost edge
     Edge& top(void) const;
-    /// Provide access to topmost domain info
-    LastDomainInfo& topDomainInfo();
 
-    std::stack<LastDomainInfo>& domainStack();
     /// Test whether path is empty
     bool empty(void) const;
     /// Return position on stack of last copy
@@ -249,7 +243,6 @@ namespace Gecode { namespace Search { namespace Sequential {
     if (!ds.empty() && ds.top().lao()) {
       // Topmost stack entry was LAO -> reuse
       ds.pop().dispose();
-      domain_info_stack.pop();
     }
     Edge sn(pid,s,c);
     ds.push(sn);
@@ -261,8 +254,6 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::next(void) {
     while (!ds.empty())
       if (ds.top().rightmost()) {
-        if (!domain_info_stack.empty())
-          domain_info_stack.pop();
         ds.pop().dispose();
       } else {
         ds.top().next();
@@ -279,17 +270,6 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::top(void) const {
     assert(!ds.empty());
     return ds.top();
-  }
-
-  forceinline LastDomainInfo&
-  Path::topDomainInfo() {
-    assert(!domain_info_stack.empty());
-    return domain_info_stack.top();
-  }
-
-  forceinline std::stack<LastDomainInfo>&
-  Path::domainStack() {
-    return domain_info_stack;
   }
 
   forceinline bool
@@ -337,7 +317,6 @@ namespace Gecode { namespace Search { namespace Sequential {
       }
 
       ds.pop().dispose();
-      domain_info_stack.pop();
 
     }
       
@@ -348,7 +327,6 @@ namespace Gecode { namespace Search { namespace Sequential {
   Path::reset(void) {
     while (!ds.empty()) {
       ds.pop().dispose();
-      domain_info_stack.pop();
     }
   }
 

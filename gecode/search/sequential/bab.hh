@@ -205,26 +205,10 @@ namespace Gecode { namespace Search { namespace Sequential {
           std::string info;
           if (opt.sendDomains) { info += cur->getDomains(); }
 
-          /// **** JUST FOR DEBUGGING ****
-            // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
-
-            float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
-
-            // assert(domain_diff < 1.1);
-            // if (domain_diff > 1.1) {
-            //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-            // }
-
-            info += std::string("domain reduction: ")
-                    + std::to_string(::exp(domain_diff)) + "\n";
-          /// ****************************
-
           connector.createNode(
               {static_cast<int32_t>(node), restart, 0},
               {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::FAILED)
            .set_label(oss.str().c_str())
-           // NOTE(maxim): changed to domain reduction for now
-            // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
            .send();
         }
@@ -238,26 +222,10 @@ namespace Gecode { namespace Search { namespace Sequential {
           std::string info;
           if (opt.sendDomains) { info += cur->getDomains(); }
 
-          /// **** JUST FOR DEBUGGING ****
-            // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
-
-            float domain_diff = cur->calcDomainSizeRed(nullptr, path.topDomainInfo());
-
-            // assert(domain_diff < 1.1);
-            // if (domain_diff > 1.1) {
-            //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-            // }
-
-            info += std::string("domain reduction: ")
-                    + std::to_string(::exp(domain_diff)) + "\n";
-          /// ****************************
-
           connector.createNode(
               {static_cast<int32_t>(node), restart, 0},
               {pid, restart, 0}, alt, 0, cpprofiler::NodeStatus::SOLVED)
            .set_label(oss.str().c_str())
-           // NOTE(maxim): changed to domain reduction for now
-            // .set_domain_size(std::exp(domain_diff))
            .set_info(info)
            .send();
         }
@@ -303,33 +271,10 @@ namespace Gecode { namespace Search { namespace Sequential {
 
             }
 
-            if (path.domainStack().size() == 0) {
-              path.domainStack().push(LastDomainInfo{-1, -1, -1});
-            } else {
-              /// copy over last item, will be overridden
-              path.domainStack().push(path.topDomainInfo());
-            }
-
-            /// **** JUST FOR DEBUGGING ****
-              // info += "domain stack size: " + std::to_string(path.domainStack().size()) + "\n";
-
-              float domain_diff = cur->calcDomainSizeRed(ch, path.topDomainInfo());
-
-              // assert(domain_diff < 1.1);
-              // if (domain_diff > 1.1) {
-              //   std::cerr << "(!) domain_diff: " << domain_diff << '\n';
-              // }
-
-              info += std::string("domain reduction: ")
-                      + std::to_string(::exp(domain_diff)) + "\n";
-            /// ****************************
-
             connector.createNode(
                 {static_cast<int32_t>(node), restart, 0},
                 {pid, restart, 0}, alt, kids, cpprofiler::NodeStatus::BRANCH)
              .set_label(oss.str().c_str())
-             // NOTE(maxim): changed to domain reduction for now
-             // .set_domain_size(std::exp(domain_diff))
              .set_info(info)
              .send();
           }
